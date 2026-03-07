@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ViPER4Android</string>
+    <string name="notification_channel_id">viper4android_service</string>
+    <string name="notification_channel_name">Audio Processing</string>
+    <string name="notification_channel_description">Shows when ViPER4Android is processing audio</string>
+    <string name="notification_title">ViPER4Android</string>
+    <string name="notification_text">Audio processing active</string>
+
+    <!-- Tabs -->
+    <string name="tab_headphone">Headphone</string>
+    <string name="tab_speaker">Speaker</string>
+
+    <!-- Master -->
+    <string name="master_enable">Master Enable</string>
+    <string name="menu_driver_status">Driver Status</string>
+    <string name="menu_presets">Presets</string>
+    <string name="menu_settings">Settings</string>
+
+    <!-- Output / Master limiter -->
+    <string name="section_output">Master Limiter</string>
+    <string name="label_volume">Output Gain</string>
+    <string name="label_pan">Output Pan</string>
+    <string name="label_limiter">Threshold Limit</string>
+
+    <!-- AGC -->
+    <string name="section_agc">Playback Gain Control</string>
+    <string name="label_agc_strength">Strength</string>
+    <string name="label_agc_max_gain">Max Gain</string>
+    <string name="label_agc_output_threshold">Output Threshold</string>
+
+    <!-- FET Compressor -->
+    <string name="section_fet_compressor">FET Compressor</string>
+    <string name="label_fet_threshold">Threshold</string>
+    <string name="label_fet_ratio">Ratio</string>
+    <string name="label_fet_knee">Knee</string>
+    <string name="label_fet_auto_knee">Auto Knee</string>
+    <string name="label_fet_knee_multi">Knee Multi</string>
+    <string name="label_fet_gain">Gain</string>
+    <string name="label_fet_auto_gain">Auto Gain</string>
+    <string name="label_fet_attack">Attack</string>
+    <string name="label_fet_auto_attack">Auto Attack</string>
+    <string name="label_fet_max_attack">Max Attack</string>
+    <string name="label_fet_release">Release</string>
+    <string name="label_fet_auto_release">Auto Release</string>
+    <string name="label_fet_max_release">Max Release</string>
+    <string name="label_fet_crest">Crest</string>
+    <string name="label_fet_adapt">Adapt</string>
+    <string name="label_fet_no_clip">No Clip</string>
+
+    <!-- DDC -->
+    <string name="section_ddc">ViPER-DDC</string>
+    <string name="label_ddc_device">Headset Correction</string>
+    <string name="label_ddc_none">None</string>
+
+    <!-- Spectrum Extension -->
+    <string name="section_spectrum_extension">Spectrum Extension</string>
+    <string name="label_vse_strength">Strength</string>
+    <string name="label_vse_exciter">Exciter</string>
+
+    <!-- Equalizer -->
+    <string name="section_equalizer">FIR Equalizer</string>
+    <string name="label_eq_preset">Preset</string>
+    <string name="label_eq_custom">Custom</string>
+    <string name="label_eq_bands">Band Count</string>
+
+    <!-- Convolver -->
+    <string name="section_convolver">Convolver</string>
+    <string name="label_convolver_kernel">Kernel File</string>
+    <string name="label_convolver_none">None</string>
+    <string name="label_convolver_cross_channel">Cross-Channel</string>
+
+    <!-- Field Surround -->
+    <string name="section_field_surround">Field Surround</string>
+    <string name="label_fs_widening">Surround Strength</string>
+    <string name="label_fs_mid_image">Mid Image Strength</string>
+    <string name="label_fs_depth">Depth</string>
+
+    <!-- Differential Surround -->
+    <string name="section_differential_surround">Differential Surround</string>
+    <string name="label_ds_delay">Delay</string>
+
+    <!-- Headphone Surround -->
+    <string name="section_headphone_surround">Headphone Surround+</string>
+    <string name="label_vhe_quality">Quality Level</string>
+
+    <!-- Reverberation -->
+    <string name="section_reverberation">Reverberation</string>
+    <string name="label_reverb_room_size">Room Size</string>
+    <string name="label_reverb_width">Width</string>
+    <string name="label_reverb_dampening">Dampening</string>
+    <string name="label_reverb_wet">Wet Signal</string>
+    <string name="label_reverb_dry">Dry Signal</string>
+
+    <!-- Dynamic System -->
+    <string name="section_dynamic_system">Dynamic System</string>
+    <string name="label_ds_device">Device</string>
+    <string name="label_ds_strength">Dynamic Bass Strength</string>
+
+    <!-- Tube Simulator -->
+    <string name="section_tube_simulator">Tube Simulator (6N1J)</string>
+
+    <!-- ViPER Bass -->
+    <string name="section_viper_bass">ViPER Bass</string>
+    <string name="label_bass_mode">Mode</string>
+    <string name="label_bass_frequency">Frequency</string>
+    <string name="label_bass_gain">Gain</string>
+
+    <!-- ViPER Clarity -->
+    <string name="section_viper_clarity">ViPER Clarity</string>
+    <string name="label_clarity_mode">Mode</string>
+    <string name="label_clarity_gain">Gain</string>
+
+    <!-- Cure -->
+    <string name="section_cure">Auditory System Protection</string>
+    <string name="label_cure_strength">Binaural Level</string>
+
+    <!-- AnalogX -->
+    <string name="section_analogx">AnalogX</string>
+    <string name="label_analogx_mode">Mode</string>
+
+    <!-- Speaker Optimization -->
+    <string name="section_speaker_optimization">Speaker Optimization</string>
+
+    <!-- Bass modes -->
+    <string name="bass_mode_natural">Natural Bass</string>
+    <string name="bass_mode_pure">Pure Bass+</string>
+    <string name="bass_mode_subwoofer">Subwoofer</string>
+
+    <!-- Clarity modes -->
+    <string name="clarity_mode_natural">Natural</string>
+    <string name="clarity_mode_ozone">OZone+</string>
+    <string name="clarity_mode_xhifi">XHiFi</string>
+
+    <!-- Cure levels -->
+    <string name="cure_level_mild">Mild</string>
+    <string name="cure_level_medium">Medium</string>
+    <string name="cure_level_strong">Strong</string>
+
+    <!-- AnalogX modes -->
+    <string name="analogx_mode_mild">Mild</string>
+    <string name="analogx_mode_medium">Medium</string>
+    <string name="analogx_mode_strong">Strong</string>
+
+    <!-- Presets -->
+    <string name="preset_save_title">Save Preset</string>
+    <string name="preset_rename_title">Rename Preset</string>
+    <string name="preset_name_hint">Preset name</string>
+    <string name="preset_empty">No saved presets</string>
+    <string name="preset_deleted">Deleted</string>
+    <string name="preset_save_current">Save Current</string>
+
+    <!-- Driver Status -->
+    <string name="driver_not_found">Driver not found</string>
+    <string name="driver_version_code">Version Code</string>
+    <string name="driver_version_name">Version</string>
+    <string name="driver_architecture">Architecture</string>
+    <string name="driver_streaming">Streaming</string>
+    <string name="driver_sampling_rate">Sampling Rate</string>
+    <string name="status_active">Active</string>
+    <string name="status_inactive">Inactive</string>
+    <string name="status_unknown">Unknown</string>
+
+    <!-- Settings -->
+    <string name="settings_auto_start">Auto-start on boot</string>
+    <string name="settings_legacy_mode">Legacy mode</string>
+    <string name="settings_aidl_mode">AIDL mode</string>
+    <string name="settings_driver_version">Driver version</string>
+    <string name="settings_driver_arch">Driver architecture</string>
+    <string name="settings_app_version">App version</string>
+    <string name="settings_files_section">Files</string>
+    <string name="settings_import_preset">Import Preset</string>
+    <string name="settings_import_kernel">Import Kernel</string>
+    <string name="settings_import_vdc">Import VDC</string>
+    <string name="import_success">Imported successfully</string>
+    <string name="import_failed">Import failed</string>
+
+    <!-- Actions -->
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_close">Close</string>
+    <string name="action_rename">Rename</string>
+
+    <!-- Debug -->
+    <string name="debug_log_title">Debug Log</string>
+    <string name="debug_mode_enabled">Debug mode enabled</string>
+    <string name="debug_search_hint">Filter logs\u2026</string>
+    <string name="action_clear">Clear</string>
+    <string name="action_disable_debug">Disable Debug</string>
+    <string name="delete_file_title">Delete File</string>
+    <string name="delete_file_message">Delete "%1$s"?</string>
+    <string name="action_delete">Delete</string>
+    <string name="file_deleted">Deleted</string>
+
+    <!-- EQ presets -->
+    <string name="eq_preset_acoustic">Acoustic</string>
+    <string name="eq_preset_bass_booster">Bass Booster</string>
+    <string name="eq_preset_bass_reducer">Bass Reducer</string>
+    <string name="eq_preset_classical">Classical</string>
+    <string name="eq_preset_deep">Deep</string>
+    <string name="eq_preset_flat">Flat</string>
+    <string name="eq_preset_rnb">R&amp;B</string>
+    <string name="eq_preset_rock">Rock</string>
+    <string name="eq_preset_small_speakers">Small Speakers</string>
+    <string name="eq_preset_treble_booster">Treble Booster</string>
+    <string name="eq_preset_treble_reducer">Treble Reducer</string>
+    <string name="eq_preset_vocal_booster">Vocal Booster</string>
+</resources>
