@@ -17,11 +17,13 @@ import com.llsl.viper4android.audio.FileLogger
 import com.llsl.viper4android.audio.ParamEntry
 import com.llsl.viper4android.audio.ViperEffect
 import com.llsl.viper4android.audio.ViperParams
+import com.llsl.viper4android.data.model.DsPreset
 import com.llsl.viper4android.data.model.EqPreset
 import com.llsl.viper4android.data.model.Preset
 import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.service.ViperService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -117,6 +119,14 @@ data class MainUiState(
     val dynamicSystemEnabled: Boolean = false,
     val dynamicSystemDevice: Int = 0,
     val dynamicSystemStrength: Int = 50,
+    val dsPresetId: Long? = null,
+    val dsPresets: List<DsPreset> = emptyList(),
+    val dsXLow: Int = 100,
+    val dsXHigh: Int = 5600,
+    val dsYLow: Int = 40,
+    val dsYHigh: Int = 80,
+    val dsSideGainLow: Int = 50,
+    val dsSideGainHigh: Int = 50,
 
     val tubeSimulatorEnabled: Boolean = false,
 
@@ -156,6 +166,14 @@ data class MainUiState(
     val spkDynamicSystemEnabled: Boolean = false,
     val spkDynamicSystemDevice: Int = 0,
     val spkDynamicSystemStrength: Int = 50,
+    val spkDsPresetId: Long? = null,
+    val spkDsPresets: List<DsPreset> = emptyList(),
+    val spkDsXLow: Int = 100,
+    val spkDsXHigh: Int = 5600,
+    val spkDsYLow: Int = 40,
+    val spkDsYHigh: Int = 80,
+    val spkDsSideGainLow: Int = 50,
+    val spkDsSideGainHigh: Int = 50,
 
     val spkTubeSimulatorEnabled: Boolean = false,
 
@@ -278,6 +296,7 @@ class MainViewModel @Inject constructor(
     private var activeDeviceType: Int = ViperParams.FX_TYPE_HEADPHONE
     private var eqPresetsJob: kotlinx.coroutines.Job? = null
     private var spkEqPresetsJob: kotlinx.coroutines.Job? = null
+    private var dsPresetsJob: Job? = null
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
@@ -301,6 +320,7 @@ class MainViewModel @Inject constructor(
             loadInitialState()
             loadEqPresetsForBandCount(_uiState.value.eqBandCount, isSpk = false)
             loadEqPresetsForBandCount(_uiState.value.spkEqBandCount, isSpk = true)
+            loadDsPresets()
             bindToService()
             audioOutputDetector.isHeadphoneConnected.collect { headphoneConnected ->
                 val detectedType =
@@ -317,6 +337,15 @@ class MainViewModel @Inject constructor(
                     ConfigChannel.setActiveFxType(detectedType)
                     applyFullState()
                 }
+            }
+        }
+    }
+
+    private fun loadDsPresets() {
+        dsPresetsJob?.cancel()
+        dsPresetsJob = viewModelScope.launch {
+            repository.getAllDsPresets().collect { presets ->
+                _uiState.update { it.copy(dsPresets = presets, spkDsPresets = presets) }
             }
         }
     }
@@ -462,6 +491,14 @@ class MainViewModel @Inject constructor(
         val dynamicSystemStrength =
             repository.getIntPreference("${ViperParams.PARAM_HP_DYNAMIC_SYSTEM_STRENGTH}", 50)
                 .first()
+        val dsPresetId = repository.getIntPreference("ds_preset_id", -1).first()
+            .let { if (it < 0) null else it.toLong() }
+        val dsXLow = repository.getIntPreference("ds_x_low", 100).first()
+        val dsXHigh = repository.getIntPreference("ds_x_high", 5600).first()
+        val dsYLow = repository.getIntPreference("ds_y_low", 40).first()
+        val dsYHigh = repository.getIntPreference("ds_y_high", 80).first()
+        val dsSideGainLow = repository.getIntPreference("ds_side_gain_low", 50).first()
+        val dsSideGainHigh = repository.getIntPreference("ds_side_gain_high", 50).first()
         val bassMode = repository.getIntPreference("${ViperParams.PARAM_HP_BASS_MODE}", 0).first()
         val bassFrequency =
             repository.getIntPreference("${ViperParams.PARAM_HP_BASS_FREQUENCY}", 55).first()
@@ -603,6 +640,13 @@ class MainViewModel @Inject constructor(
                 dynamicSystemEnabled = dynamicSystemEnabled,
                 dynamicSystemDevice = dynamicSystemDevice,
                 dynamicSystemStrength = dynamicSystemStrength,
+                dsPresetId = dsPresetId,
+                dsXLow = dsXLow,
+                dsXHigh = dsXHigh,
+                dsYLow = dsYLow,
+                dsYHigh = dsYHigh,
+                dsSideGainLow = dsSideGainLow,
+                dsSideGainHigh = dsSideGainHigh,
                 tubeSimulatorEnabled = tubeSimulatorEnabled,
                 bassEnabled = bassEnabled,
                 bassMode = bassMode,
@@ -667,6 +711,14 @@ class MainViewModel @Inject constructor(
         val spkDynamicSystemStrength =
             repository.getIntPreference("spk_${ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_STRENGTH}", 50)
                 .first()
+        val spkDsPresetId = repository.getIntPreference("spk_ds_preset_id", -1).first()
+            .let { if (it < 0) null else it.toLong() }
+        val spkDsXLow = repository.getIntPreference("spk_ds_x_low", 100).first()
+        val spkDsXHigh = repository.getIntPreference("spk_ds_x_high", 5600).first()
+        val spkDsYLow = repository.getIntPreference("spk_ds_y_low", 40).first()
+        val spkDsYHigh = repository.getIntPreference("spk_ds_y_high", 80).first()
+        val spkDsSideGainLow = repository.getIntPreference("spk_ds_side_gain_low", 50).first()
+        val spkDsSideGainHigh = repository.getIntPreference("spk_ds_side_gain_high", 50).first()
         val spkTubeSimulatorEnabled =
             repository.getBooleanPreference("spk_${ViperParams.PARAM_SPK_TUBE_SIMULATOR_ENABLE}")
                 .first()
@@ -829,6 +881,13 @@ class MainViewModel @Inject constructor(
                 spkDynamicSystemEnabled = spkDynamicSystemEnabled,
                 spkDynamicSystemDevice = spkDynamicSystemDevice,
                 spkDynamicSystemStrength = spkDynamicSystemStrength,
+                spkDsPresetId = spkDsPresetId,
+                spkDsXLow = spkDsXLow,
+                spkDsXHigh = spkDsXHigh,
+                spkDsYLow = spkDsYLow,
+                spkDsYHigh = spkDsYHigh,
+                spkDsSideGainLow = spkDsSideGainLow,
+                spkDsSideGainHigh = spkDsSideGainHigh,
                 spkTubeSimulatorEnabled = spkTubeSimulatorEnabled,
                 spkBassEnabled = spkBassEnabled,
                 spkBassMode = spkBassMode,
@@ -1628,38 +1687,20 @@ class MainViewModel @Inject constructor(
     fun setDynamicSystemEnabled(enabled: Boolean) {
         FileLogger.i("ViewModel", "Dynamic System: ${if (enabled) "ON" else "OFF"}")
         _uiState.update { it.copy(dynamicSystemEnabled = enabled) }
-        saveAndDispatchBool(
-            "${ViperParams.PARAM_HP_DYNAMIC_SYSTEM_ENABLE}",
-            ViperParams.PARAM_HP_DYNAMIC_SYSTEM_ENABLE,
-            enabled
-        )
+        viewModelScope.launch {
+            repository.setBooleanPreference(
+                "${ViperParams.PARAM_HP_DYNAMIC_SYSTEM_ENABLE}",
+                enabled
+            )
+        }
+        hpDispatchDynamicSystem()
     }
 
     fun setDynamicSystemDevice(index: Int) {
         _uiState.update { it.copy(dynamicSystemDevice = index) }
         viewModelScope.launch { repository.setIntPreference("dynamic_system_device", index) }
-        if (activeDeviceType == ViperParams.FX_TYPE_HEADPHONE) {
-            val coeffs = DYNAMIC_SYSTEM_DEVICES.getOrElse(index) { "100;5600;40;80;50;50" }
-            val parts = coeffs.split(";").map { it.toIntOrNull() ?: 0 }
-            if (parts.size >= 6) {
-                viperService?.dispatchParamsBatch(
-                    listOf(
-                        ParamEntry(
-                            ViperParams.PARAM_HP_DYNAMIC_SYSTEM_X_COEFFICIENTS,
-                            intArrayOf(parts[0], parts[1])
-                        ),
-                        ParamEntry(
-                            ViperParams.PARAM_HP_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
-                            intArrayOf(parts[2], parts[3])
-                        ),
-                        ParamEntry(
-                            ViperParams.PARAM_HP_DYNAMIC_SYSTEM_SIDE_GAIN,
-                            intArrayOf(parts[4], parts[5])
-                        )
-                    )
-                )
-            }
-        }
+        val presetId = (index + 1).toLong()
+        setDsPreset(presetId)
     }
 
     fun setDynamicSystemStrength(value: Int) {
@@ -1670,7 +1711,150 @@ class MainViewModel @Inject constructor(
                 value
             )
         }
-        hpDispatchInt(ViperParams.PARAM_HP_DYNAMIC_SYSTEM_STRENGTH, value * 20 + 100)
+        hpDispatchDynamicSystem()
+    }
+
+    private fun hpDispatchDynamicSystem() {
+        if (activeDeviceType != ViperParams.FX_TYPE_HEADPHONE) return
+        val s = _uiState.value
+        viperService?.dispatchParamsBatch(
+            listOf(
+                ParamEntry(
+                    ViperParams.PARAM_HP_DYNAMIC_SYSTEM_ENABLE,
+                    intArrayOf(if (s.dynamicSystemEnabled) 1 else 0)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_HP_DYNAMIC_SYSTEM_STRENGTH,
+                    intArrayOf(s.dynamicSystemStrength * 20 + 100)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_HP_DYNAMIC_SYSTEM_X_COEFFICIENTS,
+                    intArrayOf(s.dsXLow, s.dsXHigh)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_HP_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
+                    intArrayOf(s.dsYLow, s.dsYHigh)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_HP_DYNAMIC_SYSTEM_SIDE_GAIN,
+                    intArrayOf(s.dsSideGainLow, s.dsSideGainHigh)
+                )
+            )
+        )
+    }
+
+    fun setDsPreset(presetId: Long) {
+        val preset = _uiState.value.dsPresets.find { it.id == presetId } ?: return
+        _uiState.update {
+            it.copy(
+                dsPresetId = presetId,
+                dsXLow = preset.xLow, dsXHigh = preset.xHigh,
+                dsYLow = preset.yLow, dsYHigh = preset.yHigh,
+                dsSideGainLow = preset.sideGainLow, dsSideGainHigh = preset.sideGainHigh
+            )
+        }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_preset_id", presetId.toInt())
+            repository.setIntPreference("ds_x_low", preset.xLow)
+            repository.setIntPreference("ds_x_high", preset.xHigh)
+            repository.setIntPreference("ds_y_low", preset.yLow)
+            repository.setIntPreference("ds_y_high", preset.yHigh)
+            repository.setIntPreference("ds_side_gain_low", preset.sideGainLow)
+            repository.setIntPreference("ds_side_gain_high", preset.sideGainHigh)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsXLow(v: Int) {
+        _uiState.update { it.copy(dsXLow = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_x_low", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsXHigh(v: Int) {
+        _uiState.update { it.copy(dsXHigh = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_x_high", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsYLow(v: Int) {
+        _uiState.update { it.copy(dsYLow = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_y_low", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsYHigh(v: Int) {
+        _uiState.update { it.copy(dsYHigh = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_y_high", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsSideGainLow(v: Int) {
+        _uiState.update { it.copy(dsSideGainLow = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_side_gain_low", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun setDsSideGainHigh(v: Int) {
+        _uiState.update { it.copy(dsSideGainHigh = v, dsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("ds_side_gain_high", v)
+            repository.setIntPreference("ds_preset_id", -1)
+        }
+        hpDispatchDynamicSystem()
+    }
+
+    fun addDsPreset(name: String) {
+        val s = _uiState.value
+        val preset = DsPreset(
+            name = name,
+            xLow = s.dsXLow, xHigh = s.dsXHigh,
+            yLow = s.dsYLow, yHigh = s.dsYHigh,
+            sideGainLow = s.dsSideGainLow, sideGainHigh = s.dsSideGainHigh
+        )
+        viewModelScope.launch {
+            val id = repository.saveDsPreset(preset)
+            _uiState.update { it.copy(dsPresetId = id) }
+            repository.setIntPreference("ds_preset_id", id.toInt())
+        }
+    }
+
+    fun deleteDsPreset(presetId: Long) {
+        viewModelScope.launch {
+            repository.deleteDsPresetById(presetId)
+            if (_uiState.value.dsPresetId == presetId) {
+                _uiState.update { it.copy(dsPresetId = null) }
+                repository.setIntPreference("ds_preset_id", -1)
+            }
+        }
+    }
+
+    fun resetDsCoefficients() {
+        _uiState.update {
+            it.copy(
+                dsXLow = 100, dsXHigh = 5600,
+                dsYLow = 40, dsYHigh = 80,
+                dsSideGainLow = 50, dsSideGainHigh = 50,
+                dsPresetId = null
+            )
+        }
+        viewModelScope.launch { repository.setIntPreference("ds_preset_id", -1) }
+        hpDispatchDynamicSystem()
     }
 
     fun setTubeSimulatorEnabled(enabled: Boolean) {
@@ -2353,38 +2537,20 @@ class MainViewModel @Inject constructor(
     fun setSpkDynamicSystemEnabled(enabled: Boolean) {
         FileLogger.i("ViewModel", "[Spk] Dynamic System: ${if (enabled) "ON" else "OFF"}")
         _uiState.update { it.copy(spkDynamicSystemEnabled = enabled) }
-        spkSaveAndDispatchBool(
-            "spk_${ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_ENABLE}",
-            ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_ENABLE,
-            enabled
-        )
+        viewModelScope.launch {
+            repository.setBooleanPreference(
+                "spk_${ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_ENABLE}",
+                enabled
+            )
+        }
+        spkDispatchDynamicSystem()
     }
 
     fun setSpkDynamicSystemDevice(index: Int) {
         _uiState.update { it.copy(spkDynamicSystemDevice = index) }
         viewModelScope.launch { repository.setIntPreference("spk_dynamic_system_device", index) }
-        if (activeDeviceType == ViperParams.FX_TYPE_SPEAKER) {
-            val coeffs = DYNAMIC_SYSTEM_DEVICES.getOrElse(index) { "100;5600;40;80;50;50" }
-            val parts = coeffs.split(";").map { it.toIntOrNull() ?: 0 }
-            if (parts.size >= 6) {
-                viperService?.dispatchParamsBatch(
-                    listOf(
-                        ParamEntry(
-                            ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_X_COEFFICIENTS,
-                            intArrayOf(parts[0], parts[1])
-                        ),
-                        ParamEntry(
-                            ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
-                            intArrayOf(parts[2], parts[3])
-                        ),
-                        ParamEntry(
-                            ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_SIDE_GAIN,
-                            intArrayOf(parts[4], parts[5])
-                        )
-                    )
-                )
-            }
-        }
+        val presetId = (index + 1).toLong()
+        setSpkDsPreset(presetId)
     }
 
     fun setSpkDynamicSystemStrength(value: Int) {
@@ -2395,7 +2561,150 @@ class MainViewModel @Inject constructor(
                 value
             )
         }
-        spkDispatchInt(ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_STRENGTH, value * 20 + 100)
+        spkDispatchDynamicSystem()
+    }
+
+    private fun spkDispatchDynamicSystem() {
+        if (activeDeviceType != ViperParams.FX_TYPE_SPEAKER) return
+        val s = _uiState.value
+        viperService?.dispatchParamsBatch(
+            listOf(
+                ParamEntry(
+                    ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_ENABLE,
+                    intArrayOf(if (s.spkDynamicSystemEnabled) 1 else 0)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_STRENGTH,
+                    intArrayOf(s.spkDynamicSystemStrength * 20 + 100)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_X_COEFFICIENTS,
+                    intArrayOf(s.spkDsXLow, s.spkDsXHigh)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_Y_COEFFICIENTS,
+                    intArrayOf(s.spkDsYLow, s.spkDsYHigh)
+                ),
+                ParamEntry(
+                    ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_SIDE_GAIN,
+                    intArrayOf(s.spkDsSideGainLow, s.spkDsSideGainHigh)
+                )
+            )
+        )
+    }
+
+    fun setSpkDsPreset(presetId: Long) {
+        val preset = _uiState.value.spkDsPresets.find { it.id == presetId } ?: return
+        _uiState.update {
+            it.copy(
+                spkDsPresetId = presetId,
+                spkDsXLow = preset.xLow, spkDsXHigh = preset.xHigh,
+                spkDsYLow = preset.yLow, spkDsYHigh = preset.yHigh,
+                spkDsSideGainLow = preset.sideGainLow, spkDsSideGainHigh = preset.sideGainHigh
+            )
+        }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_preset_id", presetId.toInt())
+            repository.setIntPreference("spk_ds_x_low", preset.xLow)
+            repository.setIntPreference("spk_ds_x_high", preset.xHigh)
+            repository.setIntPreference("spk_ds_y_low", preset.yLow)
+            repository.setIntPreference("spk_ds_y_high", preset.yHigh)
+            repository.setIntPreference("spk_ds_side_gain_low", preset.sideGainLow)
+            repository.setIntPreference("spk_ds_side_gain_high", preset.sideGainHigh)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsXLow(v: Int) {
+        _uiState.update { it.copy(spkDsXLow = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_x_low", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsXHigh(v: Int) {
+        _uiState.update { it.copy(spkDsXHigh = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_x_high", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsYLow(v: Int) {
+        _uiState.update { it.copy(spkDsYLow = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_y_low", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsYHigh(v: Int) {
+        _uiState.update { it.copy(spkDsYHigh = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_y_high", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsSideGainLow(v: Int) {
+        _uiState.update { it.copy(spkDsSideGainLow = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_side_gain_low", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun setSpkDsSideGainHigh(v: Int) {
+        _uiState.update { it.copy(spkDsSideGainHigh = v, spkDsPresetId = null) }
+        viewModelScope.launch {
+            repository.setIntPreference("spk_ds_side_gain_high", v)
+            repository.setIntPreference("spk_ds_preset_id", -1)
+        }
+        spkDispatchDynamicSystem()
+    }
+
+    fun addSpkDsPreset(name: String) {
+        val s = _uiState.value
+        val preset = DsPreset(
+            name = name,
+            xLow = s.spkDsXLow, xHigh = s.spkDsXHigh,
+            yLow = s.spkDsYLow, yHigh = s.spkDsYHigh,
+            sideGainLow = s.spkDsSideGainLow, sideGainHigh = s.spkDsSideGainHigh
+        )
+        viewModelScope.launch {
+            val id = repository.saveDsPreset(preset)
+            _uiState.update { it.copy(spkDsPresetId = id) }
+            repository.setIntPreference("spk_ds_preset_id", id.toInt())
+        }
+    }
+
+    fun deleteSpkDsPreset(presetId: Long) {
+        viewModelScope.launch {
+            repository.deleteDsPresetById(presetId)
+            if (_uiState.value.spkDsPresetId == presetId) {
+                _uiState.update { it.copy(spkDsPresetId = null) }
+                repository.setIntPreference("spk_ds_preset_id", -1)
+            }
+        }
+    }
+
+    fun resetSpkDsCoefficients() {
+        _uiState.update {
+            it.copy(
+                spkDsXLow = 100, spkDsXHigh = 5600,
+                spkDsYLow = 40, spkDsYHigh = 80,
+                spkDsSideGainLow = 50, spkDsSideGainHigh = 50,
+                spkDsPresetId = null
+            )
+        }
+        viewModelScope.launch { repository.setIntPreference("spk_ds_preset_id", -1) }
+        spkDispatchDynamicSystem()
     }
 
     fun setSpkTubeSimulatorEnabled(enabled: Boolean) {
@@ -3818,6 +4127,13 @@ class MainViewModel @Inject constructor(
             obj.put("dynamicSystemEnabled", state.dynamicSystemEnabled)
             obj.put("dynamicSystemDevice", state.dynamicSystemDevice)
             obj.put("dynamicSystemStrength", state.dynamicSystemStrength)
+            obj.put("dsPresetId", state.dsPresetId ?: -1)
+            obj.put("dsXLow", state.dsXLow)
+            obj.put("dsXHigh", state.dsXHigh)
+            obj.put("dsYLow", state.dsYLow)
+            obj.put("dsYHigh", state.dsYHigh)
+            obj.put("dsSideGainLow", state.dsSideGainLow)
+            obj.put("dsSideGainHigh", state.dsSideGainHigh)
             obj.put("tubeSimulatorEnabled", state.tubeSimulatorEnabled)
             obj.put("bassEnabled", state.bassEnabled)
             obj.put("bassMode", state.bassMode)
@@ -3882,6 +4198,13 @@ class MainViewModel @Inject constructor(
             obj.put("spkDynamicSystemEnabled", state.spkDynamicSystemEnabled)
             obj.put("spkDynamicSystemDevice", state.spkDynamicSystemDevice)
             obj.put("spkDynamicSystemStrength", state.spkDynamicSystemStrength)
+            obj.put("spkDsPresetId", state.spkDsPresetId ?: -1)
+            obj.put("spkDsXLow", state.spkDsXLow)
+            obj.put("spkDsXHigh", state.spkDsXHigh)
+            obj.put("spkDsYLow", state.spkDsYLow)
+            obj.put("spkDsYHigh", state.spkDsYHigh)
+            obj.put("spkDsSideGainLow", state.spkDsSideGainLow)
+            obj.put("spkDsSideGainHigh", state.spkDsSideGainHigh)
             obj.put("spkTubeSimulatorEnabled", state.spkTubeSimulatorEnabled)
             obj.put("spkBassEnabled", state.spkBassEnabled)
             obj.put("spkBassMode", state.spkBassMode)
@@ -3975,6 +4298,13 @@ class MainViewModel @Inject constructor(
                     "dynamicSystemStrength",
                     state.dynamicSystemStrength
                 ),
+                dsPresetId = obj.optInt("dsPresetId", -1).let { if (it < 0) null else it.toLong() },
+                dsXLow = obj.optInt("dsXLow", state.dsXLow),
+                dsXHigh = obj.optInt("dsXHigh", state.dsXHigh),
+                dsYLow = obj.optInt("dsYLow", state.dsYLow),
+                dsYHigh = obj.optInt("dsYHigh", state.dsYHigh),
+                dsSideGainLow = obj.optInt("dsSideGainLow", state.dsSideGainLow),
+                dsSideGainHigh = obj.optInt("dsSideGainHigh", state.dsSideGainHigh),
                 tubeSimulatorEnabled = obj.optBoolean(
                     "tubeSimulatorEnabled",
                     state.tubeSimulatorEnabled
@@ -4077,6 +4407,14 @@ class MainViewModel @Inject constructor(
                     "spkDynamicSystemStrength",
                     state.spkDynamicSystemStrength
                 ),
+                spkDsPresetId = obj.optInt("spkDsPresetId", -1)
+                    .let { if (it < 0) null else it.toLong() },
+                spkDsXLow = obj.optInt("spkDsXLow", state.spkDsXLow),
+                spkDsXHigh = obj.optInt("spkDsXHigh", state.spkDsXHigh),
+                spkDsYLow = obj.optInt("spkDsYLow", state.spkDsYLow),
+                spkDsYHigh = obj.optInt("spkDsYHigh", state.spkDsYHigh),
+                spkDsSideGainLow = obj.optInt("spkDsSideGainLow", state.spkDsSideGainLow),
+                spkDsSideGainHigh = obj.optInt("spkDsSideGainHigh", state.spkDsSideGainHigh),
                 spkTubeSimulatorEnabled = obj.optBoolean(
                     "spkTubeSimulatorEnabled",
                     state.spkTubeSimulatorEnabled
@@ -4177,6 +4515,14 @@ class MainViewModel @Inject constructor(
                         "dynamicSystemStrength",
                         state.dynamicSystemStrength
                     ),
+                    dsPresetId = obj.optInt("dsPresetId", -1)
+                        .let { if (it < 0) null else it.toLong() },
+                    dsXLow = obj.optInt("dsXLow", state.dsXLow),
+                    dsXHigh = obj.optInt("dsXHigh", state.dsXHigh),
+                    dsYLow = obj.optInt("dsYLow", state.dsYLow),
+                    dsYHigh = obj.optInt("dsYHigh", state.dsYHigh),
+                    dsSideGainLow = obj.optInt("dsSideGainLow", state.dsSideGainLow),
+                    dsSideGainHigh = obj.optInt("dsSideGainHigh", state.dsSideGainHigh),
                     tubeSimulatorEnabled = obj.optBoolean(
                         "tubeSimulatorEnabled",
                         state.tubeSimulatorEnabled
@@ -4288,6 +4634,14 @@ class MainViewModel @Inject constructor(
                         "spkDynamicSystemStrength",
                         state.spkDynamicSystemStrength
                     ),
+                    spkDsPresetId = obj.optInt("spkDsPresetId", -1)
+                        .let { if (it < 0) null else it.toLong() },
+                    spkDsXLow = obj.optInt("spkDsXLow", state.spkDsXLow),
+                    spkDsXHigh = obj.optInt("spkDsXHigh", state.spkDsXHigh),
+                    spkDsYLow = obj.optInt("spkDsYLow", state.spkDsYLow),
+                    spkDsYHigh = obj.optInt("spkDsYHigh", state.spkDsYHigh),
+                    spkDsSideGainLow = obj.optInt("spkDsSideGainLow", state.spkDsSideGainLow),
+                    spkDsSideGainHigh = obj.optInt("spkDsSideGainHigh", state.spkDsSideGainHigh),
                     spkTubeSimulatorEnabled = obj.optBoolean(
                         "spkTubeSimulatorEnabled",
                         state.spkTubeSimulatorEnabled

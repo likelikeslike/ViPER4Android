@@ -1,10 +1,18 @@
 package com.llsl.viper4android.ui.screens.main
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BlurOn
 import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Equalizer
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Headphones
@@ -12,17 +20,25 @@ import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.Hearing
 import androidx.compose.material.icons.filled.Memory
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.SpatialAudio
 import androidx.compose.material.icons.filled.Speaker
 import androidx.compose.material.icons.filled.SurroundSound
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Waves
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.llsl.viper4android.R
 import com.llsl.viper4android.audio.EffectDispatcher
@@ -646,14 +662,42 @@ fun ReverberationSection(state: MainUiState, viewModel: MainViewModel, isSpkMode
 @Composable
 fun DynamicSystemSection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Boolean = false) {
     val enabled = if (isSpkMode) state.spkDynamicSystemEnabled else state.dynamicSystemEnabled
-    val device = if (isSpkMode) state.spkDynamicSystemDevice else state.dynamicSystemDevice
     val strength = if (isSpkMode) state.spkDynamicSystemStrength else state.dynamicSystemStrength
+    val dsPresetId = if (isSpkMode) state.spkDsPresetId else state.dsPresetId
+    val dsPresets = if (isSpkMode) state.spkDsPresets else state.dsPresets
+    val xLow = if (isSpkMode) state.spkDsXLow else state.dsXLow
+    val xHigh = if (isSpkMode) state.spkDsXHigh else state.dsXHigh
+    val yLow = if (isSpkMode) state.spkDsYLow else state.dsYLow
+    val yHigh = if (isSpkMode) state.spkDsYHigh else state.dsYHigh
+    val sideGainLow = if (isSpkMode) state.spkDsSideGainLow else state.dsSideGainLow
+    val sideGainHigh = if (isSpkMode) state.spkDsSideGainHigh else state.dsSideGainHigh
     val onEnabledChange: (Boolean) -> Unit =
         if (isSpkMode) viewModel::setSpkDynamicSystemEnabled else viewModel::setDynamicSystemEnabled
-    val onDeviceChange: (Int) -> Unit =
-        if (isSpkMode) viewModel::setSpkDynamicSystemDevice else viewModel::setDynamicSystemDevice
     val onStrengthChange: (Int) -> Unit =
         if (isSpkMode) viewModel::setSpkDynamicSystemStrength else viewModel::setDynamicSystemStrength
+    val onPresetSelect: (Long) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsPreset else viewModel::setDsPreset
+    val onXLowChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsXLow else viewModel::setDsXLow
+    val onXHighChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsXHigh else viewModel::setDsXHigh
+    val onYLowChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsYLow else viewModel::setDsYLow
+    val onYHighChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsYHigh else viewModel::setDsYHigh
+    val onSideGainLowChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsSideGainLow else viewModel::setDsSideGainLow
+    val onSideGainHighChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkDsSideGainHigh else viewModel::setDsSideGainHigh
+    val onPresetAdd: (String) -> Unit =
+        if (isSpkMode) viewModel::addSpkDsPreset else viewModel::addDsPreset
+    val onPresetDelete: (Long) -> Unit =
+        if (isSpkMode) viewModel::deleteSpkDsPreset else viewModel::deleteDsPreset
+    val onReset: () -> Unit =
+        if (isSpkMode) viewModel::resetSpkDsCoefficients else viewModel::resetDsCoefficients
+
+    var showSaveDialog by remember { mutableStateOf(false) }
+    var presetNameInput by remember { mutableStateOf("") }
 
     EffectSection(
         title = stringResource(R.string.section_dynamic_system),
@@ -661,18 +705,136 @@ fun DynamicSystemSection(state: MainUiState, viewModel: MainViewModel, isSpkMode
         onEnabledChange = onEnabledChange,
         icon = Icons.Default.Speaker
     ) {
+        val presetName = dsPresets.find { it.id == dsPresetId }?.name ?: "Custom"
         LabeledDropdown(
-            label = stringResource(R.string.label_ds_device),
-            selectedValue = MainViewModel.DYNAMIC_SYSTEM_DEVICE_NAMES.getOrElse(device) { "" },
-            options = MainViewModel.DYNAMIC_SYSTEM_DEVICE_NAMES,
-            onOptionSelected = { index, _ -> onDeviceChange(index) }
+            label = stringResource(R.string.label_ds_preset),
+            selectedValue = presetName,
+            options = dsPresets.map { it.name },
+            onOptionSelected = { index, _ -> onPresetSelect(dsPresets[index].id) }
         )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TextButton(onClick = { showSaveDialog = true }) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(stringResource(R.string.action_save))
+            }
+            TextButton(
+                onClick = { dsPresetId?.let { onPresetDelete(it) } },
+                enabled = dsPresetId != null
+            ) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(stringResource(R.string.action_delete))
+            }
+            TextButton(onClick = onReset) {
+                Icon(
+                    Icons.Default.RestartAlt,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(stringResource(R.string.action_reset))
+            }
+        }
+
         LabeledSlider(
             label = stringResource(R.string.label_ds_strength),
             value = strength.toFloat(),
             onValueChange = { onStrengthChange(it.roundToInt()) },
             valueRange = 0f..100f,
             valueLabel = "${strength}%"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_x_low_freq),
+            value = xLow.toFloat(),
+            onValueChange = { onXLowChange((it / 100f).roundToInt() * 100) },
+            valueRange = 0f..2400f,
+            steps = 23,
+            valueLabel = "$xLow Hz"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_x_high_freq),
+            value = xHigh.toFloat(),
+            onValueChange = { onXHighChange((it / 100f).roundToInt() * 100) },
+            valueRange = 0f..12000f,
+            steps = 119,
+            valueLabel = "$xHigh Hz"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_y_low_freq),
+            value = yLow.toFloat(),
+            onValueChange = { onYLowChange(it.roundToInt()) },
+            valueRange = 0f..200f,
+            valueLabel = "$yLow Hz"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_y_high_freq),
+            value = yHigh.toFloat(),
+            onValueChange = { onYHighChange(it.roundToInt()) },
+            valueRange = 0f..300f,
+            valueLabel = "$yHigh Hz"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_side_gain_low),
+            value = sideGainLow.toFloat(),
+            onValueChange = { onSideGainLowChange(it.roundToInt()) },
+            valueRange = 0f..100f,
+            valueLabel = "${sideGainLow}%"
+        )
+
+        LabeledSlider(
+            label = stringResource(R.string.label_ds_side_gain_high),
+            value = sideGainHigh.toFloat(),
+            onValueChange = { onSideGainHighChange(it.roundToInt()) },
+            valueRange = 0f..100f,
+            valueLabel = "${sideGainHigh}%"
+        )
+    }
+
+    if (showSaveDialog) {
+        AlertDialog(
+            onDismissRequest = { showSaveDialog = false },
+            title = { Text(stringResource(R.string.preset_save_title)) },
+            text = {
+                OutlinedTextField(
+                    value = presetNameInput,
+                    onValueChange = { presetNameInput = it },
+                    label = { Text(stringResource(R.string.preset_name_hint)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (presetNameInput.isNotBlank()) {
+                            onPresetAdd(presetNameInput.trim())
+                            presetNameInput = ""
+                            showSaveDialog = false
+                        }
+                    }
+                ) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSaveDialog = false }) {
+                    Text(stringResource(android.R.string.cancel))
+                }
+            }
         )
     }
 }

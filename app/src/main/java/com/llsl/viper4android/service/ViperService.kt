@@ -767,8 +767,10 @@ class ViperService : LifecycleService() {
         collectDynamicSystemParams(
             params,
             state.dynamicSystemEnabled,
-            state.dynamicSystemDevice,
             state.dynamicSystemStrength,
+            state.dsXLow, state.dsXHigh,
+            state.dsYLow, state.dsYHigh,
+            state.dsSideGainLow, state.dsSideGainHigh,
             ViperParams.PARAM_HP_DYNAMIC_SYSTEM_ENABLE,
             ViperParams.PARAM_HP_DYNAMIC_SYSTEM_STRENGTH,
             ViperParams.PARAM_HP_DYNAMIC_SYSTEM_X_COEFFICIENTS,
@@ -1123,8 +1125,10 @@ class ViperService : LifecycleService() {
         collectDynamicSystemParams(
             params,
             state.spkDynamicSystemEnabled,
-            state.spkDynamicSystemDevice,
             state.spkDynamicSystemStrength,
+            state.spkDsXLow, state.spkDsXHigh,
+            state.spkDsYLow, state.spkDsYHigh,
+            state.spkDsSideGainLow, state.spkDsSideGainHigh,
             ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_ENABLE,
             ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_STRENGTH,
             ViperParams.PARAM_SPK_DYNAMIC_SYSTEM_X_COEFFICIENTS,
@@ -1210,8 +1214,10 @@ class ViperService : LifecycleService() {
     private fun collectDynamicSystemParams(
         params: MutableList<ParamEntry>,
         enabled: Boolean,
-        deviceIndex: Int,
         strength: Int,
+        xLow: Int, xHigh: Int,
+        yLow: Int, yHigh: Int,
+        sideGainLow: Int, sideGainHigh: Int,
         paramEnable: Int,
         paramStrength: Int,
         paramXCoeffs: Int,
@@ -1220,14 +1226,9 @@ class ViperService : LifecycleService() {
     ) {
         params.add(ParamEntry(paramEnable, intArrayOf(if (enabled) 1 else 0)))
         params.add(ParamEntry(paramStrength, intArrayOf(strength * 20 + 100)))
-        val dsCoeffs =
-            EffectDispatcher.DYNAMIC_SYSTEM_DEVICES.getOrElse(deviceIndex) { "100;5600;40;80;50;50" }
-        val dsParts = dsCoeffs.split(";").map { it.toIntOrNull() ?: 0 }
-        if (dsParts.size >= 6) {
-            params.add(ParamEntry(paramXCoeffs, intArrayOf(dsParts[0], dsParts[1])))
-            params.add(ParamEntry(paramYCoeffs, intArrayOf(dsParts[2], dsParts[3])))
-            params.add(ParamEntry(paramSideGain, intArrayOf(dsParts[4], dsParts[5])))
-        }
+        params.add(ParamEntry(paramXCoeffs, intArrayOf(xLow, xHigh)))
+        params.add(ParamEntry(paramYCoeffs, intArrayOf(yLow, yHigh)))
+        params.add(ParamEntry(paramSideGain, intArrayOf(sideGainLow, sideGainHigh)))
     }
 
     fun setEffectEnabled(enabled: Boolean) {

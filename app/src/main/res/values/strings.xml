@@ -96,6 +96,14 @@
     <string name="section_dynamic_system">Dynamic System</string>
     <string name="label_ds_device">Device</string>
     <string name="label_ds_strength">Dynamic Bass Strength</string>
+    <string name="label_ds_preset">Preset</string>
+    <string name="label_ds_custom">Custom</string>
+    <string name="label_ds_x_low_freq">X Low Freq</string>
+    <string name="label_ds_x_high_freq">X High Freq</string>
+    <string name="label_ds_y_low_freq">Y Low Freq</string>
+    <string name="label_ds_y_high_freq">Y High Freq</string>
+    <string name="label_ds_side_gain_low">Side Gain Low</string>
+    <string name="label_ds_side_gain_high">Side Gain High</string>
 
     <!-- Tube Simulator -->
     <string name="section_tube_simulator">Tube Simulator (6N1J)</string>
@@ -179,6 +187,7 @@
     <string name="action_cancel">Cancel</string>
     <string name="action_close">Close</string>
     <string name="action_rename">Rename</string>
+    <string name="action_reset">Reset</string>
 
     <!-- Debug -->
     <string name="debug_log_title">Debug Log</string>

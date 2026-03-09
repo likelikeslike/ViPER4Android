@@ -6,8 +6,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.llsl.viper4android.data.dao.DsPresetDao
 import com.llsl.viper4android.data.dao.EqPresetDao
 import com.llsl.viper4android.data.dao.PresetDao
+import com.llsl.viper4android.data.model.DsPreset
 import com.llsl.viper4android.data.model.EqPreset
 import com.llsl.viper4android.data.model.Preset
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +21,7 @@ import javax.inject.Singleton
 class ViperRepository @Inject constructor(
     private val presetDao: PresetDao,
     private val eqPresetDao: EqPresetDao,
+    private val dsPresetDao: DsPresetDao,
     private val dataStore: DataStore<Preferences>
 ) {
 
@@ -44,6 +47,16 @@ class ViperRepository @Inject constructor(
     suspend fun renameEqPreset(id: Long, name: String) = eqPresetDao.rename(id, name)
 
     suspend fun deleteEqPresetById(id: Long) = eqPresetDao.deleteById(id)
+
+    fun getAllDsPresets(): Flow<List<DsPreset>> = dsPresetDao.getAll()
+
+    suspend fun getDsPresetById(id: Long): DsPreset? = dsPresetDao.getById(id)
+
+    suspend fun saveDsPreset(preset: DsPreset): Long = dsPresetDao.insert(preset)
+
+    suspend fun renameDsPreset(id: Long, name: String) = dsPresetDao.rename(id, name)
+
+    suspend fun deleteDsPresetById(id: Long) = dsPresetDao.deleteById(id)
     fun getBooleanPreference(key: String, default: Boolean = false): Flow<Boolean> =
         dataStore.data.map { it[booleanPreferencesKey(key)] ?: default }
 
