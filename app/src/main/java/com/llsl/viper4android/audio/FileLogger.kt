@@ -87,5 +87,20 @@ object FileLogger {
         }
     }
 
+    fun clearLogs() {
+        executor.execute {
+            try {
+                outputStream?.close()
+                outputStream = null
+                val file = logFile ?: return@execute
+                val oldFile = File(file.parentFile, OLD_LOG_FILE_NAME)
+                if (oldFile.exists()) oldFile.delete()
+                if (file.exists()) file.delete()
+                openLogFile()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
     fun getLogFile(): File? = logFile
 }

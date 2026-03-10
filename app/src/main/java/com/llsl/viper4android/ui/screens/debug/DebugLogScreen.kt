@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,8 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.llsl.viper4android.R
 import com.llsl.viper4android.audio.FileLogger
+import com.llsl.viper4android.audio.RootShell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.text.SimpleDateFormat
@@ -111,6 +114,7 @@ fun DebugLogDialog(
     var selectedCategory by remember { mutableStateOf(LogCategory.ALL) }
     var searchQuery by remember { mutableStateOf("") }
 
+    val scope = rememberCoroutineScope()
     val filteredLines by remember {
         derivedStateOf {
             allLines.filter { line ->
@@ -155,7 +159,7 @@ fun DebugLogDialog(
                     val fmt = SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.US)
                     " -T '${fmt.format(Date(clearTimestamp))}'"
                 } else ""
-                proc = ProcessBuilder("su")
+                proc = ProcessBuilder(RootShell.getSuPath())
                     .redirectErrorStream(true)
                     .start()
                 proc.outputStream.bufferedWriter().let { writer ->
@@ -331,7 +335,12 @@ fun DebugLogDialog(
                 TextButton(onClick = onDisableDebug) {
                     Text(stringResource(R.string.action_disable_debug))
                 }
-                TextButton(onClick = onClear) {
+                TextButton(onClick = {
+                    scope.launch {
+                        withContext(Dispatchers.IO) { FileLogger.clearLogs() }
+                    }
+                    onClear()
+                }) {
                     Text(stringResource(R.string.action_clear))
                 }
             }
