@@ -2,7 +2,7 @@ package com.llsl.viper4android
 
 import android.app.Application
 import android.util.Property
-import com.llsl.viper4android.audio.FileLogger
+import com.llsl.viper4android.utils.FileLogger
 import dagger.hilt.android.HiltAndroidApp
 import java.lang.reflect.Method
 

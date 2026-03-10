@@ -19,14 +19,14 @@ import com.llsl.viper4android.audio.AudioOutputDetector
 import com.llsl.viper4android.audio.ByteArrayParam
 import com.llsl.viper4android.audio.ConfigChannel
 import com.llsl.viper4android.audio.EffectDispatcher
-import com.llsl.viper4android.audio.FileLogger
 import com.llsl.viper4android.audio.ParamEntry
-import com.llsl.viper4android.audio.RootShell
 import com.llsl.viper4android.audio.ViperEffect
 import com.llsl.viper4android.audio.ViperParams
 import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.ui.screens.main.MainUiState
 import com.llsl.viper4android.ui.screens.main.MainViewModel
+import com.llsl.viper4android.utils.FileLogger
+import com.llsl.viper4android.utils.RootShell
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch

@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.media.audiofx.AudioEffect
-import com.llsl.viper4android.audio.FileLogger
 import com.llsl.viper4android.service.ViperService
+import com.llsl.viper4android.utils.FileLogger
 
 class AudioSessionReceiver : BroadcastReceiver() {
 

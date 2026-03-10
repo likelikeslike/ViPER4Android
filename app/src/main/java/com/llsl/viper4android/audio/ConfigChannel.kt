@@ -1,5 +1,7 @@
 package com.llsl.viper4android.audio
 
+import com.llsl.viper4android.utils.FileLogger
+import com.llsl.viper4android.utils.RootShell
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.ByteBuffer

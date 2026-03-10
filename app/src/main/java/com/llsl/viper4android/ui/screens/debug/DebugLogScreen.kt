@@ -40,8 +40,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.llsl.viper4android.R
-import com.llsl.viper4android.audio.FileLogger
-import com.llsl.viper4android.audio.RootShell
+import com.llsl.viper4android.utils.FileLogger
+import com.llsl.viper4android.utils.RootShell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
