@@ -7,7 +7,9 @@
     4. Register the locale in res/xml/locales_config.xml:
          <locale android:name="{BCP 47 tag}" />
     5. Add the resource qualifier to resourceConfigurations in app/build.gradle.kts:
-         resourceConfigurations += listOf("en", "{new qualifier}")
+         androidResources {
+            localeFilters += setOf("en", "{new qualifier}")
+        }
     6. Strings that should NOT be translated (e.g. brand names like "ViPER4Android")
        can be omitted from this file, the default English value will be used.
 -->
