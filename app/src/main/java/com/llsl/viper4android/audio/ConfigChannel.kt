@@ -68,7 +68,13 @@ object ConfigChannel {
         synchronized(writeLock) {
             if (initDone.get() && statusBuffer != null) return
             try {
-                setupViaSu()
+                if (mapShm()) {
+                    FileLogger.i("ConfigChannel", "Direct mmap succeeded")
+                    initDone.set(true)
+                    return
+                }
+                FileLogger.w("ConfigChannel", "Direct mmap failed, trying su fallback")
+                createShmViaSu()
                 mapShm()
                 initDone.set(true)
             } catch (e: Exception) {
@@ -77,9 +83,8 @@ object ConfigChannel {
         }
     }
 
-    private fun setupViaSu() {
-        val cmds = arrayOf(
-            "su", "-c",
+    private fun createShmViaSu() {
+        RootShell.exec(
             "mkdir -p /data/local/tmp/v4a/hp /data/local/tmp/v4a/spk && " +
                     "[ ! -f $SHM_STATUS_PATH ] && dd if=/dev/zero of=$SHM_STATUS_PATH bs=$STATUS_SHM_SIZE count=1 2>/dev/null; " +
                     "[ ! -f $SHM_HP_PATH ] && dd if=/dev/zero of=$SHM_HP_PATH bs=$PARAM_SHM_SIZE count=1 2>/dev/null; " +
@@ -88,8 +93,6 @@ object ConfigChannel {
                     "chcon u:object_r:shell_data_file:s0 $SHM_STATUS_PATH $SHM_HP_PATH $SHM_SPK_PATH 2>/dev/null; " +
                     "echo ok"
         )
-        val process = Runtime.getRuntime().exec(cmds)
-        process.waitFor()
     }
 
     private fun mapShm(): Boolean {
@@ -361,14 +364,10 @@ object ConfigChannel {
     private fun readStatusViaSu(): FileDriverStatus? {
         try {
             val statusRegionSize = 128
-            val process = Runtime.getRuntime().exec(
-                arrayOf(
-                    "su", "-c",
-                    "xxd -p -l $statusRegionSize -s $STATUS_DATA_OFFSET $SHM_STATUS_PATH"
-                )
+            val process = RootShell.exec(
+                "xxd -p -l $statusRegionSize -s $STATUS_DATA_OFFSET $SHM_STATUS_PATH"
             )
             val hex = process.inputStream.bufferedReader().readText().trim().replace("\n", "")
-            process.waitFor()
             if (hex.length < 256) return null
 
             val bytes = ByteArray(128)
@@ -437,14 +436,12 @@ object ConfigChannel {
         try {
             val legacyPath = "/data/local/tmp/v4a/params.bin"
             val tmpPath = "$legacyPath.tmp"
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "cat > $tmpPath"))
+            val su = RootShell.getSuPath()
+            val process = Runtime.getRuntime().exec(arrayOf(su, "-c", "cat > $tmpPath"))
             process.outputStream.use { it.write(data) }
             process.waitFor()
 
-            val mv = Runtime.getRuntime().exec(
-                arrayOf("su", "-c", "mv $tmpPath $legacyPath && chmod 666 $legacyPath")
-            )
-            mv.waitFor()
+            RootShell.exec("mv $tmpPath $legacyPath && chmod 666 $legacyPath")
         } catch (e: Exception) {
             FileLogger.e("ConfigChannel", "Failed to write via su fallback", e)
         }

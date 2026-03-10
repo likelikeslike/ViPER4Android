@@ -15,6 +15,7 @@ import com.llsl.viper4android.audio.ConfigChannel
 import com.llsl.viper4android.audio.EffectDispatcher
 import com.llsl.viper4android.audio.FileLogger
 import com.llsl.viper4android.audio.ParamEntry
+import com.llsl.viper4android.audio.RootShell
 import com.llsl.viper4android.audio.ViperEffect
 import com.llsl.viper4android.audio.ViperParams
 import com.llsl.viper4android.data.model.DsPreset
@@ -1048,14 +1049,7 @@ class MainViewModel @Inject constructor(
             val safeName = fileName.replace("'", "")
             val subDir = if (activeDeviceType == ViperParams.FX_TYPE_SPEAKER) "spk" else "hp"
             val kernelPath = "/data/local/tmp/v4a/$subDir/$safeName"
-            val tmpPath = "$kernelPath.tmp"
-            val process = Runtime.getRuntime().exec(
-                arrayOf(
-                    "su", "-c",
-                    "mkdir -p /data/local/tmp/v4a/$subDir && cp '${file.absolutePath}' '$tmpPath' && mv '$tmpPath' '$kernelPath' && chmod 644 '$kernelPath'"
-                )
-            )
-            process.waitFor()
+            RootShell.copyFile(file, kernelPath)
             FileLogger.i("ViewModel", "Kernel copied to $kernelPath (for full state)")
             val param = if (activeDeviceType == ViperParams.FX_TYPE_SPEAKER)
                 ViperParams.PARAM_SPK_CONVOLVER_SET_KERNEL else ViperParams.PARAM_HP_CONVOLVER_SET_KERNEL
@@ -3051,14 +3045,7 @@ class MainViewModel @Inject constructor(
             val safeName = fileName.replace("'", "")
             val subDir = if (activeDeviceType == ViperParams.FX_TYPE_SPEAKER) "spk" else "hp"
             val kernelPath = "/data/local/tmp/v4a/$subDir/$safeName"
-            val tmpPath = "$kernelPath.tmp"
-            val process = Runtime.getRuntime().exec(
-                arrayOf(
-                    "su", "-c",
-                    "mkdir -p /data/local/tmp/v4a/$subDir && cp '${file.absolutePath}' '$tmpPath' && mv '$tmpPath' '$kernelPath' && chmod 644 '$kernelPath'"
-                )
-            )
-            process.waitFor()
+            RootShell.copyFile(file, kernelPath)
             FileLogger.i("ViewModel", "Kernel copied to $kernelPath")
 
             val param = if (activeDeviceType == ViperParams.FX_TYPE_SPEAKER)
