@@ -11,7 +11,7 @@
             localeFilters += setOf("en", "{new qualifier}")
         }
     6. Strings that should NOT be translated (e.g. brand names like "ViPER4Android")
-       can be omitted from this file, the default English value will be used.
+       can be deleted from this file, the default English value will be used.
 -->
 <resources>
     <string name="app_name">placeholder</string>
@@ -128,6 +128,9 @@
     <string name="label_bass_mode">placeholder</string>
     <string name="label_bass_frequency">placeholder</string>
     <string name="label_bass_gain">placeholder</string>
+
+    <!-- ViPER Bass Mono -->
+    <string name="section_viper_bass_mono">ViPER Bass Mono</string>
 
     <!-- ViPER Clarity -->
     <string name="section_viper_clarity">placeholder</string>

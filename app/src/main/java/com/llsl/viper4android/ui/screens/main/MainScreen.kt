@@ -267,6 +267,7 @@ private fun EffectList(
         item { DynamicSystemSection(state, viewModel, isSpkMode) }
         item { TubeSimulatorSection(state, viewModel, isSpkMode) }
         item { ViperBassSection(state, viewModel, isSpkMode) }
+        item { ViperBassMonoSection(state, viewModel, isSpkMode) }
         item { ViperClaritySection(state, viewModel, isSpkMode) }
         item { AuditoryProtectionSection(state, viewModel, isSpkMode) }
         item { AnalogXSection(state, viewModel, isSpkMode) }

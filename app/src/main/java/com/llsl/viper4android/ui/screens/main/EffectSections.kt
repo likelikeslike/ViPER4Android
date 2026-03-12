@@ -704,7 +704,8 @@ fun DynamicSystemSection(state: MainUiState, viewModel: MainViewModel, isSpkMode
         onEnabledChange = onEnabledChange,
         icon = Icons.Default.Speaker
     ) {
-        val presetName = dsPresets.find { it.id == dsPresetId }?.name ?: "Custom"
+        val presetName =
+            dsPresets.find { it.id == dsPresetId }?.name ?: stringResource(R.string.label_ds_custom)
         LabeledDropdown(
             label = stringResource(R.string.label_ds_preset),
             selectedValue = presetName,
@@ -897,13 +898,70 @@ fun ViperBassSection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Bo
             label = stringResource(R.string.label_bass_gain),
             value = bassGain.toFloat(),
             onValueChange = { onGainChange(it.roundToInt()) },
-            valueRange = 0f..11f,
-            steps = 10,
+            valueRange = 0f..19f,
+            steps = 18,
             valueLabel = "${
-                MainViewModel.BASS_GAIN_DB_LABELS.getOrElse(bassGain) {
-                    "%.1f".format(
-                        bassGain * 0.5
-                    )
+                if (bassMode == 2) {
+                    MainViewModel.BASS_SUBWOOFER_GAIN_DB_LABELS.getOrElse(bassGain) { "--" }
+                } else {
+                    MainViewModel.BASS_GAIN_DB_LABELS.getOrElse(bassGain) { "--" }
+                }
+            }dB"
+        )
+    }
+}
+
+@Composable
+fun ViperBassMonoSection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Boolean = false) {
+    val enabled = if (isSpkMode) state.spkBassMonoEnabled else state.bassMonoEnabled
+    val mode = if (isSpkMode) state.spkBassMonoMode else state.bassMonoMode
+    val frequency = if (isSpkMode) state.spkBassMonoFrequency else state.bassMonoFrequency
+    val gain = if (isSpkMode) state.spkBassMonoGain else state.bassMonoGain
+    val onEnabledChange: (Boolean) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoEnabled else viewModel::setBassMonoEnabled
+    val onModeChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoMode else viewModel::setBassMonoMode
+    val onFrequencyChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoFrequency else viewModel::setBassMonoFrequency
+    val onGainChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoGain else viewModel::setBassMonoGain
+
+    val modeNames = listOf(
+        stringResource(R.string.bass_mode_natural),
+        stringResource(R.string.bass_mode_pure),
+        stringResource(R.string.bass_mode_subwoofer)
+    )
+
+    EffectSection(
+        title = stringResource(R.string.section_viper_bass_mono),
+        enabled = enabled,
+        onEnabledChange = onEnabledChange,
+        icon = Icons.Default.GraphicEq
+    ) {
+        LabeledDropdown(
+            label = stringResource(R.string.label_bass_mode),
+            selectedValue = modeNames.getOrElse(mode) { modeNames[0] },
+            options = modeNames,
+            onOptionSelected = { index, _ -> onModeChange(index) }
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_bass_frequency),
+            value = frequency.toFloat(),
+            onValueChange = { onFrequencyChange(it.roundToInt()) },
+            valueRange = 0f..135f,
+            valueLabel = "${frequency + 15}Hz"
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_bass_gain),
+            value = gain.toFloat(),
+            onValueChange = { onGainChange(it.roundToInt()) },
+            valueRange = 0f..19f,
+            steps = 18,
+            valueLabel = "${
+                if (mode == 2) {
+                    MainViewModel.BASS_SUBWOOFER_GAIN_DB_LABELS.getOrElse(gain) { "--" }
+                } else {
+                    MainViewModel.BASS_GAIN_DB_LABELS.getOrElse(gain) { "--" }
                 }
             }dB"
         )
