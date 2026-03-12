@@ -911,6 +911,57 @@ fun ViperBassSection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Bo
 }
 
 @Composable
+fun ViperBassMonoSection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Boolean = false) {
+    val enabled = if (isSpkMode) state.spkBassMonoEnabled else state.bassMonoEnabled
+    val mode = if (isSpkMode) state.spkBassMonoMode else state.bassMonoMode
+    val frequency = if (isSpkMode) state.spkBassMonoFrequency else state.bassMonoFrequency
+    val gain = if (isSpkMode) state.spkBassMonoGain else state.bassMonoGain
+    val onEnabledChange: (Boolean) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoEnabled else viewModel::setBassMonoEnabled
+    val onModeChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoMode else viewModel::setBassMonoMode
+    val onFrequencyChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoFrequency else viewModel::setBassMonoFrequency
+    val onGainChange: (Int) -> Unit =
+        if (isSpkMode) viewModel::setSpkBassMonoGain else viewModel::setBassMonoGain
+
+    val modeNames = listOf(
+        stringResource(R.string.bass_mode_natural),
+        stringResource(R.string.bass_mode_pure),
+        stringResource(R.string.bass_mode_subwoofer)
+    )
+
+    EffectSection(
+        title = stringResource(R.string.section_viper_bass_mono),
+        enabled = enabled,
+        onEnabledChange = onEnabledChange,
+        icon = Icons.Default.GraphicEq
+    ) {
+        LabeledDropdown(
+            label = stringResource(R.string.label_bass_mode),
+            selectedValue = modeNames.getOrElse(mode) { modeNames[0] },
+            options = modeNames,
+            onOptionSelected = { index, _ -> onModeChange(index) }
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_bass_frequency),
+            value = frequency.toFloat(),
+            onValueChange = { onFrequencyChange(it.roundToInt()) },
+            valueRange = 0f..135f,
+            valueLabel = "${frequency + 15}Hz"
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_bass_gain),
+            value = gain.toFloat(),
+            onValueChange = { onGainChange(it.roundToInt()) },
+            valueRange = 50f..1000f,
+            steps = 94,
+            valueLabel = "$gain"
+        )
+    }
+}
+
+@Composable
 fun ViperClaritySection(state: MainUiState, viewModel: MainViewModel, isSpkMode: Boolean = false) {
     val clarityEnabled = if (isSpkMode) state.spkClarityEnabled else state.clarityEnabled
     val clarityMode = if (isSpkMode) state.spkClarityMode else state.clarityMode

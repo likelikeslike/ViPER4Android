@@ -53,6 +53,11 @@ object ViperParams {
     const val PARAM_HP_BASS_FREQUENCY = 0x10162
     const val PARAM_HP_BASS_GAIN = 0x10163
 
+    const val PARAM_HP_BASS_MONO_ENABLE = 0x10164
+    const val PARAM_HP_BASS_MONO_MODE = 0x10165
+    const val PARAM_HP_BASS_MONO_FREQUENCY = 0x10166
+    const val PARAM_HP_BASS_MONO_GAIN = 0x10167
+
     const val PARAM_HP_CLARITY_ENABLE = 0x10170
     const val PARAM_HP_CLARITY_MODE = 0x10171
     const val PARAM_HP_CLARITY_GAIN = 0x10172
@@ -138,6 +143,11 @@ object ViperParams {
     const val PARAM_SPK_BASS_MODE = 0x10361
     const val PARAM_SPK_BASS_FREQUENCY = 0x10362
     const val PARAM_SPK_BASS_GAIN = 0x10363
+
+    const val PARAM_SPK_BASS_MONO_ENABLE = 0x10364
+    const val PARAM_SPK_BASS_MONO_MODE = 0x10365
+    const val PARAM_SPK_BASS_MONO_FREQUENCY = 0x10366
+    const val PARAM_SPK_BASS_MONO_GAIN = 0x10367
 
     const val PARAM_SPK_CLARITY_ENABLE = 0x10370
     const val PARAM_SPK_CLARITY_MODE = 0x10371

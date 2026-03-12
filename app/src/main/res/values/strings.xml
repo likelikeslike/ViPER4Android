@@ -115,6 +115,9 @@
     <string name="label_bass_frequency">Frequency</string>
     <string name="label_bass_gain">Gain</string>
 
+    <!-- ViPER Bass Mono -->
+    <string name="section_viper_bass_mono">ViPER Bass Mono</string>
+
     <!-- ViPER Clarity -->
     <string name="section_viper_clarity">ViPER Clarity</string>
     <string name="label_clarity_mode">Mode</string>

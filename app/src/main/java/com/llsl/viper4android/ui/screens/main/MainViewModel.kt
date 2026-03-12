@@ -136,6 +136,11 @@ data class MainUiState(
     val bassFrequency: Int = 55,
     val bassGain: Int = 0,
 
+    val bassMonoEnabled: Boolean = false,
+    val bassMonoMode: Int = 0,
+    val bassMonoFrequency: Int = 55,
+    val bassMonoGain: Int = 50,
+
     val clarityEnabled: Boolean = false,
     val clarityMode: Int = 0,
     val clarityGain: Int = 1,
@@ -182,6 +187,11 @@ data class MainUiState(
     val spkBassMode: Int = 0,
     val spkBassFrequency: Int = 55,
     val spkBassGain: Int = 0,
+
+    val spkBassMonoEnabled: Boolean = false,
+    val spkBassMonoMode: Int = 0,
+    val spkBassMonoFrequency: Int = 55,
+    val spkBassMonoGain: Int = 50,
 
     val spkClarityEnabled: Boolean = false,
     val spkClarityMode: Int = 0,
@@ -433,6 +443,8 @@ class MainViewModel @Inject constructor(
             repository.getBooleanPreference("${ViperParams.PARAM_HP_TUBE_SIMULATOR_ENABLE}").first()
         val bassEnabled =
             repository.getBooleanPreference("${ViperParams.PARAM_HP_BASS_ENABLE}").first()
+        val bassMonoEnabled =
+            repository.getBooleanPreference("${ViperParams.PARAM_HP_BASS_MONO_ENABLE}").first()
         val clarityEnabled =
             repository.getBooleanPreference("${ViperParams.PARAM_HP_CLARITY_ENABLE}").first()
         val cureEnabled =
@@ -502,6 +514,12 @@ class MainViewModel @Inject constructor(
         val bassFrequency =
             repository.getIntPreference("${ViperParams.PARAM_HP_BASS_FREQUENCY}", 55).first()
         val bassGain = repository.getIntPreference("${ViperParams.PARAM_HP_BASS_GAIN}", 0).first()
+        val bassMonoMode =
+            repository.getIntPreference("${ViperParams.PARAM_HP_BASS_MONO_MODE}", 0).first()
+        val bassMonoFrequency =
+            repository.getIntPreference("${ViperParams.PARAM_HP_BASS_MONO_FREQUENCY}", 55).first()
+        val bassMonoGain =
+            repository.getIntPreference("${ViperParams.PARAM_HP_BASS_MONO_GAIN}", 50).first()
         val clarityMode =
             repository.getIntPreference("${ViperParams.PARAM_HP_CLARITY_MODE}", 0).first()
         val clarityGain =
@@ -651,6 +669,10 @@ class MainViewModel @Inject constructor(
                 bassMode = bassMode,
                 bassFrequency = bassFrequency,
                 bassGain = bassGain,
+                bassMonoEnabled = bassMonoEnabled,
+                bassMonoMode = bassMonoMode,
+                bassMonoFrequency = bassMonoFrequency,
+                bassMonoGain = bassMonoGain,
                 clarityEnabled = clarityEnabled,
                 clarityMode = clarityMode,
                 clarityGain = clarityGain,
@@ -729,6 +751,15 @@ class MainViewModel @Inject constructor(
             repository.getIntPreference("spk_${ViperParams.PARAM_SPK_BASS_FREQUENCY}", 55).first()
         val spkBassGain =
             repository.getIntPreference("spk_${ViperParams.PARAM_SPK_BASS_GAIN}", 0).first()
+        val spkBassMonoEnabled =
+            repository.getBooleanPreference("spk_${ViperParams.PARAM_SPK_BASS_MONO_ENABLE}").first()
+        val spkBassMonoMode =
+            repository.getIntPreference("spk_${ViperParams.PARAM_SPK_BASS_MONO_MODE}", 0).first()
+        val spkBassMonoFrequency =
+            repository.getIntPreference("spk_${ViperParams.PARAM_SPK_BASS_MONO_FREQUENCY}", 55)
+                .first()
+        val spkBassMonoGain =
+            repository.getIntPreference("spk_${ViperParams.PARAM_SPK_BASS_MONO_GAIN}", 50).first()
         val spkClarityEnabled =
             repository.getBooleanPreference("spk_${ViperParams.PARAM_SPK_CLARITY_ENABLE}").first()
         val spkClarityMode =
@@ -892,6 +923,10 @@ class MainViewModel @Inject constructor(
                 spkBassMode = spkBassMode,
                 spkBassFrequency = spkBassFrequency,
                 spkBassGain = spkBassGain,
+                spkBassMonoEnabled = spkBassMonoEnabled,
+                spkBassMonoMode = spkBassMonoMode,
+                spkBassMonoFrequency = spkBassMonoFrequency,
+                spkBassMonoGain = spkBassMonoGain,
                 spkClarityEnabled = spkClarityEnabled,
                 spkClarityMode = spkClarityMode,
                 spkClarityGain = spkClarityGain,
@@ -1888,6 +1923,42 @@ class MainViewModel @Inject constructor(
         }; hpDispatchInt(ViperParams.PARAM_HP_BASS_GAIN, v * 50 + 50)
     }
 
+    fun setBassMonoEnabled(enabled: Boolean) {
+        FileLogger.i("ViewModel", "Bass Mono: ${if (enabled) "ON" else "OFF"}")
+        _uiState.update { it.copy(bassMonoEnabled = enabled) }
+        saveAndDispatchBool(
+            "${ViperParams.PARAM_HP_BASS_MONO_ENABLE}",
+            ViperParams.PARAM_HP_BASS_MONO_ENABLE,
+            enabled
+        )
+    }
+
+    fun setBassMonoMode(mode: Int) {
+        _uiState.update { it.copy(bassMonoMode = mode) }; saveAndDispatchInt(
+            "${ViperParams.PARAM_HP_BASS_MONO_MODE}",
+            ViperParams.PARAM_HP_BASS_MONO_MODE,
+            mode
+        )
+    }
+
+    fun setBassMonoFrequency(v: Int) {
+        _uiState.update { it.copy(bassMonoFrequency = v) }; viewModelScope.launch {
+            repository.setIntPreference(
+                "${ViperParams.PARAM_HP_BASS_MONO_FREQUENCY}",
+                v
+            )
+        }; hpDispatchInt(ViperParams.PARAM_HP_BASS_MONO_FREQUENCY, v + 15)
+    }
+
+    fun setBassMonoGain(v: Int) {
+        _uiState.update { it.copy(bassMonoGain = v) }; viewModelScope.launch {
+            repository.setIntPreference(
+                "${ViperParams.PARAM_HP_BASS_MONO_GAIN}",
+                v
+            )
+        }; hpDispatchInt(ViperParams.PARAM_HP_BASS_MONO_GAIN, v)
+    }
+
     fun setClarityEnabled(enabled: Boolean) {
         FileLogger.i("ViewModel", "Clarity: ${if (enabled) "ON" else "OFF"}")
         _uiState.update { it.copy(clarityEnabled = enabled) }
@@ -2731,6 +2802,42 @@ class MainViewModel @Inject constructor(
         }; spkDispatchInt(ViperParams.PARAM_SPK_BASS_GAIN, v * 50 + 50)
     }
 
+    fun setSpkBassMonoEnabled(enabled: Boolean) {
+        FileLogger.i("ViewModel", "[Spk] Bass Mono: ${if (enabled) "ON" else "OFF"}")
+        _uiState.update { it.copy(spkBassMonoEnabled = enabled) }
+        spkSaveAndDispatchBool(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_ENABLE}",
+            ViperParams.PARAM_SPK_BASS_MONO_ENABLE,
+            enabled
+        )
+    }
+
+    fun setSpkBassMonoMode(mode: Int) {
+        _uiState.update { it.copy(spkBassMonoMode = mode) }; spkSaveAndDispatchInt(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_MODE}",
+            ViperParams.PARAM_SPK_BASS_MONO_MODE,
+            mode
+        )
+    }
+
+    fun setSpkBassMonoFrequency(v: Int) {
+        _uiState.update { it.copy(spkBassMonoFrequency = v) }; viewModelScope.launch {
+            repository.setIntPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_FREQUENCY}",
+                v
+            )
+        }; spkDispatchInt(ViperParams.PARAM_SPK_BASS_MONO_FREQUENCY, v + 15)
+    }
+
+    fun setSpkBassMonoGain(v: Int) {
+        _uiState.update { it.copy(spkBassMonoGain = v) }; viewModelScope.launch {
+            repository.setIntPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_GAIN}",
+                v
+            )
+        }; spkDispatchInt(ViperParams.PARAM_SPK_BASS_MONO_GAIN, v)
+    }
+
     fun setSpkClarityEnabled(enabled: Boolean) {
         FileLogger.i("ViewModel", "[Spk] Clarity: ${if (enabled) "ON" else "OFF"}")
         _uiState.update { it.copy(spkClarityEnabled = enabled) }
@@ -3299,6 +3406,16 @@ class MainViewModel @Inject constructor(
         repository.setIntPreference("${ViperParams.PARAM_HP_BASS_MODE}", s.bassMode)
         repository.setIntPreference("${ViperParams.PARAM_HP_BASS_FREQUENCY}", s.bassFrequency)
         repository.setIntPreference("${ViperParams.PARAM_HP_BASS_GAIN}", s.bassGain)
+        repository.setBooleanPreference(
+            "${ViperParams.PARAM_HP_BASS_MONO_ENABLE}",
+            s.bassMonoEnabled
+        )
+        repository.setIntPreference("${ViperParams.PARAM_HP_BASS_MONO_MODE}", s.bassMonoMode)
+        repository.setIntPreference(
+            "${ViperParams.PARAM_HP_BASS_MONO_FREQUENCY}",
+            s.bassMonoFrequency
+        )
+        repository.setIntPreference("${ViperParams.PARAM_HP_BASS_MONO_GAIN}", s.bassMonoGain)
         repository.setBooleanPreference("${ViperParams.PARAM_HP_CLARITY_ENABLE}", s.clarityEnabled)
         repository.setIntPreference("${ViperParams.PARAM_HP_CLARITY_MODE}", s.clarityMode)
         repository.setIntPreference("${ViperParams.PARAM_HP_CLARITY_GAIN}", s.clarityGain)
@@ -3375,6 +3492,22 @@ class MainViewModel @Inject constructor(
             s.spkBassFrequency
         )
         repository.setIntPreference("spk_${ViperParams.PARAM_SPK_BASS_GAIN}", s.spkBassGain)
+        repository.setBooleanPreference(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_ENABLE}",
+            s.spkBassMonoEnabled
+        )
+        repository.setIntPreference(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_MODE}",
+            s.spkBassMonoMode
+        )
+        repository.setIntPreference(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_FREQUENCY}",
+            s.spkBassMonoFrequency
+        )
+        repository.setIntPreference(
+            "spk_${ViperParams.PARAM_SPK_BASS_MONO_GAIN}",
+            s.spkBassMonoGain
+        )
         repository.setBooleanPreference(
             "spk_${ViperParams.PARAM_SPK_CLARITY_ENABLE}",
             s.spkClarityEnabled
@@ -3736,6 +3869,22 @@ class MainViewModel @Inject constructor(
                 s.spkBassFrequency
             )
             repository.setIntPreference("spk_${ViperParams.PARAM_SPK_BASS_GAIN}", s.spkBassGain)
+            repository.setBooleanPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_ENABLE}",
+                s.spkBassMonoEnabled
+            )
+            repository.setIntPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_MODE}",
+                s.spkBassMonoMode
+            )
+            repository.setIntPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_FREQUENCY}",
+                s.spkBassMonoFrequency
+            )
+            repository.setIntPreference(
+                "spk_${ViperParams.PARAM_SPK_BASS_MONO_GAIN}",
+                s.spkBassMonoGain
+            )
             repository.setBooleanPreference(
                 "spk_${ViperParams.PARAM_SPK_CLARITY_ENABLE}",
                 s.spkClarityEnabled
