@@ -273,6 +273,8 @@ class MainViewModel @Inject constructor(
 
         const val PREF_AUTO_START = "auto_start"
         const val PREF_AIDL_MODE = "aidl_mode"
+        const val PREF_GLOBAL_MODE = "global_mode"
+        const val PREF_DEBUG_MODE = "debug_mode"
     }
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -296,6 +298,9 @@ class MainViewModel @Inject constructor(
 
     private val _aidlModeEnabled = MutableStateFlow(false)
     val aidlModeEnabled: StateFlow<Boolean> = _aidlModeEnabled.asStateFlow()
+
+    private val _globalModeEnabled = MutableStateFlow(false)
+    val globalModeEnabled: StateFlow<Boolean> = _globalModeEnabled.asStateFlow()
 
     private val _debugModeEnabled = MutableStateFlow(false)
     val debugModeEnabled: StateFlow<Boolean> = _debugModeEnabled.asStateFlow()
@@ -4046,7 +4051,12 @@ class MainViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            repository.getBooleanPreference("debug_mode").collect { v ->
+            repository.getBooleanPreference(PREF_GLOBAL_MODE).collect { v ->
+                _globalModeEnabled.value = v
+            }
+        }
+        viewModelScope.launch {
+            repository.getBooleanPreference(PREF_DEBUG_MODE).collect { v ->
                 _debugModeEnabled.value = v
             }
         }
@@ -4054,12 +4064,12 @@ class MainViewModel @Inject constructor(
 
     fun enableDebugMode() {
         _debugModeEnabled.value = true
-        viewModelScope.launch { repository.setBooleanPreference("debug_mode", true) }
+        viewModelScope.launch { repository.setBooleanPreference(PREF_DEBUG_MODE, true) }
     }
 
     fun disableDebugMode() {
         _debugModeEnabled.value = false
-        viewModelScope.launch { repository.setBooleanPreference("debug_mode", false) }
+        viewModelScope.launch { repository.setBooleanPreference(PREF_DEBUG_MODE, false) }
     }
 
     fun savePreset(name: String) {
@@ -4185,13 +4195,20 @@ class MainViewModel @Inject constructor(
         }
     }
 
-
     fun toggleAidlMode(enabled: Boolean) {
         _aidlModeEnabled.value = enabled
         viewModelScope.launch {
             repository.setBooleanPreference(PREF_AIDL_MODE, enabled)
         }
         viperService?.recreateGlobalEffect(enabled)
+    }
+
+    fun toggleGlobalMode(enabled: Boolean) {
+        _globalModeEnabled.value = enabled
+        viewModelScope.launch {
+            repository.setBooleanPreference(PREF_GLOBAL_MODE, enabled)
+        }
+        viperService?.setGlobalMode(enabled)
     }
 
     private fun serializeStateForMode(state: MainUiState, fxType: Int): String {

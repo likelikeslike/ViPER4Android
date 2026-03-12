@@ -57,6 +57,7 @@ fun MainScreen(
     val driverStatus by viewModel.driverStatus.collectAsStateWithLifecycle()
     val autoStart by viewModel.autoStartEnabled.collectAsStateWithLifecycle()
     val aidlMode by viewModel.aidlModeEnabled.collectAsStateWithLifecycle()
+    val globalMode by viewModel.globalModeEnabled.collectAsStateWithLifecycle()
     val debugMode by viewModel.debugModeEnabled.collectAsStateWithLifecycle()
 
     var showPresetDialog by remember { mutableStateOf(false) }
@@ -145,6 +146,8 @@ fun MainScreen(
         SettingsDialog(
             autoStartEnabled = autoStart,
             aidlModeEnabled = aidlMode,
+            globalModeEnabled = globalMode,
+            onGlobalModeChanged = viewModel::toggleGlobalMode,
             driverStatus = driverStatus,
             appVersionName = appVersionName,
             onAutoStartChanged = viewModel::toggleAutoStart,

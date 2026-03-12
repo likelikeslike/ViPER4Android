@@ -64,6 +64,7 @@ class ViperService : LifecycleService() {
     private val sessions = SparseArray<ViperEffect>()
     private var globalEffect: ViperEffect? = null
     private var useAidlTypeUuid: Boolean = true
+    private var globalMode: Boolean = false
     private var audioOutputDetector: AudioOutputDetector? = null
 
     override fun onCreate() {
@@ -73,7 +74,10 @@ class ViperService : LifecycleService() {
         FileLogger.i("Service", "Service created")
         lifecycleScope.launch {
             useAidlTypeUuid = repository.getBooleanPreference(MainViewModel.PREF_AIDL_MODE).first()
-            initGlobalEffect()
+            globalMode = repository.getBooleanPreference(MainViewModel.PREF_GLOBAL_MODE).first()
+            if (globalMode) {
+                initGlobalEffect()
+            }
             startAudioOutputMonitor()
         }
     }
@@ -194,6 +198,13 @@ class ViperService : LifecycleService() {
     }
 
     private fun openSession(sessionId: Int, packageName: String) {
+        if (globalMode) {
+            FileLogger.d(
+                "Service",
+                "Global mode: skipping per-app session $sessionId ($packageName)"
+            )
+            return
+        }
         if (sessions.get(sessionId) != null) {
             FileLogger.w("Service", "Session $sessionId already open")
             return
@@ -1240,7 +1251,22 @@ class ViperService : LifecycleService() {
         globalEffect?.let { it.enabled = false; it.release() }
         globalEffect = null
         useAidlTypeUuid = aidlType
-        initGlobalEffect()
+        if (globalMode) {
+            initGlobalEffect()
+        }
+    }
+
+    fun setGlobalMode(enabled: Boolean) {
+        globalMode = enabled
+        if (enabled) {
+            releaseAllSessions()
+            if (globalEffect == null) {
+                initGlobalEffect()
+            }
+        } else {
+            globalEffect?.let { it.enabled = false; it.release() }
+            globalEffect = null
+        }
     }
 
     private fun createNotificationChannel() {
