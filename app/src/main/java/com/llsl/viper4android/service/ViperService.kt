@@ -410,7 +410,7 @@ class ViperService : LifecycleService() {
         val ddcDevice =
             if (state.fxType == ViperParams.FX_TYPE_SPEAKER) state.spkDdcDevice else state.ddcDevice
         if (ddcEnabled && ddcDevice.isNotEmpty()) {
-            prepareDdcByteArray(ddcDevice)?.let { result.add(it) }
+            prepareDdcByteArray(ddcDevice, state.fxType)?.let { result.add(it) }
         }
         val convolverEnabled =
             if (state.fxType == ViperParams.FX_TYPE_SPEAKER) state.spkConvolverEnabled else state.convolverEnabled
@@ -422,7 +422,7 @@ class ViperService : LifecycleService() {
         return result.ifEmpty { null }
     }
 
-    private fun prepareDdcByteArray(name: String): ByteArrayParam? {
+    private fun prepareDdcByteArray(name: String, fxType: Int): ByteArrayParam? {
         return try {
             val ddcDir = java.io.File(getExternalFilesDir(null), "DDC")
             val file = java.io.File(ddcDir, "$name.vdc")
@@ -454,12 +454,14 @@ class ViperService : LifecycleService() {
                 naturalSize <= 1024 -> 1024
                 else -> return null
             }
+            val param = if (fxType == ViperParams.FX_TYPE_SPEAKER)
+                ViperParams.PARAM_SPK_DDC_COEFFICIENTS else ViperParams.PARAM_HP_DDC_COEFFICIENTS
             val buffer =
                 java.nio.ByteBuffer.allocate(wireSize).order(java.nio.ByteOrder.LITTLE_ENDIAN)
             buffer.putInt(arrSize)
             for (f in coeffs44100) buffer.putFloat(f)
             for (f in coeffs48000) buffer.putFloat(f)
-            ByteArrayParam(ViperParams.PARAM_HP_DDC_COEFFICIENTS, buffer.array())
+            ByteArrayParam(param, buffer.array())
         } catch (e: Exception) {
             FileLogger.e("Service", "Failed to prepare DDC: $name", e)
             null
