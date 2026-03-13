@@ -12,9 +12,6 @@ object ViperParams {
     const val PARAM_GET_ARCHITECTURE = 8
 
     const val PARAM_SET_UPDATE_STATUS = 0x10001
-    const val PARAM_SET_RESET_STATUS = 0x10002
-
-    const val PARAM_FX_TYPE_SWITCH = 0x10003
 
     const val PARAM_HP_CONVOLVER_ENABLE = 0x10100
     const val PARAM_HP_CONVOLVER_SET_KERNEL = 0x10101

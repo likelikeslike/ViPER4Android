@@ -392,7 +392,6 @@ class ViperService : LifecycleService() {
                 intArrayOf(if (masterEnabled) 1 else 0)
             )
         )
-        params.add(ParamEntry(ViperParams.PARAM_FX_TYPE_SWITCH, intArrayOf(state.fxType)))
         if (state.fxType == ViperParams.FX_TYPE_HEADPHONE) {
             collectHeadphoneParams(params, state)
         } else {
