@@ -190,6 +190,7 @@
     <!-- Settings -->
     <string name="settings_auto_start">placeholder</string>
     <string name="settings_aidl_mode">placeholder</string>
+    <string name="settings_global_mode">placeholder</string>
     <string name="settings_driver_version">placeholder</string>
     <string name="settings_driver_arch">placeholder</string>
     <string name="settings_app_version">placeholder</string>

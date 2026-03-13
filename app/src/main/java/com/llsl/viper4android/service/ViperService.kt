@@ -16,6 +16,7 @@ import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.llsl.viper4android.R
 import com.llsl.viper4android.audio.AudioOutputDetector
+import com.llsl.viper4android.audio.AudioSessionMonitor
 import com.llsl.viper4android.audio.ByteArrayParam
 import com.llsl.viper4android.audio.ConfigChannel
 import com.llsl.viper4android.audio.EffectDispatcher
@@ -43,10 +44,6 @@ class ViperService : LifecycleService() {
 
         const val ACTION_START = "com.llsl.viper4android.service.START"
         const val ACTION_STOP = "com.llsl.viper4android.service.STOP"
-        const val ACTION_SESSION_OPEN = "com.llsl.viper4android.service.SESSION_OPEN"
-        const val ACTION_SESSION_CLOSE = "com.llsl.viper4android.service.SESSION_CLOSE"
-        const val EXTRA_AUDIO_SESSION = "android.media.extra.AUDIO_SESSION"
-        const val EXTRA_PACKAGE_NAME = "android.media.extra.PACKAGE_NAME"
 
         fun startService(context: Context) {
             val intent = Intent(context, ViperService::class.java).apply {
@@ -64,7 +61,9 @@ class ViperService : LifecycleService() {
     private val sessions = SparseArray<ViperEffect>()
     private var globalEffect: ViperEffect? = null
     private var useAidlTypeUuid: Boolean = true
+    private var globalMode: Boolean = false
     private var audioOutputDetector: AudioOutputDetector? = null
+    private var sessionMonitor: AudioSessionMonitor? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -73,7 +72,12 @@ class ViperService : LifecycleService() {
         FileLogger.i("Service", "Service created")
         lifecycleScope.launch {
             useAidlTypeUuid = repository.getBooleanPreference(MainViewModel.PREF_AIDL_MODE).first()
-            initGlobalEffect()
+            globalMode = repository.getBooleanPreference(MainViewModel.PREF_GLOBAL_MODE).first()
+            if (globalMode) {
+                initGlobalEffect()
+            } else {
+                startSessionMonitor()
+            }
             startAudioOutputMonitor()
         }
     }
@@ -163,27 +167,12 @@ class ViperService : LifecycleService() {
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
             }
-
-            ACTION_SESSION_OPEN -> {
-                val sessionId = intent.getIntExtra(EXTRA_AUDIO_SESSION, -1)
-                val packageName = intent.getStringExtra(EXTRA_PACKAGE_NAME) ?: ""
-                if (sessionId >= 0) {
-                    openSession(sessionId, packageName)
-                }
-            }
-
-            ACTION_SESSION_CLOSE -> {
-                val sessionId = intent.getIntExtra(EXTRA_AUDIO_SESSION, -1)
-                if (sessionId >= 0) {
-                    closeSession(sessionId)
-                }
-            }
         }
-
         return START_STICKY
     }
 
     override fun onDestroy() {
+        stopSessionMonitor()
         audioOutputDetector?.stop()
         audioOutputDetector = null
         globalEffect?.let { it.enabled = false; it.release() }
@@ -193,7 +182,30 @@ class ViperService : LifecycleService() {
         super.onDestroy()
     }
 
+    private fun startSessionMonitor() {
+        stopSessionMonitor()
+        val monitor = AudioSessionMonitor(
+            context = this,
+            onSessionOpen = { sessionId, pkg -> openSession(sessionId, pkg) },
+            onSessionClose = { sessionId -> closeSession(sessionId) }
+        )
+        monitor.start()
+        sessionMonitor = monitor
+    }
+
+    private fun stopSessionMonitor() {
+        sessionMonitor?.stop()
+        sessionMonitor = null
+    }
+
     private fun openSession(sessionId: Int, packageName: String) {
+        if (globalMode) {
+            FileLogger.d(
+                "Service",
+                "Global mode: skipping per-app session $sessionId ($packageName)"
+            )
+            return
+        }
         if (sessions.get(sessionId) != null) {
             FileLogger.w("Service", "Session $sessionId already open")
             return
@@ -1239,7 +1251,24 @@ class ViperService : LifecycleService() {
         globalEffect?.let { it.enabled = false; it.release() }
         globalEffect = null
         useAidlTypeUuid = aidlType
-        initGlobalEffect()
+        if (globalMode) {
+            initGlobalEffect()
+        }
+    }
+
+    fun setGlobalMode(enabled: Boolean) {
+        globalMode = enabled
+        if (enabled) {
+            stopSessionMonitor()
+            releaseAllSessions()
+            if (globalEffect == null) {
+                initGlobalEffect()
+            }
+        } else {
+            globalEffect?.let { it.enabled = false; it.release() }
+            globalEffect = null
+            startSessionMonitor()
+        }
     }
 
     private fun createNotificationChannel() {

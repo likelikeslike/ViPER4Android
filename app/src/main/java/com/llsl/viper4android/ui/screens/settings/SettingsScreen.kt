@@ -29,10 +29,12 @@ import com.llsl.viper4android.ui.screens.main.DriverStatus
 fun SettingsDialog(
     autoStartEnabled: Boolean,
     aidlModeEnabled: Boolean,
+    globalModeEnabled: Boolean,
     driverStatus: DriverStatus,
     appVersionName: String,
     onAutoStartChanged: (Boolean) -> Unit,
     onAidlModeChanged: (Boolean) -> Unit,
+    onGlobalModeChanged: (Boolean) -> Unit,
     onImportPreset: () -> Unit,
     onImportKernel: () -> Unit,
     onDebugUnlocked: () -> Unit,
@@ -58,6 +60,12 @@ fun SettingsDialog(
                     label = stringResource(R.string.settings_aidl_mode),
                     checked = aidlModeEnabled,
                     onCheckedChange = onAidlModeChanged
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                SettingsToggleRow(
+                    label = stringResource(R.string.settings_global_mode),
+                    checked = globalModeEnabled,
+                    onCheckedChange = onGlobalModeChanged
                 )
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
                 Text(
