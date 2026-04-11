@@ -69,6 +69,7 @@
     <string name="label_agc_output_threshold">Порог вывода</string>
     <string name="label_agc_strength">Сила</string>
     <string name="label_analogx_mode">Режим</string>
+    <string name="label_bass_anti_pop">Плавное нарастание</string>
     <string name="label_bass_frequency">Частота</string>
     <string name="label_bass_gain">Усиление</string>
     <string name="label_bass_mode">Режим</string>
