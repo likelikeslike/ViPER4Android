@@ -81,6 +81,7 @@
     <string name="label_cure_strength">Уровень бинаурального эффекта</string>
     <string name="label_ddc_device">Корекция звука(DDC)</string>
     <string name="label_ddc_none">Фаил не выбран</string>
+    <string name="label_diff_surround_reverse">Инверсия</string>
     <string name="label_ds_custom">Пользовательский</string>
     <string name="label_ds_delay">Задержка</string>
     <string name="label_ds_preset">Профиль</string>
