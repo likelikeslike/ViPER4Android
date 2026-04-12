@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    How to add a new language:
+    1. Create a new directory: res/values-{qualifier}/strings.xml
+       See examples: https://developer.android.com/guide/topics/resources/app-languages#sample-config
+    2. Copy this file as a starting template.
+    3. Translate each <string> value (keep the name attribute unchanged).
+    4. Register the locale in res/xml/locales_config.xml:
+         <locale android:name="{BCP 47 tag}" />
+    5. Add the resource qualifier to resourceConfigurations in app/build.gradle.kts:
+         androidResources {
+            localeFilters += setOf("en", "{new qualifier}")
+        }
+    6. Strings that should NOT be translated (e.g. brand names like "ViPER4Android")
+       can be deleted from this file, the default English value will be used.
+-->
+<resources>
+    <string name="app_name">ViPER4Android</string>
+    <string name="notification_channel_id">ViPER4Android_сервис</string>
+    <string name="notification_channel_name">Обработка аудио</string>
+    <string name="notification_channel_description">Показывать когда ViPER4Android обрабатывает аудио</string>
+    <string name="notification_title">ViPER4Android</string>
+    <string name="notification_text">Обработка аудио активна</string>
+
+    <!-- Tabs -->
+    <string name="tab_headphone">Наушники</string>
+    <string name="tab_speaker">Динамик</string>
+
+    <!-- Master -->
+    <string name="master_enable">Мастер включён</string>
+    <string name="menu_driver_status">Статус драйвера</string>
+    <string name="menu_presets">Профили</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_devices">Устройства</string>
+
+    <!-- Output / Master limiter -->
+    <string name="section_output">Мастер-лимитер</string>
+    <string name="label_volume">Выходное усиление</string>
+    <string name="label_pan">Панорама на выходе</string>
+    <string name="label_limiter">Порог лимитера</string>
+
+    <!-- AGC -->
+    <string name="section_agc">Автоусиление(AGC)</string>
+    <string name="label_agc_strength">Сила</string>
+    <string name="label_agc_max_gain">Максимальное усиление</string>
+    <string name="label_agc_output_threshold">Порог вывода</string>
+
+    <!-- FET Compressor -->
+    <string name="section_fet_compressor">FET Компрессор</string>
+    <string name="label_fet_threshold">Порог</string>
+    <string name="label_fet_ratio">Степень сжатия</string>
+    <string name="label_fet_knee">Колено</string>
+    <string name="label_fet_auto_knee">Автоколено</string>
+    <string name="label_fet_knee_multi">Мульти колено</string>
+    <string name="label_fet_gain">Усиление</string>
+    <string name="label_fet_auto_gain">Автоусиление</string>
+    <string name="label_fet_attack">Атака</string>
+    <string name="label_fet_auto_attack">Автоатака</string>
+    <string name="label_fet_max_attack">Время атаки</string>
+    <string name="label_fet_release">Восстановление</string>
+    <string name="label_fet_auto_release">Автовосстановление</string>
+    <string name="label_fet_max_release">Время восстановления</string>
+    <string name="label_fet_crest">Крест-фактор</string>
+    <string name="label_fet_adapt">Адаптивный</string>
+    <string name="label_fet_no_clip">Предотвращение перезапуска</string>
+
+    <!-- DDC -->
+    <string name="section_ddc">Цифровая коррекция</string>
+    <string name="label_ddc_device">Корекция звука(DDC)</string>
+    <string name="label_ddc_none">Фаил не выбран</string>
+
+    <!-- Spectrum Extension -->
+    <string name="section_spectrum_extension">Расширение спектра</string>
+    <string name="label_vse_strength">Интенсивность</string>
+    <string name="label_vse_exciter">Эксайтер</string>
+
+    <!-- Equalizer -->
+    <string name="section_equalizer">FIR Эквалайзер</string>
+    <string name="label_eq_preset">Профиль</string>
+    <string name="label_eq_custom">Пользовательский</string>
+    <string name="label_eq_bands">Количество полос</string>
+    <string name="label_eq_n_bands">%d Полос</string>
+
+    <!-- Convolver -->
+    <string name="section_convolver">Конвольвер</string>
+    <string name="label_convolver_kernel">Файл ядра</string>
+    <string name="label_convolver_none">Фаил не выбран</string>
+    <string name="label_convolver_cross_channel">Смешивание каналов</string>
+
+    <!-- Field Surround -->
+    <string name="section_field_surround">Объемный звук</string>
+    <string name="label_fs_widening">Интенсивность объемного звучания</string>
+    <string name="label_fs_mid_image">Интенсивность центрального образа</string>
+    <string name="label_fs_depth">Глубина</string>
+
+    <!-- Differential Surround -->
+    <string name="section_differential_surround">Дифференциальное окружение</string>
+    <string name="label_ds_delay">Задержка</string>
+    <string name="label_diff_surround_reverse">Инверсия</string>
+
+    <!-- Headphone Surround -->
+    <string name="section_headphone_surround">Объемный звук в наушниках</string>
+    <string name="label_vhe_quality">Уровень качества</string>
+
+    <!-- Reverberation -->
+    <string name="section_reverberation">Реверберация</string>
+    <string name="label_reverb_room_size">Размер комнаты</string>
+    <string name="label_reverb_width">Ширина</string>
+    <string name="label_reverb_dampening">Поглощение высоких частот</string>
+    <string name="label_reverb_wet">Обработанный сигнал</string>
+    <string name="label_reverb_dry">Необработанный сигнал</string>
+
+    <!-- Dynamic System -->
+    <string name="section_dynamic_system">Динамическая система</s
+    <string name="label_ds_device">Устройство</string>
+    <string name="label_ds_strength">Интенсивность динамического усиления басов</string>
+    <string name="label_ds_preset">Профиль</string>
+    <string name="label_ds_custom">Пользовательский</string>
+    <string name="label_ds_x_low_freq">X Низкая частота</string>
+    <string name="label_ds_x_high_freq">X Высокая частота</string>
+    <string name="label_ds_y_low_freq">Y Низкая частота</string>
+    <string name="label_ds_y_high_freq">Y Высокая частота</string>
+    <string name="label_ds_side_gain_low">Усиление боковых каналов для низких частот</string>
+    <string name="label_ds_side_gain_high">Усиление боковых каналов для высоких частот</string>
+
+    <!-- Tube Simulator -->
+    <string name="section_tube_simulator">Ламповый усилитель (6N1J)</string>
+
+    <!-- ViPER Bass -->
+    <string name="section_viper_bass">ViPER Bass</string>
+    <string name="label_bass_mode">Режим</string>
+    <string name="label_bass_frequency">Частота</string>
+    <string name="label_bass_gain">Усиление</string>
+    <string name="label_bass_anti_pop">Плавное нарастание</string>
+
+    <!-- ViPER Bass Mono -->
+    <string name="section_viper_bass_mono">ViPER Bass Mono</string>
+
+    <!-- ViPER Clarity -->
+    <string name="section_viper_clarity">ViPER Clarity</string>
+    <string name="label_clarity_mode">Режим</string>
+    <string name="label_clarity_gain">Усиление</string>
+
+    <!-- Cure -->
+    <string name="section_cure">Защита слуха</string>
+    <string name="label_cure_strength">Уровень бинаурального эффекта</string>
+
+    <!-- AnalogX -->
+    <string name="section_analogx">AnalogX</string>
+    <string name="label_analogx_mode">Режим</string>
+
+    <!-- Speaker Optimization -->
+    <string name="section_speaker_optimization">Оптимизация динамика</string>
+
+    <!-- Bass modes -->
+    <string name="bass_mode_natural">Естественный бас</string>
+    <string name="bass_mode_pure">Чистый бас+</string>
+    <string name="bass_mode_subwoofer">Сабвуфер</string>
+
+    <!-- Clarity modes -->
+    <string name="clarity_mode_natural">Натуральный</string>
+    <string name="clarity_mode_ozone">OZone+</string>
+    <string name="clarity_mode_xhifi">XHiFi</string>
+
+    <!-- Cure levels -->
+    <string name="cure_level_mild">Слабо</string>
+    <string name="cure_level_medium">Средне</string>
+    <string name="cure_level_strong">Сильно</string>
+
+    <!-- AnalogX modes -->
+    <string name="analogx_mode_mild">Слабо</string>
+    <string name="analogx_mode_medium">Средне</string>
+    <string name="analogx_mode_strong">Сильно</string>
+
+    <!-- Presets -->
+    <string name="preset_save_title">Созранить профиль</string>
+    <string name="preset_rename_title">Переименовать профиль</string>
+    <string name="preset_name_hint">Имя профиля</string>
+    <string name="preset_empty">Нет сохраненных профилей</string>
+    <string name="preset_deleted">Удалено</string>
+    <string name="preset_save_current">Сохранить текущий</string>
+
+    <!-- Driver Status -->
+    <string name="driver_not_found">Драйвер не найден</string>
+    <string name="driver_version_code">Код версии</string>
+    <string name="driver_version_name">Версия</string>
+    <string name="driver_architecture">Архитектура</string>
+    <string name="driver_streaming">Потоковая передача</string>
+    <string name="driver_sampling_rate">Частота дискретизации</string>
+    <string name="status_active">Активна</string>
+    <string name="status_inactive">Неактивна</string>
+    <string name="status_unknown">Неизвестно</string>
+
+    <!-- Settings -->
+    <string name="settings_auto_start">Автозапуск при загрузке</string>
+    <string name="settings_aidl_mode">Режим AIDL</string>
+    <string name="settings_global_mode">Глобальный режим</string>
+    <string name="settings_driver_version">Версия драйверв</string>
+    <string name="settings_driver_arch">Архитектура драйвера</string>
+    <string name="settings_app_version">Версия приложения</string>
+    <string name="settings_files_section">Файлы</string>
+    <string name="settings_import_preset">Импорт профиля</string>
+    <string name="settings_import_kernel">Импорт ядра</string>
+    <string name="settings_import_vdc">Импорт VDC</string>
+    <string name="import_success">Импорт выполнен</string>
+    <string name="import_failed">Импорт неудачен</string>
+
+    <!-- Devices -->
+    <string name="device_dialog_title">Устройства</string>
+    <string name="device_type_bluetooth">Bluetooth</string>
+    <string name="device_type_wired">Проводные наушники</string>
+    <string name="device_type_speaker">Динамик</string>
+    <string name="device_mode_headphone">Наушники</string>
+    <string name="device_mode_speaker">Динамик</string>
+    <string name="device_label_type">Тип</string>
+    <string name="device_label_address">Адрес</string>
+    <string name="device_label_mode">Режим</string>
+    <string name="device_label_last_conn">Последнее подключение</string>
+    <string name="device_no_devices">Нет сохранённых устройств</string>
+    <string name="device_rename_title">Переименовать устройство</string>
+    <string name="device_rename_hint">Имя устройства</string>
+    <string name="device_action_load">Загрузить</string>
+    <string name="device_action_update">Обновить</string>
+    <string name="device_action_delete">Удалить</string>
+
+    <!-- Actions -->
+    <string name="action_save">Сохранить</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_close">Закрыть</string>
+    <string name="action_rename">Переименовать</string>
+    <string name="action_reset">Сброс</string>
+
+    <!-- Debug -->
+    <string name="debug_log_title">Лог отладки</string>
+    <string name="debug_mode_enabled">Режим отладки включен</string>
+    <string name="debug_search_hint">Фильтр логов…</string>
+    <string name="action_clear">Очистить</string>
+    <string name="action_disable_debug">Выключить отладку</string>
+
+    <!-- Debug filters -->
+    <string name="debug_filter_all">Все</string>
+    <string name="debug_filter_info">Информация</string>
+    <string name="debug_filter_debug">Отладка</string>
+    <string name="debug_filter_error">Ошибка</string>
+    <string name="debug_filter_app">Приложение</string>
+    <string name="debug_filter_driver">Драйвер</string>
+    <string name="debug_filter_effect">Эффект</string>
+    <string name="debug_filter_dispatch">Диспетчеризация</string>
+    <string name="debug_filter_config">Конфигурация</string>
+    <string name="debug_filter_command">Команда</string>
+    <string name="delete_file_title">Удалить Фаил</string>
+    <string name="delete_file_message">Удалить %1$s?</string>
+    <string name="action_delete">Удалить</string>
+    <string name="file_deleted">Фаил удалён</string>
+
+    <!-- EQ presets -->
+    <string name="eq_preset_acoustic">Акустика</string>
+    <string name="eq_preset_bass_booster">Усиление басов</string>
+    <string name="eq_preset_bass_reducer">Уменьшение басов</string>
+    <string name="eq_preset_classical">Коассика</string>
+    <string name="eq_preset_deep">Глубокий звук</string>
+    <string name="eq_preset_flat">Плоский звук</string>
+    <string name="eq_preset_rnb">R&B</string>
+    <string name="eq_preset_rock">Рок</string>
+    <string name="eq_preset_small_speakers">Маленике динамики</string>
+    <string name="eq_preset_treble_booster">Усиление высоких частот</string>
+    <string name="eq_preset_treble_reducer">Уменьшение высоких частот</string>
+    <string name="eq_preset_vocal_booster">Усиление вокала</string>
+</resources>
