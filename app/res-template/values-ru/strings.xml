@@ -110,7 +110,7 @@
     <string name="label_reverb_dry">Необработанный сигнал</string>
 
     <!-- Dynamic System -->
-    <string name="section_dynamic_system">Динамическая система</s
+    <string name="section_dynamic_system">Динамическая система</string>
     <string name="label_ds_device">Устройство</string>
     <string name="label_ds_strength">Интенсивность динамического усиления басов</string>
     <string name="label_ds_preset">Профиль</string>
