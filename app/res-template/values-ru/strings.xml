@@ -259,7 +259,7 @@
     <string name="eq_preset_classical">Коассика</string>
     <string name="eq_preset_deep">Глубокий звук</string>
     <string name="eq_preset_flat">Плоский звук</string>
-    <string name="eq_preset_rnb">R&B</string>
+    <string name="eq_preset_rnb">RnB</string>
     <string name="eq_preset_rock">Рок</string>
     <string name="eq_preset_small_speakers">Маленике динамики</string>
     <string name="eq_preset_treble_booster">Усиление высоких частот</string>
