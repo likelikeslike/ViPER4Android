@@ -29,7 +29,7 @@
     <string name="label_depth">深度</string>
     <string name="label_delay">延时</string>
     <string name="label_mode">模式</string>
-    <string name="label_off">Off</string>
+    <string name="label_off">关</string>
     <string name="label_preset">预设</string>
     <string name="label_custom">自定义</string>
     <string name="label_none">无</string>
@@ -41,7 +41,7 @@
     <!-- Output / Master limiter -->
     <string name="section_output">主控制器</string>
     <string name="label_output_volume">输出增益</string>
-    <string name="label_output_pan">音量均衡</string>
+    <string name="label_output_pan">音量平衡</string>
     <string name="label_output_limiter">阈值限制</string>
 
     <!-- AGC -->
@@ -49,15 +49,15 @@
     <string name="label_agc_output_threshold">输出阈值</string>
 
     <!-- LUFS Targeting -->
-    <string name="section_lufs_targeting">LUFS Targeting</string>
-    <string name="label_lufs_target_lufs">Target LUFS</string>
-    <string name="label_lufs_speed">Speed</string>
-    <string name="label_lufs_speed_slow">Slow</string>
-    <string name="label_lufs_speed_medium">Medium</string>
-    <string name="label_lufs_speed_fast">Fast</string>
+    <string name="section_lufs_targeting">响度均衡</string>
+    <string name="label_lufs_target_lufs">目标响度</string>
+    <string name="label_lufs_speed">响应速度</string>
+    <string name="label_lufs_speed_slow">慢</string>
+    <string name="label_lufs_speed_medium">中</string>
+    <string name="label_lufs_speed_fast">快</string>
 
     <!-- FET Compressor -->
-    <string name="section_fet_compressor">FET 压缩器</string>
+    <string name="section_fet_compressor">场效应压缩器</string>
     <string name="label_fet_ratio">压缩比</string>
     <string name="label_fet_knee">拐点</string>
     <string name="label_fet_auto_knee">自动拐点</string>
@@ -67,14 +67,14 @@
     <string name="label_fet_max_attack">最大启动</string>
     <string name="label_fet_auto_release">自动释放</string>
     <string name="label_fet_max_release">最大释放</string>
-    <string name="label_fet_crest">峰值裕量</string>
+    <string name="label_fet_crest">峰值因数</string>
     <string name="label_fet_adapt">自适应</string>
     <string name="label_fet_no_clip">无削波</string>
 
     <!-- Multiband Compressor -->
-    <string name="section_multiband_compressor">Multiband Compressor</string>
-    <string name="label_band_enabled">Band Enabled</string>
-    <string name="label_upper_crossover">Upper Crossover</string>
+    <string name="section_multiband_compressor">多段压缩器</string>
+    <string name="label_band_enabled">启用频段</string>
+    <string name="label_upper_crossover">上分频点</string>
 
     <!-- DDC -->
     <string name="section_ddc">ViPER-DDC</string>
@@ -90,11 +90,11 @@
     <string name="label_eq_n_bands">%d 频段</string>
 
     <!-- Dynamic EQ -->
-    <string name="section_dynamic_eq">Dynamic EQ</string>
-    <string name="label_dynamic_eq_q_factor">Q Factor</string>
-    <string name="label_dynamic_eq_target_gain">Target Gain</string>
-    <string name="label_dynamic_eq_filter_type">Filter Type</string>
-    <string name="dialog_delete_band">Delete Band</string>
+    <string name="section_dynamic_eq">动态均衡器</string>
+    <string name="label_dynamic_eq_q_factor">Q 值</string>
+    <string name="label_dynamic_eq_target_gain">目标增益</string>
+    <string name="label_dynamic_eq_filter_type">滤波类型</string>
+    <string name="dialog_delete_band">删除频段</string>
 
     <!-- Convolver -->
     <string name="section_convolver">脉冲卷积器</string>
@@ -109,16 +109,16 @@
     <!-- Differential Surround -->
     <string name="section_diff_surround">差分环绕</string>
     <string name="label_diff_surround_reverse">反相</string>
-    <string name="label_diff_surround_wet_dry_mix">Wet/Dry Mix</string>
-    <string name="label_diff_surround_lp_cutoff">LP Cutoff</string>
+    <string name="label_diff_surround_wet_dry_mix">干湿混合率</string>
+    <string name="label_diff_surround_lp_cutoff">低通截止频率</string>
 
     <!-- Stereo Imager -->
-    <string name="section_stereo_imager">Stereo Imager</string>
-    <string name="label_stereo_imager_low_width">Low Width</string>
-    <string name="label_stereo_imager_mid_width">Mid Width</string>
-    <string name="label_stereo_imager_high_width">High Width</string>
-    <string name="label_stereo_imager_low_crossover">Low Crossover</string>
-    <string name="label_stereo_imager_high_crossover">High Crossover</string>
+    <string name="section_stereo_imager">立体声场调节</string>
+    <string name="label_stereo_imager_low_width">低频宽度</string>
+    <string name="label_stereo_imager_mid_width">中频宽度</string>
+    <string name="label_stereo_imager_high_width">高频宽度</string>
+    <string name="label_stereo_imager_low_crossover">低分频点</string>
+    <string name="label_stereo_imager_high_crossover">高分频点</string>
 
     <!-- Headphone Surround -->
     <string name="section_headphone_surround">耳机环绕声+</string>
@@ -126,7 +126,7 @@
 
     <!-- Reverberation -->
     <string name="section_reverb">混响</string>
-    <string name="label_reverb_room_size">房间大小</string>
+    <string name="label_reverb_room_size">空间大小</string>
     <string name="label_reverb_dampening">阻尼</string>
     <string name="label_reverb_wet">湿信号</string>
     <string name="label_reverb_dry">干信号</string>
@@ -146,11 +146,11 @@
     <string name="section_tube_simulator">电子管模拟器 (6N1J)</string>
 
     <!-- Psychoacoustic Bass -->
-    <string name="section_psycho_bass">Psychoacoustic Bass</string>
-    <string name="label_psycho_bass_cutoff">Cutoff</string>
-    <string name="label_psycho_bass_intensity">Intensity</string>
-    <string name="label_psycho_bass_harmonic_order">Harmonic Order</string>
-    <string name="label_psycho_bass_ori_bass_level">Original Bass Level</string>
+    <string name="section_psycho_bass">虚拟低音</string>
+    <string name="label_psycho_bass_cutoff">截止频率</string>
+    <string name="label_psycho_bass_intensity">强度</string>
+    <string name="label_psycho_bass_harmonic_order">谐波类型</string>
+    <string name="label_psycho_bass_ori_bass_level">原始低音保留</string>
 
     <!-- ViPER Bass -->
     <string name="section_viper_bass">ViPER 低音</string>
@@ -164,7 +164,7 @@
 
     <!-- Cure -->
     <string name="section_cure">听觉系统保护</string>
-    <string name="label_cure_strength">双耳强度</string>
+    <string name="label_cure_strength">保护强度</string>
 
     <!-- AnalogX -->
     <string name="section_analogx">AnalogX</string>
@@ -173,15 +173,15 @@
     <string name="section_speaker_optimization">扬声器优化</string>
 
     <!-- Filter Type -->
-    <string name="filter_peak">Peak</string>
-    <string name="filter_low_shelf">Low Shelf</string>
-    <string name="filter_high_shelf">High Shelf</string>
+    <string name="filter_peak">峰值</string>
+    <string name="filter_low_shelf">低频升降</string>
+    <string name="filter_high_shelf">高频升降</string>
 
     <!-- Harmonic Order -->
-    <string name="harmonic_2nd">2nd</string>
-    <string name="harmonic_3rd">3rd</string>
-    <string name="harmonic_4th">4th</string>
-    <string name="harmonic_5th">5th</string>
+    <string name="harmonic_2nd">第二</string>
+    <string name="harmonic_3rd">第三</string>
+    <string name="harmonic_4th">第四</string>
+    <string name="harmonic_5th">第五</string>
 
     <!-- Bass modes -->
     <string name="bass_mode_natural">自然低音</string>
