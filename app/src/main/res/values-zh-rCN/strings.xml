@@ -113,7 +113,7 @@
     <string name="label_diff_surround_lp_cutoff">低通截止频率</string>
 
     <!-- Stereo Imager -->
-    <string name="section_stereo_imager">立体声场调节</string>
+    <string name="section_stereo_imager">立体声</string>
     <string name="label_stereo_imager_low_width">低频宽度</string>
     <string name="label_stereo_imager_mid_width">中频宽度</string>
     <string name="label_stereo_imager_high_width">高频宽度</string>
