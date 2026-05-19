@@ -75,7 +75,6 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val deviceSettings by viewModel.deviceSettingsList.collectAsStateWithLifecycle()
     val driverStatus by viewModel.driverStatus.collectAsStateWithLifecycle()
     val autoStart by viewModel.autoStartEnabled.collectAsStateWithLifecycle()
-    val aidlMode by viewModel.aidlModeEnabled.collectAsStateWithLifecycle()
     val globalMode by viewModel.globalModeEnabled.collectAsStateWithLifecycle()
     val debugMode by viewModel.debugModeEnabled.collectAsStateWithLifecycle()
 
@@ -190,13 +189,11 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
         LaunchedEffect(Unit) { viewModel.queryDriverStatus() }
         SettingsDialog(
             autoStartEnabled = autoStart,
-            aidlModeEnabled = aidlMode,
             globalModeEnabled = globalMode,
             onGlobalModeChanged = viewModel::toggleGlobalMode,
             driverStatus = driverStatus,
             appVersionName = appVersionName,
             onAutoStartChanged = viewModel::toggleAutoStart,
-            onAidlModeChanged = viewModel::toggleAidlMode,
             onImportPreset = { importPresetLauncher.launch(arrayOf("application/json", "*/*")) },
             onImportKernel = {
                 importKernelLauncher.launch(

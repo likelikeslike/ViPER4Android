@@ -98,7 +98,6 @@ class MainViewModel
     ) : AndroidViewModel(application) {
         companion object {
             const val PREF_AUTO_START = "auto_start"
-            const val PREF_AIDL_MODE = "aidl_mode"
             const val PREF_GLOBAL_MODE = "global_mode"
             const val PREF_DEBUG_MODE = "debug_mode"
             private const val IMPORT_NOTIFICATION_ID = 2
@@ -131,7 +130,6 @@ class MainViewModel
         val autoStartEnabled: StateFlow<Boolean> = _autoStartEnabled.asStateFlow()
 
         private val _aidlModeEnabled = MutableStateFlow(false)
-        val aidlModeEnabled: StateFlow<Boolean> = _aidlModeEnabled.asStateFlow()
 
         private val _globalModeEnabled = MutableStateFlow(false)
         val globalModeEnabled: StateFlow<Boolean> = _globalModeEnabled.asStateFlow()
@@ -4788,11 +4786,7 @@ class MainViewModel
                     _autoStartEnabled.value = v
                 }
             }
-            viewModelScope.launch {
-                repository.getBooleanPreference(PREF_AIDL_MODE).collect { v ->
-                    _aidlModeEnabled.value = v
-                }
-            }
+            _aidlModeEnabled.value = repository.aidlMode
             viewModelScope.launch {
                 repository.getBooleanPreference(PREF_GLOBAL_MODE).collect { v ->
                     _globalModeEnabled.value = v
@@ -4957,14 +4951,6 @@ class MainViewModel
             viewModelScope.launch {
                 repository.setBooleanPreference(PREF_AUTO_START, enabled)
             }
-        }
-
-        fun toggleAidlMode(enabled: Boolean) {
-            _aidlModeEnabled.value = enabled
-            viewModelScope.launch {
-                repository.setBooleanPreference(PREF_AIDL_MODE, enabled)
-            }
-            viperService?.recreateGlobalEffect(enabled)
         }
 
         fun toggleGlobalMode(enabled: Boolean) {

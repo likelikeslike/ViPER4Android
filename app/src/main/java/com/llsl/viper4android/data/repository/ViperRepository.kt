@@ -1,5 +1,6 @@
 package com.llsl.viper4android.data.repository
 
+import android.os.Build
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -92,6 +93,18 @@ class ViperRepository
             key: String,
             default: Boolean = false,
         ): Flow<Boolean> = dataStore.data.map { it[booleanPreferencesKey(key)] ?: default }
+
+        // noinspection PrivateApi
+        // noinspection DiscouragedPrivateApi
+        val aidlMode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            val services = Class.forName("android.os.ServiceManager")
+                .getDeclaredMethod("listServices")
+                .invoke(null) as? Array<*>
+
+            "android.hardware.audio.effect.IFactory/default" in services.orEmpty()
+        } else {
+            false
+        }
 
         suspend fun setBooleanPreference(
             key: String,
