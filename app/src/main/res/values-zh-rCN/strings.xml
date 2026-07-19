@@ -37,8 +37,8 @@
     <string name="label_deleted">已删除</string>
 
     <!-- Numeric input dialog -->
-    <string name="dialog_value_range">Range: %1$s \u2013 %2$s</string>
-    <string name="dialog_value_range_unit">Range: %1$s \u2013 %2$s %3$s</string>
+    <string name="dialog_value_range">范围: %1$s \u2013 %2$s</string>
+    <string name="dialog_value_range_unit">范围: %1$s \u2013 %2$s %3$s</string>
 
     <!-- Output / Master limiter -->
     <string name="label_output_volume">输出增益</string>
@@ -269,7 +269,7 @@
     <string name="debug_filter_all">全部</string>
     <string name="debug_filter_info">信息</string>
     <string name="debug_filter_debug">调试</string>
-    <string name="debug_filter_warn">Warn</string>
+    <string name="debug_filter_warn">警告</string>
     <string name="debug_filter_error">错误</string>
     <string name="debug_filter_app">应用</string>
     <string name="debug_filter_driver">驱动</string>
