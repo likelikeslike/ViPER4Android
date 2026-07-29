@@ -38,8 +38,11 @@ class IntPref(
     get: (EffectState) -> Int,
     set: EffectState.(Int) -> EffectState,
     private val toRawFn: ((Int) -> Int)? = null,
+    val range: IntRange? = null,
 ) : EffectPref<Int>(effectKey, paramId, jsonKey, defaultValue, get, set) {
     override fun toRaw(value: Int): Int = toRawFn?.invoke(value) ?: value
+
+    fun clamp(value: Int): Int = range?.let { value.coerceIn(it) } ?: value
 }
 
 class BoolPref(
@@ -97,10 +100,13 @@ class IntListPref(
     get: (EffectState) -> List<Int>,
     set: EffectState.(List<Int>) -> EffectState,
     private val elementToRawFn: ((Int) -> Int)? = null,
+    val range: IntRange? = null,
 ) : ListPref<Int>(effectKey, paramId, jsonKey, defaultValue, get, set) {
     override val padValue: Int = 0
 
     override fun elementToRaw(value: Int): Int = elementToRawFn?.invoke(value) ?: value
+
+    fun clampElement(value: Int): Int = range?.let { value.coerceIn(it) } ?: value
 }
 
 class BoolListPref(
@@ -123,8 +129,11 @@ class DoubleListPref(
     defaultValue: List<Double>,
     get: (EffectState) -> List<Double>,
     set: EffectState.(List<Double>) -> EffectState,
+    val range: ClosedFloatingPointRange<Double>? = null,
 ) : EffectPref<List<Double>>(effectKey, paramId, jsonKey, defaultValue, get, set) {
     override fun toRaw(value: List<Double>): Int = 0
+
+    fun clampElement(value: Double): Double = range?.let { value.coerceIn(it) } ?: value
 
     fun toRawArray(value: List<Double>): ByteArray {
         val bytes = ByteArray(256)
@@ -348,7 +357,7 @@ private fun applyPrefFromJson(
     if (!obj.has(pref.jsonKey)) return state
     return when (pref) {
         is IntPref -> {
-            pref.set(state, obj.optInt(pref.jsonKey, pref.get(state)))
+            pref.set(state, pref.clamp(obj.optInt(pref.jsonKey, pref.get(state))))
         }
 
         is BoolPref -> {
@@ -373,7 +382,7 @@ private fun applyPrefFromJson(
         is IntListPref -> {
             val arr = obj.optJSONArray(pref.jsonKey) ?: return state
             val list = mutableListOf<Int>()
-            for (i in 0 until arr.length()) list.add(arr.optInt(i, 0))
+            for (i in 0 until arr.length()) list.add(pref.clampElement(arr.optInt(i, 0)))
             pref.set(state, list.toList())
         }
 
@@ -387,7 +396,7 @@ private fun applyPrefFromJson(
         is DoubleListPref -> {
             val arr = obj.optJSONArray(pref.jsonKey) ?: return state
             val list = mutableListOf<Double>()
-            for (i in 0 until arr.length()) list.add(arr.optDouble(i, 0.0))
+            for (i in 0 until arr.length()) list.add(pref.clampElement(arr.optDouble(i, 0.0)))
             pref.set(state, list.toList())
         }
     }

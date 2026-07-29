@@ -141,18 +141,21 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkOutputVolume",
         "default": 100,
         "slot": ("group", "masterLimiter", "outputVolume"),
+        "range": (1, 200),
     },
     "channelPan": {
         "type": "IntPref",
         "spk": "spkChannelPan",
         "default": 0,
         "slot": ("group", "masterLimiter", "channelPan"),
+        "range": (-100, 100),
     },
     "limiter": {
         "type": "IntPref",
         "spk": "spkLimiter",
         "default": 100,
         "slot": ("group", "masterLimiter", "threshold"),
+        "range": (30, 100),
     },
     "agcEnabled": {
         "type": "BoolPref",
@@ -165,18 +168,21 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkAgcStrength",
         "default": 100,
         "slot": ("group", "playbackGainControl", "strength"),
+        "range": (50, 300),
     },
     "agcMaxGain": {
         "type": "IntPref",
         "spk": "spkAgcMaxGain",
         "default": 100,
         "slot": ("group", "playbackGainControl", "maxGain"),
+        "range": (100, 1000),
     },
     "agcOutputThreshold": {
         "type": "IntPref",
         "spk": "spkAgcOutputThreshold",
         "default": 100,
         "slot": ("group", "playbackGainControl", "outputThreshold"),
+        "range": (30, 100),
     },
     "lufsEnabled": {
         "type": "BoolPref",
@@ -189,18 +195,21 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkLufsTarget",
         "default": 140,
         "slot": ("group", "lufs", "target"),
+        "range": (80, 240),
     },
     "lufsMaxGain": {
         "type": "IntPref",
         "spk": "spkLufsMaxGain",
         "default": 60,
         "slot": ("group", "lufs", "maxGain"),
+        "range": (0, 120),
     },
     "lufsSpeed": {
         "type": "IntPref",
         "spk": "spkLufsSpeed",
         "default": 1,
         "slot": ("group", "lufs", "speed"),
+        "range": (0, 2),
     },
     "fetEnabled": {
         "type": "BoolPref",
@@ -213,12 +222,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFetThreshold",
         "default": 100,
         "slot": ("group", "fetCompressor", "threshold"),
+        "range": (-48, 0),
     },
     "fetRatio": {
         "type": "IntPref",
         "spk": "spkFetRatio",
         "default": 100,
         "slot": ("group", "fetCompressor", "ratio"),
+        "range": (0, 200),
     },
     "fetAutoKnee": {
         "type": "BoolPref",
@@ -231,12 +242,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFetKnee",
         "default": 0,
         "slot": ("group", "fetCompressor", "knee"),
+        "range": (0, 12),
     },
     "fetKneeMulti": {
         "type": "IntPref",
         "spk": "spkFetKneeMulti",
         "default": 0,
         "slot": ("group", "fetCompressor", "kneeMulti"),
+        "range": (0, 100),
     },
     "fetAutoGain": {
         "type": "BoolPref",
@@ -249,6 +262,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFetGain",
         "default": 0,
         "slot": ("group", "fetCompressor", "gain"),
+        "range": (0, 24),
     },
     "fetAutoAttack": {
         "type": "BoolPref",
@@ -261,12 +275,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFetAttack",
         "default": 20,
         "slot": ("group", "fetCompressor", "attack"),
+        "range": (1, 100),
     },
     "fetMaxAttack": {
         "type": "IntPref",
         "spk": "spkFetMaxAttack",
         "default": 80,
         "slot": ("group", "fetCompressor", "maxAttack"),
+        "range": (1, 100),
     },
     "fetAutoRelease": {
         "type": "BoolPref",
@@ -279,24 +295,28 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFetRelease",
         "default": 50,
         "slot": ("group", "fetCompressor", "release"),
+        "range": (5, 500),
     },
     "fetMaxRelease": {
         "type": "IntPref",
         "spk": "spkFetMaxRelease",
         "default": 100,
         "slot": ("group", "fetCompressor", "maxRelease"),
+        "range": (5, 500),
     },
     "fetCrest": {
         "type": "IntPref",
         "spk": "spkFetCrest",
         "default": 100,
         "slot": ("group", "fetCompressor", "crest"),
+        "range": (5, 300),
     },
     "fetAdapt": {
         "type": "IntPref",
         "spk": "spkFetAdapt",
         "default": 50,
         "slot": ("group", "fetCompressor", "adapt"),
+        "range": (0, 200),
     },
     "fetNoClip": {
         "type": "BoolPref",
@@ -321,72 +341,84 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkMbcCrossovers",
         "default": "120;500;4000;8000",
         "slot": ("array", "multibandCompressor", "crossovers", "INT"),
+        "range": (30, 16000),
     },
     "mbcThresholds": {
         "type": "StringPref",
         "spk": "spkMbcThresholds",
         "default": "-18;-18;-18;-18;-18",
         "slot": ("array", "multibandCompressor", "thresholds", "INT"),
+        "range": (-48, 0),
     },
     "mbcRatios": {
         "type": "StringPref",
         "spk": "spkMbcRatios",
         "default": "50;50;50;50;50",
         "slot": ("array", "multibandCompressor", "ratios", "INT"),
+        "range": (0, 200),
     },
     "mbcGains": {
         "type": "StringPref",
         "spk": "spkMbcGains",
         "default": "24;24;24;24;24",
         "slot": ("array", "multibandCompressor", "gains", "INT"),
+        "range": (0, 24),
     },
     "mbcKnees": {
         "type": "StringPref",
         "spk": "spkMbcKnees",
         "default": "0;0;0;0;0",
         "slot": ("array", "multibandCompressor", "knees", "INT"),
+        "range": (0, 12),
     },
     "mbcKneeMultis": {
         "type": "StringPref",
         "spk": "spkMbcKneeMultis",
         "default": "0;0;0;0;0",
         "slot": ("array", "multibandCompressor", "kneeMultis", "INT"),
+        "range": (0, 100),
     },
     "mbcAttacks": {
         "type": "StringPref",
         "spk": "spkMbcAttacks",
         "default": "1;1;1;1;1",
         "slot": ("array", "multibandCompressor", "attacks", "INT"),
+        "range": (1, 100),
     },
     "mbcMaxAttacks": {
         "type": "StringPref",
         "spk": "spkMbcMaxAttacks",
         "default": "44;44;44;44;44",
         "slot": ("array", "multibandCompressor", "maxAttacks", "INT"),
+        "range": (1, 100),
     },
     "mbcReleases": {
         "type": "StringPref",
         "spk": "spkMbcReleases",
         "default": "100;100;100;100;100",
         "slot": ("array", "multibandCompressor", "releases", "INT"),
+        "range": (5, 500),
     },
     "mbcMaxReleases": {
         "type": "StringPref",
         "spk": "spkMbcMaxReleases",
         "default": "200;200;200;200;200",
         "slot": ("array", "multibandCompressor", "maxReleases", "INT"),
+        "range": (5, 500),
     },
     "mbcCrests": {
         "type": "StringPref",
         "spk": "spkMbcCrests",
         "default": "100;100;100;100;100",
         "slot": ("array", "multibandCompressor", "crests", "INT"),
+        "range": (5, 300),
     },
     "mbcAdapts": {
         "type": "StringPref",
         "spk": "spkMbcAdapts",
         "default": "50;50;50;50;50",
         "slot": ("array", "multibandCompressor", "adapts", "INT"),
+        "range": (0, 200),
     },
     "mbcAutoKnees": {
         "type": "StringPref",
@@ -441,12 +473,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkVseStrength",
         "default": 7600,
         "slot": ("group", "spectrumExtension", "strength"),
+        "range": (2200, 8200),
     },
     "vseExciter": {
         "type": "IntPref",
         "spk": "spkVseExciter",
         "default": 0,
         "slot": ("group", "spectrumExtension", "exciter"),
+        "range": (0, 100),
     },
     "eqEnabled": {
         "type": "BoolPref",
@@ -465,6 +499,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkEqBands",
         "default": "0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;",
         "slot": ("array", "equalizer", "bands", "DOUBLE"),
+        "range": (-12.0, 12.0),
     },
     "eqPresetId": {
         "type": "NullableLongPref",
@@ -489,36 +524,42 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkDynamicEqFreqs",
         "default": "60;150;400",
         "slot": ("array", "dynamicEq", "freqs", "INT"),
+        "range": (20, 20000),
     },
     "dynamicEqQs": {
         "type": "StringPref",
         "spk": "spkDynamicEqQs",
         "default": "100;100;150",
         "slot": ("array", "dynamicEq", "qs", "INT"),
+        "range": (50, 800),
     },
     "dynamicEqGains": {
         "type": "StringPref",
         "spk": "spkDynamicEqGains",
         "default": "0;0;0",
         "slot": ("array", "dynamicEq", "gains", "INT"),
+        "range": (-120, 120),
     },
     "dynamicEqThresholds": {
         "type": "StringPref",
         "spk": "spkDynamicEqThresholds",
         "default": "-200;-200;-200",
         "slot": ("array", "dynamicEq", "thresholds", "INT"),
+        "range": (-800, 0),
     },
     "dynamicEqAttacks": {
         "type": "StringPref",
         "spk": "spkDynamicEqAttacks",
         "default": "10;10;10",
         "slot": ("array", "dynamicEq", "attacks", "INT"),
+        "range": (1, 100),
     },
     "dynamicEqReleases": {
         "type": "StringPref",
         "spk": "spkDynamicEqReleases",
         "default": "100;100;100",
         "slot": ("array", "dynamicEq", "releases", "INT"),
+        "range": (10, 500),
     },
     "dynamicEqFilterTypes": {
         "type": "StringPref",
@@ -543,6 +584,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkConvolverCrossChannel",
         "default": 0,
         "slot": ("group", "convolver", "crossChannel"),
+        "range": (0, 100),
     },
     "fieldSurroundEnabled": {
         "type": "BoolPref",
@@ -555,18 +597,21 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkFieldSurroundWidening",
         "default": 0,
         "slot": ("group", "fieldSurround", "widening"),
+        "range": (0, 8),
     },
     "fieldSurroundMidImage": {
         "type": "IntPref",
         "spk": "spkFieldSurroundMidImage",
         "default": 5,
         "slot": ("group", "fieldSurround", "midImage"),
+        "range": (0, 10),
     },
     "fieldSurroundDepth": {
         "type": "IntPref",
         "spk": "spkFieldSurroundDepth",
         "default": 0,
         "slot": ("group", "fieldSurround", "depth"),
+        "range": (0, 10),
     },
     "diffSurroundEnabled": {
         "type": "BoolPref",
@@ -579,6 +624,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkDiffSurroundDelay",
         "default": 5,
         "slot": ("group", "diffSurround", "delay"),
+        "range": (1, 20),
     },
     "diffSurroundReverse": {
         "type": "BoolPref",
@@ -591,12 +637,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkDiffSurroundWetDryMix",
         "default": 100,
         "slot": ("group", "diffSurround", "wetDryMix"),
+        "range": (0, 100),
     },
     "diffSurroundLpCutoff": {
         "type": "IntPref",
         "spk": "spkDiffSurroundLpCutoff",
         "default": 0,
         "slot": ("group", "diffSurround", "lpCutoff"),
+        "range": (0, 20000),
     },
     "stereoImgEnabled": {
         "type": "BoolPref",
@@ -609,30 +657,35 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkStereoImgLowWidth",
         "default": 100,
         "slot": ("group", "stereoImager", "lowWidth"),
+        "range": (0, 200),
     },
     "stereoImgMidWidth": {
         "type": "IntPref",
         "spk": "spkStereoImgMidWidth",
         "default": 100,
         "slot": ("group", "stereoImager", "midWidth"),
+        "range": (0, 200),
     },
     "stereoImgHighWidth": {
         "type": "IntPref",
         "spk": "spkStereoImgHighWidth",
         "default": 100,
         "slot": ("group", "stereoImager", "highWidth"),
+        "range": (0, 200),
     },
     "stereoImgLowCrossover": {
         "type": "IntPref",
         "spk": "spkStereoImgLowCrossover",
         "default": 200,
         "slot": ("group", "stereoImager", "lowCrossover"),
+        "range": (80, 400),
     },
     "stereoImgHighCrossover": {
         "type": "IntPref",
         "spk": "spkStereoImgHighCrossover",
         "default": 4000,
         "slot": ("group", "stereoImager", "highCrossover"),
+        "range": (2000, 8000),
     },
     "vheEnabled": {
         "type": "BoolPref",
@@ -645,6 +698,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkVheQuality",
         "default": 0,
         "slot": ("group", "headphoneSurround", "quality"),
+        "range": (0, 4),
     },
     "reverbEnabled": {
         "type": "BoolPref",
@@ -657,30 +711,35 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkReverbRoomSize",
         "default": 0,
         "slot": ("group", "reverb", "roomSize"),
+        "range": (0, 10),
     },
     "reverbWidth": {
         "type": "IntPref",
         "spk": "spkReverbWidth",
         "default": 0,
         "slot": ("group", "reverb", "width"),
+        "range": (0, 10),
     },
     "reverbDampening": {
         "type": "IntPref",
         "spk": "spkReverbDampening",
         "default": 0,
         "slot": ("group", "reverb", "damp"),
+        "range": (0, 10),
     },
     "reverbWet": {
         "type": "IntPref",
         "spk": "spkReverbWet",
         "default": 0,
         "slot": ("group", "reverb", "wet"),
+        "range": (0, 100),
     },
     "reverbDry": {
         "type": "IntPref",
         "spk": "spkReverbDry",
         "default": 50,
         "slot": ("group", "reverb", "dry"),
+        "range": (0, 100),
     },
     "dynamicSystemEnabled": {
         "type": "BoolPref",
@@ -705,42 +764,49 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkDynamicSystemStrength",
         "default": 50,
         "slot": ("group", "dynamicSystem", "strength"),
+        "range": (0, 100),
     },
     "dsXLow": {
         "type": "IntPref",
         "spk": "spkDsXLow",
         "default": 100,
         "slot": ("group", "dynamicSystem", "xLow"),
+        "range": (0, 2400),
     },
     "dsXHigh": {
         "type": "IntPref",
         "spk": "spkDsXHigh",
         "default": 5600,
         "slot": ("group", "dynamicSystem", "xHigh"),
+        "range": (0, 12000),
     },
     "dsYLow": {
         "type": "IntPref",
         "spk": "spkDsYLow",
         "default": 40,
         "slot": ("group", "dynamicSystem", "yLow"),
+        "range": (0, 200),
     },
     "dsYHigh": {
         "type": "IntPref",
         "spk": "spkDsYHigh",
         "default": 80,
         "slot": ("group", "dynamicSystem", "yHigh"),
+        "range": (0, 300),
     },
     "dsSideGainLow": {
         "type": "IntPref",
         "spk": "spkDsSideGainLow",
         "default": 50,
         "slot": ("group", "dynamicSystem", "sideGainLow"),
+        "range": (0, 100),
     },
     "dsSideGainHigh": {
         "type": "IntPref",
         "spk": "spkDsSideGainHigh",
         "default": 50,
         "slot": ("group", "dynamicSystem", "sideGainHigh"),
+        "range": (0, 100),
     },
     "tubeSimulatorEnabled": {
         "type": "BoolPref",
@@ -759,24 +825,28 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkPsychoBassCutoff",
         "default": 80,
         "slot": ("group", "psychoacousticBass", "cutoff"),
+        "range": (60, 150),
     },
     "psychoBassIntensity": {
         "type": "IntPref",
         "spk": "spkPsychoBassIntensity",
         "default": 50,
         "slot": ("group", "psychoacousticBass", "intensity"),
+        "range": (0, 100),
     },
     "psychoBassHarmonicOrder": {
         "type": "IntPref",
         "spk": "spkPsychoBassHarmonicOrder",
         "default": 3,
         "slot": ("group", "psychoacousticBass", "harmonicOrder"),
+        "range": (2, 5),
     },
     "psychoBassOriginalLevel": {
         "type": "IntPref",
         "spk": "spkPsychoBassOriginalLevel",
         "default": 100,
         "slot": ("group", "psychoacousticBass", "originalLevel"),
+        "range": (0, 100),
     },
     "bassEnabled": {
         "type": "BoolPref",
@@ -795,12 +865,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkBassFrequency",
         "default": 55,
         "slot": ("group", "bass", "frequency"),
+        "range": (0, 135),
     },
     "bassGain": {
         "type": "IntPref",
         "spk": "spkBassGain",
         "default": 50,
         "slot": ("group", "bass", "gain"),
+        "range": (50, 1000),
     },
     "bassAntiPop": {
         "type": "BoolPref",
@@ -825,12 +897,14 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkBassMonoFrequency",
         "default": 55,
         "slot": ("group", "bassMono", "frequency"),
+        "range": (0, 135),
     },
     "bassMonoGain": {
         "type": "IntPref",
         "spk": "spkBassMonoGain",
         "default": 50,
         "slot": ("group", "bassMono", "gain"),
+        "range": (50, 1000),
     },
     "bassMonoAntiPop": {
         "type": "BoolPref",
@@ -855,6 +929,7 @@ PREF_TABLE: dict[str, dict[str, Any]] = {
         "spk": "spkClarityGain",
         "default": 50,
         "slot": ("group", "clarity", "gain"),
+        "range": (0, 450),
     },
     "cureEnabled": {
         "type": "BoolPref",
@@ -1090,8 +1165,13 @@ def xml_to_v1(content: str) -> dict[str, Any]:
     return v1
 
 
-def _coerce_scalar(pref_type: str, value: Any, default: Any) -> Any:
-    """Read a v1 scalar as the pref's native type."""
+def _coerce_scalar(
+    pref_type: str,
+    value: Any,
+    default: Any,
+    value_range: tuple[int, int] | None = None,
+) -> Any:
+    """Read a v1 scalar as the pref's native type, clamped to the pref's range."""
     if pref_type == "BoolPref":
         if isinstance(value, bool):
             return value
@@ -1100,7 +1180,11 @@ def _coerce_scalar(pref_type: str, value: Any, default: Any) -> Any:
         return bool(value)
     if pref_type == "IntPref":
         n = _to_int(str(value)) if not isinstance(value, bool) else None
-        return n if n is not None else default
+        n = n if n is not None else default
+        if value_range is not None and isinstance(n, int):
+            lo, hi = value_range
+            n = max(lo, min(hi, n))
+        return n
     if pref_type == "StringPref":
         return value if isinstance(value, str) else str(value)
     if pref_type == "NullableLongPref":
@@ -1109,8 +1193,12 @@ def _coerce_scalar(pref_type: str, value: Any, default: Any) -> Any:
     return value
 
 
-def _parse_v1_array(raw: str, kind: str) -> list[Any]:
-    """Split a ";"-joined v1 array string into native values."""
+def _parse_v1_array(
+    raw: str,
+    kind: str,
+    value_range: tuple[float, float] | None = None,
+) -> list[Any]:
+    """Split a ";"-joined v1 array string into native values, clamped to range."""
     out: list[Any] = []
     if not raw:
         return out
@@ -1119,14 +1207,21 @@ def _parse_v1_array(raw: str, kind: str) -> list[Any]:
             continue
         if kind == "INT":
             n = _to_int(token)
-            out.append(n if n is not None else 0)
+            v: Any = n if n is not None else 0
         elif kind == "BOOL01":
             out.append(token == "1" or token == "true")
+            continue
         elif kind == "DOUBLE":
             try:
-                out.append(float(token))
+                v = float(token)
             except ValueError:
-                out.append(0.0)
+                v = 0.0
+        else:
+            continue
+        if value_range is not None:
+            lo, hi = value_range
+            v = max(lo, min(hi, v))
+        out.append(v)
     return out
 
 
@@ -1157,10 +1252,12 @@ def v1_to_v2(
             if slot[0] == "array":
                 raw = v1.get(src_key, info["default"])
                 raw = raw if isinstance(raw, str) else info["default"]
-                group_obj[field] = _parse_v1_array(raw, slot[3])
+                group_obj[field] = _parse_v1_array(raw, slot[3], info.get("range"))
             else:
                 raw = v1.get(src_key, info["default"])
-                group_obj[field] = _coerce_scalar(info["type"], raw, info["default"])
+                group_obj[field] = _coerce_scalar(
+                    info["type"], raw, info["default"], info.get("range")
+                )
         if group_obj:
             out[group_name] = group_obj
     return out
