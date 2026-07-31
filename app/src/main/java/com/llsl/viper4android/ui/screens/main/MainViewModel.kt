@@ -513,11 +513,6 @@ class MainViewModel
             applyPref(Effects.dynamicSystem.sideGainHigh, value)
         }
 
-        fun setDynamicSystemStrength(value: Int) {
-            applyPref(Effects.dynamicSystem.presetId, null, last = false)
-            applyPref(Effects.dynamicSystem.strength, value)
-        }
-
         fun setDynamicSystemPreset(presetId: Long) {
             viewModelScope.launch {
                 val preset = repository.getDsPresetById(presetId) ?: return@launch

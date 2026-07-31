@@ -1783,7 +1783,7 @@ fun DynamicSystemSection(
         LabeledSlider(
             label = stringResource(R.string.label_dynamic_system_strength),
             value = strength.toFloat(),
-            onValueChange = { viewModel.setDynamicSystemStrength(it.roundToInt()) },
+            onValueChange = { viewModel.applyPref(Effects.dynamicSystem.strength, it.roundToInt()) },
             valueRange = 0f..100f,
             valueLabel = "$strength%",
             edit =
@@ -1792,7 +1792,7 @@ fun DynamicSystemSection(
                     displayRange = 0.0..100.0,
                     decimals = 0,
                     unit = "%",
-                    onCommit = { viewModel.setDynamicSystemStrength(it.roundToInt().coerceIn(0, 100)) },
+                    onCommit = { viewModel.applyPref(Effects.dynamicSystem.strength, it.roundToInt().coerceIn(0, 100)) },
                 ),
         )
 
