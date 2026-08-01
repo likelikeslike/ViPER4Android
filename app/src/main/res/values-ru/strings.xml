@@ -7,7 +7,7 @@
     <string name="notification_text">Обработка аудио активна</string>
     <string name="notification_bulk_op_channel_name">Групповые операции</string>
     <string name="notification_bulk_op_channel_description">Прогресс выполнения групповых операций</string>
-    <string name="qs_tile_master_label">Master</string>
+    <string name="qs_tile_master_label">Мастер</string>
 
     <!-- Master -->
     <string name="master_enable">Мастер включён</string>
@@ -37,8 +37,8 @@
     <string name="label_strong">Сильно</string>
 
     <!-- Numeric input dialog -->
-    <string name="dialog_value_range">Range: %1$s \u2013 %2$s</string>
-    <string name="dialog_value_range_unit">Range: %1$s \u2013 %2$s %3$s</string>
+    <string name="dialog_value_range">Диапазон: %1$s \u2013 %2$s</string>
+    <string name="dialog_value_range_unit">Диапазон: %1$s \u2013 %2$s %3$s</string>
 
     <!-- Output / Master limiter -->
     <string name="label_output_volume">Выходное усиление</string>
@@ -205,11 +205,11 @@
     <string name="preset_clear_all_progress">Удаление профилей</string>
     <string name="preset_cleared">Удалено</string>
     <string name="preset_update_title">Обновление профиля</string>
-    <string name="preset_update_confirm">Перезаписать «%1$s» с текущими настройками? Это действие нельзя отменить.</string>
-    <string name="preset_load_title">Load Preset</string>
-    <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
-    <string name="preset_delete_title">Delete Preset</string>
-    <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
+    <string name="preset_update_confirm">Перезаписать «%1$s» текущими настройками? Это действие нельзя отменить.</string>
+    <string name="preset_load_title">Загрузить профиль</string>
+    <string name="preset_load_confirm">Загрузить «%1$s»? Текущие настройки будут заменены.</string>
+    <string name="preset_delete_title">Удалить профиль</string>
+    <string name="preset_delete_confirm">Удалить «%1$s»? Это действие нельзя отменить.</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Драйвер не найден</string>
@@ -249,12 +249,12 @@
     <string name="device_no_devices">Нет сохранённых устройств</string>
     <string name="device_rename_title">Переименовать устройство</string>
     <string name="device_rename_hint">Имя устройства</string>
-    <string name="device_update_title">Обновление профиля устройства</string>
-    <string name="device_update_confirm">Перезаписать профиль «%1$s» текущими настройками? Это действие нельзя отменить.</string>
-    <string name="device_load_title">Load Device Preset</string>
-    <string name="device_load_confirm">Load "%1$s" preset? Current settings will be replaced.</string>
-    <string name="device_delete_title">Delete Device Preset</string>
-    <string name="device_delete_confirm">Delete the saved preset for "%1$s"? This cannot be undone.</string>
+    <string name="device_update_title">Обновление пресета устройства</string>
+    <string name="device_update_confirm">Перезаписать пресет «%1$s» текущими настройками? Это действие нельзя отменить.</string>
+    <string name="device_load_title">Загрузить пресет устройства</string>
+    <string name="device_load_confirm">Загрузить пресет \"%1$s\"? Текущие настройки будут заменены.</string>
+    <string name="device_delete_title">Удалить пресет устройства</string>
+    <string name="device_delete_confirm">Удалить сохраненный пресет для \"%1$s\"? Это действие нельзя отменить.</string>
 
     <!-- Actions -->
     <string name="action_save">Сохранить</string>
@@ -277,7 +277,7 @@
     <string name="debug_filter_all">Все</string>
     <string name="debug_filter_info">Информация</string>
     <string name="debug_filter_debug">Отладка</string>
-    <string name="debug_filter_warn">Warn</string>
+    <string name="debug_filter_warn">Предупреждения</string>
     <string name="debug_filter_error">Ошибка</string>
     <string name="debug_filter_app">Приложение</string>
     <string name="debug_filter_driver">Драйвер</string>
