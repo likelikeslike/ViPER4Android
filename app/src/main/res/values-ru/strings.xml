@@ -278,7 +278,7 @@
     <string name="debug_filter_all">Все</string>
     <string name="debug_filter_info">Информация</string>
     <string name="debug_filter_debug">Отладка</string>
-    <string name="debug_filter_warn">Warn</string>
+    <string name="debug_filter_warn">Предупреждения</string>
     <string name="debug_filter_error">Ошибка</string>
     <string name="debug_filter_app">Приложение</string>
     <string name="debug_filter_driver">Драйвер</string>
