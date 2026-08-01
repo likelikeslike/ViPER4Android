@@ -22,7 +22,7 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 - ViPER-DDC (Digital Device Correction)
 - Spectrum Extension (VSE)
 - IIR Equalizer (10 / 15 / 25 / 31 bands)
-- Dynamic EQ (up to 8 bands, per-band threshold/attack/release)
+- Dynamic EQ (up to 10 bands, per-band threshold/attack/release)
 
 - Convolver (IRS impulse response loading)
 - Field Surround (Colorful Music)
