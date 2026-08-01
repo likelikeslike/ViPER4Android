@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
@@ -52,24 +51,13 @@ fun PresetDialog(
     var saveInputName by remember { mutableStateOf("") }
     var renamingId by remember { mutableLongStateOf(-1L) }
     var renameInputName by remember { mutableStateOf("") }
-    var pendingDeletePreset by remember { mutableStateOf<Preset?>(null) }
     var showClearAllConfirm by remember { mutableStateOf(false) }
     var showUpdateConfirm by remember { mutableStateOf(false) }
     var updateTargetPreset by remember { mutableStateOf<Preset?>(null) }
-
-    fun commitPendingDelete() {
-        pendingDeletePreset?.let { onDelete(it.id) }
-        pendingDeletePreset = null
-    }
-
-    val visiblePresets =
-        remember(presets, pendingDeletePreset) {
-            if (pendingDeletePreset != null) {
-                presets.filter { it.id != pendingDeletePreset!!.id }
-            } else {
-                presets
-            }
-        }
+    var showLoadConfirm by remember { mutableStateOf(false) }
+    var loadTargetPreset by remember { mutableStateOf<Preset?>(null) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var deleteTargetPreset by remember { mutableStateOf<Preset?>(null) }
 
     if (showSaveInput) {
         AlertDialog(
@@ -203,15 +191,72 @@ fun PresetDialog(
         return
     }
 
+    if (showLoadConfirm && loadTargetPreset != null) {
+        val target = loadTargetPreset!!
+        AlertDialog(
+            onDismissRequest = { showLoadConfirm = false },
+            title = { Text(stringResource(R.string.preset_load_title)) },
+            text = {
+                Text(stringResource(R.string.preset_load_confirm, target.name))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onLoad(target.id)
+                        showLoadConfirm = false
+                    },
+                ) {
+                    Text(stringResource(R.string.action_load))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLoadConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+        return
+    }
+
+    if (showDeleteConfirm && deleteTargetPreset != null) {
+        val target = deleteTargetPreset!!
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.preset_delete_title)) },
+            text = {
+                Text(stringResource(R.string.preset_delete_confirm, target.name))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete(target.id)
+                        showDeleteConfirm = false
+                    },
+                    colors =
+                        ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
+                ) {
+                    Text(stringResource(R.string.action_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+        return
+    }
+
     AlertDialog(
         onDismissRequest = {
-            commitPendingDelete()
             onDismiss()
         },
         title = { Text(stringResource(R.string.menu_presets)) },
         text = {
             Column {
-                if (visiblePresets.isEmpty() && pendingDeletePreset == null) {
+                if (presets.isEmpty()) {
                     Text(
                         text = stringResource(R.string.preset_empty),
                         style = MaterialTheme.typography.bodyMedium,
@@ -221,16 +266,16 @@ fun PresetDialog(
                     LazyColumn(
                         modifier = Modifier.heightIn(max = 300.dp),
                     ) {
-                        items(visiblePresets, key = { it.id }) { preset ->
+                        items(presets, key = { it.id }) { preset ->
                             PresetItem(
                                 preset = preset,
                                 onLoad = {
-                                    commitPendingDelete()
-                                    onLoad(preset.id)
+                                    loadTargetPreset = preset
+                                    showLoadConfirm = true
                                 },
                                 onDelete = {
-                                    commitPendingDelete()
-                                    pendingDeletePreset = preset
+                                    deleteTargetPreset = preset
+                                    showDeleteConfirm = true
                                 },
                                 onRename = {
                                     renameInputName = preset.name
@@ -242,17 +287,6 @@ fun PresetDialog(
                                 },
                             )
                             HorizontalDivider()
-                        }
-                        pendingDeletePreset?.let { deleted ->
-                            item(key = "deleted_${deleted.id}") {
-                                DeletedPresetItem(
-                                    preset = deleted,
-                                    onRestore = {
-                                        pendingDeletePreset = null
-                                    },
-                                )
-                                HorizontalDivider()
-                            }
                         }
                     }
                 }
@@ -271,7 +305,6 @@ fun PresetDialog(
                 if (presets.isNotEmpty()) {
                     TextButton(
                         onClick = {
-                            commitPendingDelete()
                             showClearAllConfirm = true
                         },
                         colors =
@@ -283,7 +316,6 @@ fun PresetDialog(
                     }
                 }
                 TextButton(onClick = {
-                    commitPendingDelete()
                     onDismiss()
                 }) {
                     Text(stringResource(R.string.action_close))
@@ -340,43 +372,6 @@ private fun PresetItem(
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun DeletedPresetItem(
-    preset: Preset,
-    onRestore: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = preset.name,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-            )
-            Text(
-                text = stringResource(R.string.label_deleted),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f),
-            )
-        }
-        IconButton(onClick = onRestore) {
-            Icon(
-                Icons.Default.Restore,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
         }
     }
 }

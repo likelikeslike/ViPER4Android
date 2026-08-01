@@ -35,7 +35,6 @@
     <string name="label_mild">Слабо</string>
     <string name="label_medium">Средне</string>
     <string name="label_strong">Сильно</string>
-    <string name="label_deleted">Удалено</string>
 
     <!-- Numeric input dialog -->
     <string name="dialog_value_range">Range: %1$s \u2013 %2$s</string>
@@ -207,6 +206,10 @@
     <string name="preset_cleared">Удалено</string>
     <string name="preset_update_title">Обновление профиля</string>
     <string name="preset_update_confirm">Перезаписать «%1$s» с текущими настройками? Это действие нельзя отменить.</string>
+    <string name="preset_load_title">Load Preset</string>
+    <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
+    <string name="preset_delete_title">Delete Preset</string>
+    <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Драйвер не найден</string>
@@ -248,6 +251,10 @@
     <string name="device_rename_hint">Имя устройства</string>
     <string name="device_update_title">Обновление профиля устройства</string>
     <string name="device_update_confirm">Перезаписать профиль «%1$s» текущими настройками? Это действие нельзя отменить.</string>
+    <string name="device_load_title">Load Device Preset</string>
+    <string name="device_load_confirm">Load "%1$s" preset? Current settings will be replaced.</string>
+    <string name="device_delete_title">Delete Device Preset</string>
+    <string name="device_delete_confirm">Delete the saved preset for "%1$s"? This cannot be undone.</string>
 
     <!-- Actions -->
     <string name="action_save">Сохранить</string>

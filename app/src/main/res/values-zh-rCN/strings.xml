@@ -35,7 +35,6 @@
     <string name="label_mild">弱</string>
     <string name="label_medium">中</string>
     <string name="label_strong">强</string>
-    <string name="label_deleted">已删除</string>
 
     <!-- Numeric input dialog -->
     <string name="dialog_value_range">范围: %1$s \u2013 %2$s</string>
@@ -207,6 +206,10 @@
     <string name="preset_cleared">已清除</string>
     <string name="preset_update_title">更新预设</string>
     <string name="preset_update_confirm">确定用当前设置覆盖 "%1$s"? 此操作无法撤销</string>
+    <string name="preset_load_title">Load Preset</string>
+    <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
+    <string name="preset_delete_title">Delete Preset</string>
+    <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">未找到驱动</string>
@@ -248,6 +251,10 @@
     <string name="device_rename_hint">设备名称</string>
     <string name="device_update_title">更新设备预设</string>
     <string name="device_update_confirm">确定用当前设置覆盖 "%1$s"? 此操作无法撤销</string>
+    <string name="device_load_title">Load Device Preset</string>
+    <string name="device_load_confirm">Load "%1$s" preset? Current settings will be replaced.</string>
+    <string name="device_delete_title">Delete Device Preset</string>
+    <string name="device_delete_confirm">Delete the saved preset for "%1$s"? This cannot be undone.</string>
 
     <!-- Actions -->
     <string name="action_save">保存</string>

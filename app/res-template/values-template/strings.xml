@@ -15,6 +15,7 @@
     <string name="notification_text">Audio processing active</string>
     <string name="notification_bulk_op_channel_name">Bulk Operations</string>
     <string name="notification_bulk_op_channel_description">Progress for bulk operations</string>
+    <string name="qs_tile_master_label">Master</string>
 
     <!-- Master -->
     <string name="master_enable">Master Enable</string>
@@ -42,7 +43,6 @@
     <string name="label_mild">Mild</string>
     <string name="label_medium">Medium</string>
     <string name="label_strong">Strong</string>
-    <string name="label_deleted">Deleted</string>
 
     <!-- Numeric input dialog -->
     <string name="dialog_value_range">Range: %1$s \u2013 %2$s</string>
@@ -214,6 +214,10 @@
     <string name="preset_cleared">Cleared</string>
     <string name="preset_update_title">Update Preset</string>
     <string name="preset_update_confirm">Overwrite "%1$s" with current settings? This cannot be undone.</string>
+    <string name="preset_load_title">Load Preset</string>
+    <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
+    <string name="preset_delete_title">Delete Preset</string>
+    <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Driver not found</string>
@@ -255,6 +259,10 @@
     <string name="device_rename_hint">Device name</string>
     <string name="device_update_title">Update Device Preset</string>
     <string name="device_update_confirm">Overwrite "%1$s" preset with current settings? This cannot be undone.</string>
+    <string name="device_load_title">Load Device Preset</string>
+    <string name="device_load_confirm">Load "%1$s" preset? Current settings will be replaced.</string>
+    <string name="device_delete_title">Delete Device Preset</string>
+    <string name="device_delete_confirm">Delete the saved preset for "%1$s"? This cannot be undone.</string>
 
     <!-- Actions -->
     <string name="action_save">Save</string>
