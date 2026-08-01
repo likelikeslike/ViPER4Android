@@ -88,13 +88,13 @@ data class EqState(
 data class DynamicEqState(
     val enable: Boolean = false,
     val bandCount: Int = 3,
-    val freqs: List<Int> = listOf(60, 150, 400, 1000, 2500, 5000, 8000, 12000),
-    val qs: List<Int> = listOf(100, 100, 150, 150, 150, 200, 200, 200),
-    val gains: List<Int> = listOf(0, 0, 0, 0, 0, 0, 0, 0),
-    val thresholds: List<Int> = listOf(-300, -300, -250, -250, -200, -200, -200, -200),
-    val attacks: List<Int> = listOf(10, 10, 10, 10, 10, 10, 10, 10),
-    val releases: List<Int> = listOf(100, 100, 100, 100, 100, 100, 100, 100),
-    val filterTypes: List<Int> = listOf(0, 0, 0, 0, 0, 0, 0, 0),
+    val freqs: List<Int> = listOf(60, 150, 400),
+    val qs: List<Int> = listOf(100, 100, 150),
+    val gains: List<Int> = listOf(0, 0, 0),
+    val thresholds: List<Int> = listOf(-200, -200, -200),
+    val attacks: List<Int> = listOf(10, 10, 10),
+    val releases: List<Int> = listOf(100, 100, 100),
+    val filterTypes: List<Int> = listOf(0, 0, 0),
 )
 
 data class ConvolverState(

@@ -1,6 +1,7 @@
 package com.llsl.viper4android.audio
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.AudioPlaybackConfiguration
 import android.os.Handler
@@ -9,7 +10,7 @@ import com.llsl.viper4android.utils.FileLogger
 import com.llsl.viper4android.utils.RootShell
 
 class AudioSessionMonitor(
-    context: Context,
+    private val context: Context,
     private val onSessionOpen: (sessionId: Int, packageName: String) -> Unit,
     private val onSessionClose: (sessionId: Int) -> Unit,
 ) {
@@ -18,6 +19,11 @@ class AudioSessionMonitor(
     private val activePiids = mutableMapOf<Int, SessionInfo>()
     private var registered = false
     private var pendingResolve = false
+
+    private val isSystemPrivileged: Boolean by lazy {
+        context.checkSelfPermission("android.permission.MODIFY_AUDIO_ROUTING") ==
+            PackageManager.PERMISSION_GRANTED
+    }
 
     private data class SessionInfo(
         val sessionId: Int,
@@ -60,12 +66,17 @@ class AudioSessionMonitor(
     }
 
     private fun resolveFromDumpsys() {
-        if (!RootShell.isRootAvailable()) {
+        if (!isSystemPrivileged && !RootShell.isRootAvailable()) {
             FileLogger.w(TAG, "Root not available")
             return
         }
 
-        val discovered = queryActivePlayers() ?: return
+        val discovered =
+            if (isSystemPrivileged) {
+                queryActivePlayersSys()
+            } else {
+                queryActivePlayers()
+            } ?: return
 
         mainHandler.post {
             val discoveredPiids = discovered.keys
@@ -108,6 +119,38 @@ class AudioSessionMonitor(
             }
         }
     }
+
+    private fun queryActivePlayersSys(): Map<Int, SessionInfo>? =
+        try {
+            val playerSessions = mutableMapOf<Int, SessionInfo>()
+            val configs = audioManager.activePlaybackConfigurations
+            val configClass = AudioPlaybackConfiguration::class.java
+            // Required when not using system internal sdk
+            val isActiveMethod = configClass.getMethod("isActive")
+            val getAudioSessionIdMethod = configClass.getMethod("getSessionId")
+            val getClientUidMethod = configClass.getMethod("getClientUid")
+            val getPlayerInterfaceIdMethod = configClass.getMethod("getPlayerInterfaceId")
+
+            for (config in configs) {
+                if (isActiveMethod.invoke(config) as? Boolean != true) continue
+
+                val sid = getAudioSessionIdMethod.invoke(config) as? Int
+                if (sid == null || sid <= 0) continue
+
+                // Some player use LL API do not have piid, make sure to fake one from session id
+                val piid = (getPlayerInterfaceIdMethod.invoke(config) as Int).let { if (it != 0) it else -sid }
+
+                val uid = getClientUidMethod.invoke(config) as? Int
+                if (uid == null || uid < 0) continue
+                val pkg = context.packageManager.getPackagesForUid(uid)?.firstOrNull() ?: uid.toString()
+
+                playerSessions[piid] = SessionInfo(sid, pkg)
+            }
+            playerSessions
+        } catch (e: Exception) {
+            FileLogger.e(TAG, "Framework active playback query failed", e)
+            null
+        }
 
     private fun queryActivePlayers(): Map<Int, SessionInfo>? =
         try {

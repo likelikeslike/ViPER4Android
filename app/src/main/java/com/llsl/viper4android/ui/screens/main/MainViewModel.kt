@@ -22,6 +22,7 @@ import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_AUTO_START
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_DEBUG_MODE
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_GLOBAL_MODE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_MASTER_ENABLE
 import com.llsl.viper4android.effect.BoolListPref
 import com.llsl.viper4android.effect.BoolPref
 import com.llsl.viper4android.effect.DoubleListPref
@@ -51,6 +52,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -146,6 +148,7 @@ class MainViewModel
 
         init {
             refreshFileLists()
+            observeExternalMasterChanges()
             val initialDevice = audioOutputDetector.activeDevice.value
             viewModelScope.launch {
                 loadSettingsPreferences()
@@ -178,6 +181,17 @@ class MainViewModel
                 serviceBound = false
             }
             viperService = null
+        }
+
+        private fun observeExternalMasterChanges() {
+            viewModelScope.launch {
+                repository
+                    .getBooleanPreference(PREF_MASTER_ENABLE, false)
+                    .distinctUntilChanged()
+                    .collect { enabled ->
+                        _uiState.update { it.copy(masterEnable = enabled) }
+                    }
+            }
         }
 
         fun <T> applyPref(
@@ -315,23 +329,13 @@ class MainViewModel
 
         fun dispatchFullState() {
             val service = viperService ?: return
-            val state = _uiState.value
-            if (!state.masterEnable) {
-                FileLogger.d("ViewModel", "dispatchFullState: skipped (master OFF)")
-                return
-            }
-            FileLogger.d("ViewModel", "dispatchFullState: master=ON")
-            service.dispatchFullState(state, true)
+            service.dispatchFullState(_uiState.value)
         }
 
         fun setMasterEnabled(enabled: Boolean) {
             FileLogger.i("ViewModel", "Master: ${if (enabled) "ON" else "OFF"}")
-            _uiState.update { it.copy(masterEnable = enabled) }
-            viewModelScope.launch {
-                repository.setBooleanPreference(ViperRepository.PREF_MASTER_ENABLE, enabled)
-            }
-            viperService?.setMasterEnabled(enabled)
-            if (enabled) dispatchFullState()
+            applyPref(Effects.masterEnable, enabled)
+            dispatchFullState()
         }
 
         fun setConvolverKernel(fileName: String) {
@@ -509,11 +513,6 @@ class MainViewModel
             applyPref(Effects.dynamicSystem.sideGainHigh, value)
         }
 
-        fun setDynamicSystemStrength(value: Int) {
-            applyPref(Effects.dynamicSystem.presetId, null, last = false)
-            applyPref(Effects.dynamicSystem.strength, value)
-        }
-
         fun setDynamicSystemPreset(presetId: Long) {
             viewModelScope.launch {
                 val preset = repository.getDsPresetById(presetId) ?: return@launch
@@ -568,21 +567,27 @@ class MainViewModel
         fun addDynamicEqBand() {
             val state = _uiState.value
             val cur = state.dynamicEq
-            if (cur.bandCount >= 8) return
+            if (cur.bandCount >= 10) return
             val newCount = cur.bandCount + 1
+
+            fun <T> List<T>.resized(
+                size: Int,
+                fill: (Int) -> T,
+            ): List<T> = List(size) { getOrElse(it, fill) }
+
             val newFreq =
-                if (cur.freqs.isEmpty()) {
+                if (cur.bandCount == 0) {
                     1000
                 } else {
-                    (cur.freqs.last() * 2).coerceAtMost(20000)
+                    (cur.freqs.getOrElse(cur.bandCount - 1) { 1000 } * 2).coerceAtMost(20000)
                 }
-            applyPref(Effects.dynamicEq.freqs, cur.freqs + newFreq)
-            applyPref(Effects.dynamicEq.qs, cur.qs + 150)
-            applyPref(Effects.dynamicEq.gains, cur.gains + 0)
-            applyPref(Effects.dynamicEq.thresholds, cur.thresholds + (-300))
-            applyPref(Effects.dynamicEq.attacks, cur.attacks + 10)
-            applyPref(Effects.dynamicEq.releases, cur.releases + 100)
-            applyPref(Effects.dynamicEq.filterTypes, cur.filterTypes + 0)
+            applyPref(Effects.dynamicEq.freqs, cur.freqs.resized(newCount) { newFreq })
+            applyPref(Effects.dynamicEq.qs, cur.qs.resized(newCount) { 150 })
+            applyPref(Effects.dynamicEq.gains, cur.gains.resized(newCount) { 0 })
+            applyPref(Effects.dynamicEq.thresholds, cur.thresholds.resized(newCount) { -300 })
+            applyPref(Effects.dynamicEq.attacks, cur.attacks.resized(newCount) { 10 })
+            applyPref(Effects.dynamicEq.releases, cur.releases.resized(newCount) { 100 })
+            applyPref(Effects.dynamicEq.filterTypes, cur.filterTypes.resized(newCount) { 0 })
             applyPref(Effects.dynamicEq.bandCount, newCount)
         }
 
@@ -590,18 +595,19 @@ class MainViewModel
             val state = _uiState.value
             val cur = state.dynamicEq
             if (cur.bandCount <= 1) return
-            if (index !in cur.freqs.indices) return
+            if (index !in 0 until cur.bandCount) return
             val newCount = cur.bandCount - 1
 
-            fun <T> List<T>.removeAt(i: Int) = filterIndexed { idx, _ -> idx != i }
+            fun List<Int>.removeBand(): List<Int> = take(cur.bandCount).filterIndexed { idx, _ -> idx != index }
+
             applyPref(Effects.dynamicEq.bandCount, newCount)
-            applyPref(Effects.dynamicEq.freqs, cur.freqs.removeAt(index))
-            applyPref(Effects.dynamicEq.qs, cur.qs.removeAt(index))
-            applyPref(Effects.dynamicEq.gains, cur.gains.removeAt(index))
-            applyPref(Effects.dynamicEq.thresholds, cur.thresholds.removeAt(index))
-            applyPref(Effects.dynamicEq.attacks, cur.attacks.removeAt(index))
-            applyPref(Effects.dynamicEq.releases, cur.releases.removeAt(index))
-            applyPref(Effects.dynamicEq.filterTypes, cur.filterTypes.removeAt(index))
+            applyPref(Effects.dynamicEq.freqs, cur.freqs.removeBand())
+            applyPref(Effects.dynamicEq.qs, cur.qs.removeBand())
+            applyPref(Effects.dynamicEq.gains, cur.gains.removeBand())
+            applyPref(Effects.dynamicEq.thresholds, cur.thresholds.removeBand())
+            applyPref(Effects.dynamicEq.attacks, cur.attacks.removeBand())
+            applyPref(Effects.dynamicEq.releases, cur.releases.removeBand())
+            applyPref(Effects.dynamicEq.filterTypes, cur.filterTypes.removeBand())
         }
 
         fun setPlaybackGainControlEnabled(enabled: Boolean) {

@@ -256,6 +256,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                     TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     ),
                 actions = {
                     if (debugMode) {

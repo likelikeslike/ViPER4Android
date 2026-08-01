@@ -112,7 +112,7 @@ fun LabeledSlider(
 }
 
 @Composable
-private fun NumberInputDialog(
+fun NumberInputDialog(
     label: String,
     edit: SliderEdit,
     onDismiss: () -> Unit,

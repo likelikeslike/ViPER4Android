@@ -22,7 +22,7 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 - ViPER-DDC (Digital Device Correction)
 - Spectrum Extension (VSE)
 - IIR Equalizer (10 / 15 / 25 / 31 bands)
-- Dynamic EQ (up to 8 bands, per-band threshold/attack/release)
+- Dynamic EQ (up to 10 bands, per-band threshold/attack/release)
 
 - Convolver (IRS impulse response loading)
 - Field Surround (Colorful Music)
@@ -66,14 +66,44 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 - **What is Per-App Mode?**
 
     > Creates a separate AudioEffect for each audio player's session ID. The DSP processes each
-    > app's audio independently. Requires root access.
+    > app's audio independently. Requires **either root or installation as a privileged system app**
+    > (see below).
 
-- **Why does Per-App Mode require root?**
+- **Why does Per-App Mode require root (or a system-app install)?**
 
     > On modern Android (API 34+ / Android 14+), the framework no longer broadcasts
     > `OPEN_AUDIO_EFFECT_CONTROL_SESSION`, and `AudioManager.getActivePlaybackConfigurations()`
-    > returns anonymized session IDs (`sessionId:0, u/pid:-1/-1`). The app uses `AudioPlaybackCallback`
-    > to detect playback state changes, then retrieves the real session ID via `su -c "dumpsys audio"`, which requires root.
+    > returns anonymized session IDs (`sessionId:0, u/pid:-1/-1`) to ordinary apps. The app uses
+    > `AudioPlaybackCallback` to detect playback state changes, then needs a privileged path to
+    > recover the real session ID. Two paths are supported:
+    >
+    > - **Root (default):** the real session ID is read via `su -c "dumpsys audio"`.
+    > - **Privileged system app (no root):** if the app is installed under `/system/priv-app`
+    >   and granted the `MODIFY_AUDIO_ROUTING` permission, the framework returns the real
+    >   (non-anonymized) `sessionId`/`clientUid` directly from `getActivePlaybackConfigurations()`,
+    >   so no root and no `dumpsys` shell-out is needed. The app auto-detects this at runtime
+    >   (the permission grant is the trigger) and prefers it over the root path.
+
+- **How do I install as a privileged system app (per-app mode without root)?**
+
+    > Place the APK in `/system/priv-app/ViPER4Android/` and add a privileged-permission
+    > allowlist so the OS grants `MODIFY_AUDIO_ROUTING`:
+    >
+    > ```xml
+    > <!-- /system/etc/permissions/privapp-permissions-viper4android.xml -->
+    > <?xml version="1.0" encoding="utf-8"?>
+    > <permissions>
+    >     <privapp-permissions package="com.llsl.viper4android">
+    >         <permission name="android.permission.MODIFY_AUDIO_ROUTING"/>
+    >     </privapp-permissions>
+    > </permissions>
+    > ```
+    >
+    > This is done for you when the app ships inside a ROM or a Magisk module that mounts it
+    > systemlessly. Without the allowlist entry the permission is silently **denied**
+    > (with `ro.control_privapp_permissions=enforce`, the default), and the app falls back to the
+    > root path. No platform signature is required — priv-app placement satisfies the `privileged`
+    > half of the `signature|privileged` protection level.
 
 - **What is Per-Device Profile?**
 
@@ -82,7 +112,7 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 
 - **What is AIDL Mode?**
     > Android 14+ introduced a new Audio HAL interface based on AIDL (Android Interface Definition Language),
-    > replacing the legacy HIDL interface. If your device's audio HAL uses AIDL, enable this in Settings.
+    > replacing the legacy HIDL interface. The App automatically check which HAL your device using.
 
 ## Presets
 
@@ -92,7 +122,6 @@ Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2`):
 {
   "schemaVersion": 2,
   "name": "My Preset",
-  "masterEnable": true,
   "equalizer": { "enable": true, "bandCount": 10, "bands": [3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0], "presetId": null },
   "dynamicEq": { "enable": false, "bandCount": 4, "freqs": [...], "gains": [...] },
   "ddc": { "enable": false, "device": "" }
@@ -157,7 +186,7 @@ profile. Deleting a profile removes its saved settings, the device gets a fresh 
 This app may require root access for:
 
 - **AIDL mode**: Creating shared memory files for the AIDL driver (if not set up during module installation)
-- **Per-App Mode**: Retrieving real audio session IDs via `dumpsys`
+- **Per-App Mode**: Retrieving real audio session IDs via `dumpsys` (not needed when installed as a privileged system app; see Per-App Mode in the Q&A)
 - **Convolver**: Copying IRS/WAV files to `/data/local/tmp/v4a/` for the driver to read (AIDL only)
 - **Debug log viewer**: Reading `logcat` for driver diagnostics
 

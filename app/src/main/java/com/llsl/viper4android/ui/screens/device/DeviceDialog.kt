@@ -67,6 +67,10 @@ fun DeviceDialog(
     var renameInput by remember { mutableStateOf("") }
     var showUpdateConfirm by remember { mutableStateOf(false) }
     var updateTargetDevice by remember { mutableStateOf<DeviceSettings?>(null) }
+    var showLoadConfirm by remember { mutableStateOf(false) }
+    var loadTargetDevice by remember { mutableStateOf<DeviceSettings?>(null) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var deleteTargetDevice by remember { mutableStateOf<DeviceSettings?>(null) }
 
     val selectedDevice = selectedDeviceId?.let { id -> devices.find { it.deviceId == id } }
 
@@ -135,6 +139,63 @@ fun DeviceDialog(
         )
     }
 
+    if (showLoadConfirm && loadTargetDevice != null) {
+        val target = loadTargetDevice!!
+        AlertDialog(
+            onDismissRequest = { showLoadConfirm = false },
+            title = { Text(stringResource(R.string.device_load_title)) },
+            text = {
+                Text(stringResource(R.string.device_load_confirm, target.deviceName))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onLoad(target.deviceId)
+                        showLoadConfirm = false
+                    },
+                ) {
+                    Text(stringResource(R.string.action_load))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLoadConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
+
+    if (showDeleteConfirm && deleteTargetDevice != null) {
+        val target = deleteTargetDevice!!
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text(stringResource(R.string.device_delete_title)) },
+            text = {
+                Text(stringResource(R.string.device_delete_confirm, target.deviceName))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDelete(target.deviceId)
+                        selectedDeviceId = null
+                        showDeleteConfirm = false
+                    },
+                    colors =
+                        ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error,
+                        ),
+                ) {
+                    Text(stringResource(R.string.action_delete))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -172,14 +233,17 @@ fun DeviceDialog(
                 DeviceDetailView(
                     device = selectedDevice,
                     isActive = selectedDevice.deviceId == activeDeviceId,
-                    onLoad = { onLoad(selectedDevice.deviceId) },
+                    onLoad = {
+                        loadTargetDevice = selectedDevice
+                        showLoadConfirm = true
+                    },
                     onUpdate = {
                         updateTargetDevice = selectedDevice
                         showUpdateConfirm = true
                     },
                     onDelete = {
-                        onDelete(selectedDevice.deviceId)
-                        selectedDeviceId = null
+                        deleteTargetDevice = selectedDevice
+                        showDeleteConfirm = true
                     },
                 )
             } else {

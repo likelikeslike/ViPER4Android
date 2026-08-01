@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -20,12 +20,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -58,7 +55,6 @@ import com.llsl.viper4android.viper.ViperDispatcher
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 private const val DB_MIN = -12f
 private const val DB_MAX = 12f
@@ -320,9 +316,7 @@ fun EqEditDialog(
             )
         },
         text = {
-            Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()),
-            ) {
+            Column {
                 EqCurveGraph(
                     bands = localBands.toList(),
                     onClick = {},
@@ -391,96 +385,64 @@ fun EqEditDialog(
 
                 val bandLabels = ViperDispatcher.eqBandLabelsForCount(bandCount)
 
-                bandLabels.forEachIndexed { index, label ->
-                    if (index < localBands.size) {
-                        val atMin = localBands[index] <= DB_MIN
-                        val atMax = localBands[index] >= DB_MAX
+                Column(
+                    modifier = Modifier.heightIn(max = 260.dp).verticalScroll(rememberScrollState()),
+                ) {
+                    bandLabels.forEachIndexed { index, label ->
+                        if (index < localBands.size) {
+                            var showBandEdit by remember { mutableStateOf(false) }
 
-                        val applyBandChange = { newVal: Float ->
-                            localBands[index] = newVal.coerceIn(DB_MIN, DB_MAX)
-                            // Native List<Double> on the wire (canonical v2);
-                            // round to 1 decimal at the boundary to match
-                            // legacy SP "%.1f" precision.
-                            val list =
-                                localBands.map {
-                                    String.format(Locale.US, "%.1f", it).toDouble()
-                                }
-                            onBandsChange(list)
-                        }
+                            val applyBandChange = { newVal: Float ->
+                                localBands[index] = newVal.coerceIn(DB_MIN, DB_MAX)
+                                val list =
+                                    localBands.map { String.format(Locale.US, "%.1f", it).toDouble() }
+                                onBandsChange(list)
+                            }
 
-                        Row(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = label,
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.width(48.dp),
-                            )
-                            IconButton(
-                                onClick = {
-                                    val stepped = ((localBands[index] * 10).roundToInt() - 1) / 10f
-                                    applyBandChange(stepped)
-                                },
-                                enabled = !atMin,
-                                modifier = Modifier.size(32.dp),
-                                colors =
-                                    IconButtonDefaults.iconButtonColors(
-                                        contentColor = MaterialTheme.colorScheme.primary,
-                                        disabledContentColor =
-                                            MaterialTheme.colorScheme.onSurface.copy(
-                                                alpha = 0.38f,
-                                            ),
-                                    ),
+                            Row(
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Remove,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
+                                Text(
+                                    text = label,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.width(48.dp),
+                                )
+                                Slider(
+                                    value = localBands[index],
+                                    onValueChange = { applyBandChange(it) },
+                                    valueRange = DB_MIN..DB_MAX,
+                                    modifier = Modifier.weight(1f),
+                                    colors =
+                                        SliderDefaults.colors(
+                                            activeTickColor = Color.Transparent,
+                                            inactiveTickColor = Color.Transparent,
+                                        ),
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Text(
+                                    text = "${"%.1f".format(localBands[index])}dB",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.width(56.dp).clickable { showBandEdit = true },
+                                    maxLines = 1,
                                 )
                             }
-                            Slider(
-                                value = localBands[index],
-                                onValueChange = { applyBandChange(it) },
-                                valueRange = DB_MIN..DB_MAX,
-                                modifier = Modifier.weight(1f),
-                                colors =
-                                    SliderDefaults.colors(
-                                        activeTickColor = Color.Transparent,
-                                        inactiveTickColor = Color.Transparent,
-                                    ),
-                            )
-                            IconButton(
-                                onClick = {
-                                    val stepped = ((localBands[index] * 10).roundToInt() + 1) / 10f
-                                    applyBandChange(stepped)
-                                },
-                                enabled = !atMax,
-                                modifier = Modifier.size(32.dp),
-                                colors =
-                                    IconButtonDefaults.iconButtonColors(
-                                        contentColor = MaterialTheme.colorScheme.primary,
-                                        disabledContentColor =
-                                            MaterialTheme.colorScheme.onSurface.copy(
-                                                alpha = 0.38f,
-                                            ),
-                                    ),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
+
+                            if (showBandEdit) {
+                                NumberInputDialog(
+                                    label = label,
+                                    edit =
+                                        SliderEdit(
+                                            displayValue = localBands[index].toDouble(),
+                                            displayRange = DB_MIN.toDouble()..DB_MAX.toDouble(),
+                                            decimals = 1,
+                                            unit = "dB",
+                                            onCommit = { applyBandChange(it.toFloat()) },
+                                        ),
+                                    onDismiss = { showBandEdit = false },
                                 )
                             }
-                            Text(
-                                text = "${"%.1f".format(localBands[index])}dB",
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.width(52.dp),
-                                maxLines = 1,
-                            )
                         }
                     }
                 }
