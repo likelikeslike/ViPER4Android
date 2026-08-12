@@ -6,6 +6,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -190,7 +192,11 @@ fun EffectSection(
         AlertDialog(
             onDismissRequest = { showHelpDialog = false },
             title = { Text(text = title) },
-            text = { RichText(text = stringResource(descriptionRes)) },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    RichText(text = stringResource(descriptionRes))
+                }
+            },
             confirmButton = {
                 TextButton(onClick = { showHelpDialog = false }) {
                     Text(text = stringResource(android.R.string.ok))
