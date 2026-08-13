@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?><!--
     How to add a new language:
-    1. Create a new directory: res/values-{qualifier}/strings.xml
+    1. Create a new directory: res/values-{qualifier}/
        See details of the qualifier: https://developer.android.com/guide/topics/resources/providing-resources#AlternativeResources
-    2. Copy this file as a starting template.
+    2. Copy this file and res-template/values-template/strings_help.xml as starting templates.
     3. Translate each <string> value (keep the name attribute unchanged).
     4. Note that some items may use placeholders like `%1$s` or `%d`.
        These placeholders should be kept in the translated string for formatting.
+    5. For strings_help.xml, which uses HTML tags like `&lt;br&gt`, `&lt;b&gt`, etc.
+       These tags should be kept in the translated string for formatting.
 -->
 <resources>
     <string name="app_name">ViPER4Android</string>

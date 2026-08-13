@@ -6,16 +6,18 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Add
@@ -40,6 +42,7 @@ import androidx.compose.material.icons.filled.SettingsInputComponent
 import androidx.compose.material.icons.filled.SpatialAudio
 import androidx.compose.material.icons.filled.SpeakerPhone
 import androidx.compose.material.icons.filled.SurroundSound
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VerticalAlignCenter
 import androidx.compose.material.icons.filled.Waves
 import androidx.compose.material3.AlertDialog
@@ -65,7 +68,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -105,7 +110,7 @@ fun EffectSection(
     content: @Composable () -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(initiallyExpanded) }
-    var showHelpDialog by remember { mutableStateOf(false) }
+    var showHelpDialog by rememberSaveable { mutableStateOf(false) }
     val haptic = LocalHapticFeedback.current
 
     Card(
@@ -130,7 +135,7 @@ fun EffectSection(
                                     onLongClick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         showHelpDialog = true
-                                    }
+                                    },
                                 )
                             } else {
                                 Modifier.combinedClickable(
@@ -138,11 +143,10 @@ fun EffectSection(
                                     onLongClick = {
                                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                         showHelpDialog = true
-                                    }
+                                    },
                                 )
-                            }
-                        )
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                            },
+                        ).padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (icon != null) {
@@ -166,6 +170,8 @@ fun EffectSection(
                         checked = enabled,
                         onCheckedChange = onEnabledChange,
                     )
+                } else {
+                    Spacer(modifier = Modifier.height(48.dp))
                 }
             }
 
@@ -193,15 +199,20 @@ fun EffectSection(
             onDismissRequest = { showHelpDialog = false },
             title = { Text(text = title) },
             text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                    RichText(text = stringResource(descriptionRes))
-                }
+                val maxHeight =
+                    with(LocalDensity.current) {
+                        LocalWindowInfo.current.containerSize.height
+                            .toDp() / 2
+                    }
+                Column(
+                    modifier = Modifier.heightIn(max = maxHeight).verticalScroll(rememberScrollState()),
+                ) { RichText(text = stringResource(descriptionRes)) }
             },
             confirmButton = {
                 TextButton(onClick = { showHelpDialog = false }) {
                     Text(text = stringResource(android.R.string.ok))
                 }
-            }
+            },
         )
     }
 }
@@ -218,8 +229,14 @@ fun MasterLimiterRows(
     val limDb = if (limiter > 0) rawToDb(limiter) else -99.9
     val left = 50 - channelPan / 2
     val right = 50 + channelPan / 2
-    Column(
-        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    EffectSection(
+        title = stringResource(R.string.section_master_limiter),
+        enabled = true,
+        onEnabledChange = {},
+        descriptionRes = R.string.effect_desc_master_limiter,
+        icon = Icons.Default.Tune,
+        hasEnableSwitch = false,
+        initiallyExpanded = true,
     ) {
         LabeledSlider(
             label = stringResource(R.string.label_output_volume),

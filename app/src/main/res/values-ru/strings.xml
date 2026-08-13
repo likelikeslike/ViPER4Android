@@ -41,6 +41,7 @@
     <string name="dialog_value_range_unit">Диапазон: %1$s \u2013 %2$s %3$s</string>
 
     <!-- Output / Master limiter -->
+    <string name="section_master_limiter">Мастер-лимитер</string>
     <string name="label_output_volume">Выходное усиление</string>
     <string name="label_output_pan">Панорама на выходе</string>
     <string name="label_output_limiter">Порог лимитера</string>
