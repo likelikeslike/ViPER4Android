@@ -62,7 +62,6 @@ android {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
             freeCompilerArgs.addAll(
-                "-Xcontext-parameters",
                 "-P", "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping=true",
             )
         }

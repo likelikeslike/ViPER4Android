@@ -65,7 +65,7 @@ fun LabeledDropdown(
             enabled = enabled,
             singleLine = true,
         )
-        ExposedDropdownMenu(
+        this.ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {

@@ -100,7 +100,7 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        invokeParam(fx, m, intToBytes(param), intToBytes(value), "setParameter($param, $value)")
+        with(fx) { with(m) { invokeParam(intToBytes(param), intToBytes(value), "setParameter($param, $value)") } }
     }
 
     fun setParameter(
@@ -117,7 +117,7 @@ class ViperEffect(
                 .putInt(val1)
                 .putInt(val2)
                 .array()
-        invokeParam(fx, m, intToBytes(param), valueBytes, "setParameter($param, $val1, $val2)")
+        with(fx) { with(m) { invokeParam(intToBytes(param), valueBytes, "setParameter($param, $val1, $val2)") } }
     }
 
     fun setParameter(
@@ -136,7 +136,7 @@ class ViperEffect(
                 .putInt(val2)
                 .putInt(val3)
                 .array()
-        invokeParam(fx, m, intToBytes(param), valueBytes, "setParameter($param, $val1, $val2, $val3)")
+        with(fx) { with(m) { invokeParam(intToBytes(param), valueBytes, "setParameter($param, $val1, $val2, $val3)") } }
     }
 
     fun setParameter(
@@ -145,7 +145,7 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        invokeParam(fx, m, intToBytes(param), value, "setParameter($param, byteArray[${value.size}])")
+        with(fx) { with(m) { invokeParam(intToBytes(param), value, "setParameter($param, byteArray[${value.size}])") } }
     }
 
     context(fx: AudioEffect, m: Method)
