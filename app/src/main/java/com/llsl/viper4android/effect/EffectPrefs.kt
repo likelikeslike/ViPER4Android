@@ -242,6 +242,8 @@ suspend fun loadEffectPrefs(
                     val raw = repository.getStringPreference(pref.prefKey, spJoinDoubles(pref.defaultValue)).first()
                     pref.set(s, spSplitDoubles(raw, pref.defaultValue))
                 }
+
+                else -> error("Unhandled EffectPref type: ${pref::class.simpleName}")
             }
     }
     return s
@@ -260,6 +262,7 @@ suspend fun saveEffectPrefs(
             is IntListPref -> repository.setStringPreference(pref.prefKey, spJoinInts(pref.get(state)))
             is BoolListPref -> repository.setStringPreference(pref.prefKey, spJoinBools(pref.get(state)))
             is DoubleListPref -> repository.setStringPreference(pref.prefKey, spJoinDoubles(pref.get(state)))
+            else -> error("Unhandled EffectPref type: ${pref::class.simpleName}")
         }
     }
 }
@@ -332,6 +335,8 @@ private fun putPrefValue(
             for (v in pref.get(state)) arr.put(v)
             obj.put(pref.jsonKey, arr)
         }
+
+        else -> error("Unhandled EffectPref type: ${pref::class.simpleName}")
     }
 }
 
@@ -399,5 +404,7 @@ private fun applyPrefFromJson(
             for (i in 0 until arr.length()) list.add(pref.clampElement(arr.optDouble(i, 0.0)))
             pref.set(state, list.toList())
         }
+
+        else -> error("Unhandled EffectPref type: ${pref::class.simpleName}")
     }
 }

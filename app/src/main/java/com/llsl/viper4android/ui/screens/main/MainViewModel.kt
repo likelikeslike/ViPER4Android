@@ -287,6 +287,8 @@ class MainViewModel
                     val list = value as List<Double>
                     repository.setStringPreference(pref.prefKey, list.joinToString(";") { String.format(Locale.US, "%.1f", it) })
                 }
+
+                else -> error("Unhandled EffectPref type: ${pref::class.simpleName}")
             }
         }
 
