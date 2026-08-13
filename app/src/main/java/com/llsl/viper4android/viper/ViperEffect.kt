@@ -100,16 +100,7 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        val paramBytes = intToBytes(param)
-        val valueBytes = intToBytes(value)
-        try {
-            val status = m.invoke(fx, paramBytes, valueBytes) as Int
-            if (status != AudioEffect.SUCCESS) {
-                FileLogger.w("Effect", "setParameter($param, $value) returned $status")
-            }
-        } catch (e: Exception) {
-            FileLogger.e("Effect", "setParameter($param, $value) invoke failed", e)
-        }
+        invokeParam(fx, m, intToBytes(param), intToBytes(value), "setParameter($param, $value)")
     }
 
     fun setParameter(
@@ -119,7 +110,6 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        val paramBytes = intToBytes(param)
         val valueBytes =
             ByteBuffer
                 .allocate(8)
@@ -127,14 +117,7 @@ class ViperEffect(
                 .putInt(val1)
                 .putInt(val2)
                 .array()
-        try {
-            val status = m.invoke(fx, paramBytes, valueBytes) as Int
-            if (status != AudioEffect.SUCCESS) {
-                FileLogger.w("Effect", "setParameter($param, $val1, $val2) returned $status")
-            }
-        } catch (e: Exception) {
-            FileLogger.e("Effect", "setParameter($param, $val1, $val2) invoke failed", e)
-        }
+        invokeParam(fx, m, intToBytes(param), valueBytes, "setParameter($param, $val1, $val2)")
     }
 
     fun setParameter(
@@ -145,7 +128,6 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        val paramBytes = intToBytes(param)
         val valueBytes =
             ByteBuffer
                 .allocate(12)
@@ -154,14 +136,7 @@ class ViperEffect(
                 .putInt(val2)
                 .putInt(val3)
                 .array()
-        try {
-            val status = m.invoke(fx, paramBytes, valueBytes) as Int
-            if (status != AudioEffect.SUCCESS) {
-                FileLogger.w("Effect", "setParameter($param, $val1, $val2, $val3) returned $status")
-            }
-        } catch (e: Exception) {
-            FileLogger.e("Effect", "setParameter($param, $val1, $val2, $val3) invoke failed", e)
-        }
+        invokeParam(fx, m, intToBytes(param), valueBytes, "setParameter($param, $val1, $val2, $val3)")
     }
 
     fun setParameter(
@@ -170,21 +145,22 @@ class ViperEffect(
     ) {
         val fx = effect ?: return
         val m = setParamMethod ?: return
-        val paramBytes = intToBytes(param)
+        invokeParam(fx, m, intToBytes(param), value, "setParameter($param, byteArray[${value.size}])")
+    }
+
+    context(fx: AudioEffect, m: Method)
+    private fun invokeParam(
+        paramBytes: ByteArray,
+        valueBytes: ByteArray,
+        tag: String,
+    ) {
         try {
-            val status = m.invoke(fx, paramBytes, value) as Int
+            val status = m.invoke(fx, paramBytes, valueBytes) as Int
             if (status != AudioEffect.SUCCESS) {
-                FileLogger.w(
-                    "Effect",
-                    "setParameter($param, byteArray[${value.size}]) returned $status",
-                )
+                FileLogger.w("Effect", "$tag returned $status")
             }
         } catch (e: Exception) {
-            FileLogger.e(
-                "Effect",
-                "setParameter($param, byteArray[${value.size}]) invoke failed",
-                e,
-            )
+            FileLogger.e("Effect", "$tag invoke failed", e)
         }
     }
 
