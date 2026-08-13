@@ -268,8 +268,7 @@ object ViperParamsSerializer {
         s: ConvolverState,
     ) {
         val l = ViperParamsLayout.Convolver
-        val effectiveEnable = s.enable && s.kernelFile.isNotEmpty()
-        buf.putBool(base + l.ENABLE, effectiveEnable)
+        buf.putBool(base + l.ENABLE, s.enable)
         buf.putFloat(base + l.CROSS_CHANNEL, s.crossChannel / 100f)
     }
 
@@ -279,8 +278,7 @@ object ViperParamsSerializer {
         s: DdcState,
     ) {
         val l = ViperParamsLayout.Ddc
-        val effectiveEnable = s.enable && s.device.isNotEmpty()
-        buf.putBool(base + l.ENABLE, effectiveEnable)
+        buf.putBool(base + l.ENABLE, s.enable)
     }
 
     private fun writeFieldSurround(

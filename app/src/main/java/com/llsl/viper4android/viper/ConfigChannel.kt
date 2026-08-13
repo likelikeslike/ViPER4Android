@@ -55,6 +55,8 @@ object ConfigChannel {
     private const val BULK_DATA_SIZE_OFFSET = 16
     private const val BULK_CMD_DDC = 1
     private const val BULK_CMD_CONVOLVER_PATH = 2
+    private const val BULK_CMD_DDC_RESET = 3
+    private const val BULK_CMD_CONVOLVER_RESET = 4
 
     private var statusBuffer: MappedByteBuffer? = null
     private var paramsBuffer: MappedByteBuffer? = null
@@ -233,6 +235,38 @@ object ConfigChannel {
             buf.putInt(BULK_CONVOLVER_BASE + BULK_DATA_SIZE_OFFSET, pathBytes.size)
             buf.position(BULK_CONVOLVER_BASE + BULK_HEADER_SIZE)
             buf.put(pathBytes)
+
+            currentConvolverSeq++
+            buf.putInt(BULK_CONVOLVER_BASE + BULK_SEQ_OFFSET, currentConvolverSeq)
+        }
+    }
+
+    fun writeBulkDdcReset() {
+        ensureInitialized()
+        synchronized(writeLock) {
+            val buf =
+                bulkBuffer ?: run {
+                    FileLogger.w("ConfigChannel", "writeBulkDdcReset: bulk buf NULL")
+                    return
+                }
+            buf.putInt(BULK_DDC_BASE + BULK_COMMAND_OFFSET, BULK_CMD_DDC_RESET)
+            buf.putInt(BULK_DDC_BASE + BULK_DATA_SIZE_OFFSET, 0)
+
+            currentDdcSeq++
+            buf.putInt(BULK_DDC_BASE + BULK_SEQ_OFFSET, currentDdcSeq)
+        }
+    }
+
+    fun writeBulkConvolverReset() {
+        ensureInitialized()
+        synchronized(writeLock) {
+            val buf =
+                bulkBuffer ?: run {
+                    FileLogger.w("ConfigChannel", "writeBulkConvolverReset: bulk buf NULL")
+                    return
+                }
+            buf.putInt(BULK_CONVOLVER_BASE + BULK_COMMAND_OFFSET, BULK_CMD_CONVOLVER_RESET)
+            buf.putInt(BULK_CONVOLVER_BASE + BULK_DATA_SIZE_OFFSET, 0)
 
             currentConvolverSeq++
             buf.putInt(BULK_CONVOLVER_BASE + BULK_SEQ_OFFSET, currentConvolverSeq)

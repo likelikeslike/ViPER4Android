@@ -510,7 +510,7 @@ class ViperService : LifecycleService() {
     ) {
         if (fileName == lastBulkConvolverKey && !force) return
         if (fileName.isEmpty()) {
-            ConfigChannel.writeBulkConvolverPath("")
+            ConfigChannel.writeBulkConvolverReset()
             lastBulkConvolverKey = null
             return
         }
@@ -541,6 +541,11 @@ class ViperService : LifecycleService() {
         if (name == lastBulkDdcKey && !force) return
         val ddcDir = File(getExternalFilesDir(null), "DDC")
         val file = File(ddcDir, "$name.vdc")
+        if (name.isEmpty()) {
+            ConfigChannel.writeBulkDdcReset()
+            lastBulkDdcKey = null
+            return
+        }
         if (!file.exists()) {
             FileLogger.w("Service", "DDC file missing: $name")
             return
@@ -633,6 +638,16 @@ class ViperService : LifecycleService() {
         name: String,
         effect: ViperEffect? = null,
     ) {
+        if (name.isEmpty()) {
+            val bytes = ByteArray(256)
+            ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN).putInt(0)
+            if (effect == null) {
+                dispatchParam(ViperParams.PARAM_DDC_COEFFICIENTS, bytes)
+            } else {
+                effect.setParameter(ViperParams.PARAM_DDC_COEFFICIENTS, bytes)
+            }
+            return
+        }
         val file = File(File(getExternalFilesDir(null), "DDC"), "$name.vdc")
         if (!file.exists()) {
             FileLogger.w("Service", "DDC file missing: $name")

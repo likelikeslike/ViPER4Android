@@ -41,6 +41,7 @@
     <string name="dialog_value_range_unit">Range: %1$s \u2013 %2$s %3$s</string>
 
     <!-- Output / Master limiter -->
+    <string name="section_master_limiter">Master Limiter</string>
     <string name="label_output_volume">Output Gain</string>
     <string name="label_output_pan">Output Pan</string>
     <string name="label_output_limiter">Threshold Limit</string>
@@ -308,4 +309,5 @@
     <string name="ds_device_high_end_headphone_v1">High-End Headphone (v1)</string>
     <string name="ds_device_common_headphone_v1">Common Headphone (v1)</string>
     <string name="ds_device_common_earphone_v1">Common Earphone (v1)</string>
+
 </resources>
