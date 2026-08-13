@@ -51,7 +51,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
@@ -91,8 +90,8 @@ class MainViewModel
             private const val PROGRESS_DRAIN_DELAY_MS = 250L
         }
 
-        private val _uiState = MutableStateFlow(EffectState())
-        val uiState: StateFlow<EffectState> = _uiState.asStateFlow()
+        val uiState: StateFlow<EffectState>
+            field: MutableStateFlow<EffectState> = MutableStateFlow(EffectState())
 
         val presetList: StateFlow<List<Preset>> =
             repository.getAllPresets().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -100,26 +99,26 @@ class MainViewModel
         val deviceSettingsList: StateFlow<List<DeviceSettings>> =
             repository.getAllDeviceSettings().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-        private val _driverStatus = MutableStateFlow(DriverStatus())
-        val driverStatus: StateFlow<DriverStatus> = _driverStatus.asStateFlow()
+        val driverStatus: StateFlow<DriverStatus>
+            field: MutableStateFlow<DriverStatus> = MutableStateFlow(DriverStatus())
 
-        private val _vdcFileList = MutableStateFlow<List<String>>(emptyList())
-        val vdcFileList: StateFlow<List<String>> = _vdcFileList.asStateFlow()
+        val vdcFileList: StateFlow<List<String>>
+            field: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-        private val _kernelFileList = MutableStateFlow<List<String>>(emptyList())
-        val kernelFileList: StateFlow<List<String>> = _kernelFileList.asStateFlow()
+        val kernelFileList: StateFlow<List<String>>
+            field: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
 
-        private val _autoStartEnabled = MutableStateFlow(false)
-        val autoStartEnabled: StateFlow<Boolean> = _autoStartEnabled.asStateFlow()
+        val autoStartEnabled: StateFlow<Boolean>
+            field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-        private val _aidlModeEnabled = MutableStateFlow(false)
-        val aidlModeEnabled: StateFlow<Boolean> = _aidlModeEnabled.asStateFlow()
+        val aidlModeEnabled: StateFlow<Boolean>
+            field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-        private val _globalModeEnabled = MutableStateFlow(false)
-        val globalModeEnabled: StateFlow<Boolean> = _globalModeEnabled.asStateFlow()
+        val globalModeEnabled: StateFlow<Boolean>
+            field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-        private val _debugModeEnabled = MutableStateFlow(false)
-        val debugModeEnabled: StateFlow<Boolean> = _debugModeEnabled.asStateFlow()
+        val debugModeEnabled: StateFlow<Boolean>
+            field: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
         private var viperService: ViperService? = null
         private var serviceBound = false
@@ -136,7 +135,7 @@ class MainViewModel
                     val localBinder = binder as? ViperService.LocalBinder ?: return
                     viperService = localBinder.service
                     serviceBound = true
-                    viperService?.setStateProvider { _uiState.value }
+                    viperService?.setStateProvider { uiState.value }
                     queryDriverStatus()
                 }
 
@@ -152,19 +151,19 @@ class MainViewModel
             val initialDevice = audioOutputDetector.activeDevice.value
             viewModelScope.launch {
                 loadSettingsPreferences()
-                _uiState.update { loadEffectPrefs(repository, it) }
+                uiState.update { loadEffectPrefs(repository, it) }
                 val dbName = repository.getDeviceSettings(initialDevice.id)?.deviceName ?: initialDevice.name
-                _uiState.update { it.copy(activeDeviceName = dbName, activeDeviceId = initialDevice.id) }
-                loadEqPresetsForBandCount(_uiState.value.eq.bandCount)
+                uiState.update { it.copy(activeDeviceName = dbName, activeDeviceId = initialDevice.id) }
+                loadEqPresetsForBandCount(uiState.value.eq.bandCount)
                 loadDsPresets()
                 loadDeviceSettings(initialDevice)
                 ensureDeviceEntry(initialDevice)
                 bindToService()
                 audioOutputDetector.activeDevice.collect { device ->
-                    val currentId = _uiState.value.activeDeviceId
+                    val currentId = uiState.value.activeDeviceId
                     if (device.id != currentId) {
                         val dbName2 = repository.getDeviceSettings(device.id)?.deviceName ?: device.name
-                        _uiState.update { it.copy(activeDeviceName = dbName2, activeDeviceId = device.id) }
+                        uiState.update { it.copy(activeDeviceName = dbName2, activeDeviceId = device.id) }
                         loadDeviceSettings(device)
                     }
                     ensureDeviceEntry(device)
@@ -189,7 +188,7 @@ class MainViewModel
                     .getBooleanPreference(PREF_MASTER_ENABLE, false)
                     .distinctUntilChanged()
                     .collect { enabled ->
-                        _uiState.update { it.copy(masterEnable = enabled) }
+                        uiState.update { it.copy(masterEnable = enabled) }
                     }
             }
         }
@@ -199,10 +198,10 @@ class MainViewModel
             value: T,
             last: Boolean = true,
         ) {
-            _uiState.update { pref.set(it, value) }
+            uiState.update { pref.set(it, value) }
             viewModelScope.launch {
                 persistPref(pref, value)
-                if (pref.paramId == -1 || !_uiState.value.masterEnable || !shouldDispatch(pref)) {
+                if (pref.paramId == -1 || !uiState.value.masterEnable || !shouldDispatch(pref)) {
                     return@launch
                 }
                 if (pref is DoubleListPref) {
@@ -235,7 +234,7 @@ class MainViewModel
             count: Int = 5,
             last: Boolean = true,
         ) {
-            val updated = replaceAt(pref.get(_uiState.value), band, value, pref.padValue, count)
+            val updated = replaceAt(pref.get(uiState.value), band, value, pref.padValue, count)
             applyPref(pref, updated)
             ifMasterOn {
                 viperService?.dispatchParam(pref.paramId, band, pref.elementToRaw(value), 0, republishAidl = last)
@@ -245,11 +244,11 @@ class MainViewModel
         private fun shouldDispatch(pref: EffectPref<*>): Boolean {
             val enablePref = ENABLE_PREF_BY_EFFECT_KEY[pref.effectKey] ?: return true
             if (pref === enablePref) return true
-            return enablePref.get(_uiState.value)
+            return enablePref.get(uiState.value)
         }
 
         private inline fun ifMasterOn(block: () -> Unit) {
-            if (_uiState.value.masterEnable) block()
+            if (uiState.value.masterEnable) block()
         }
 
         @Suppress("UNCHECKED_CAST")
@@ -301,10 +300,10 @@ class MainViewModel
         }
 
         private suspend fun loadSettingsPreferences() {
-            _autoStartEnabled.value = repository.getBooleanPreference(PREF_AUTO_START, false).first()
-            _globalModeEnabled.value = repository.getBooleanPreference(PREF_GLOBAL_MODE, false).first()
-            _debugModeEnabled.value = repository.getBooleanPreference(PREF_DEBUG_MODE, false).first()
-            _aidlModeEnabled.value = repository.aidlMode
+            autoStartEnabled.value = repository.getBooleanPreference(PREF_AUTO_START, false).first()
+            globalModeEnabled.value = repository.getBooleanPreference(PREF_GLOBAL_MODE, false).first()
+            debugModeEnabled.value = repository.getBooleanPreference(PREF_DEBUG_MODE, false).first()
+            aidlModeEnabled.value = repository.aidlMode
         }
 
         private fun loadEqPresetsForBandCount(bandCount: Int) {
@@ -312,7 +311,7 @@ class MainViewModel
             eqPresetsJob =
                 viewModelScope.launch {
                     repository.getEqPresetsByBandCount(bandCount).collect { presets ->
-                        _uiState.update { it.copy(eq = it.eq.copy(presets = presets)) }
+                        uiState.update { it.copy(eq = it.eq.copy(presets = presets)) }
                     }
                 }
         }
@@ -322,14 +321,14 @@ class MainViewModel
             dsPresetsJob =
                 viewModelScope.launch {
                     repository.getAllDsPresets().collect { presets ->
-                        _uiState.update { it.copy(dynamicSystem = it.dynamicSystem.copy(presets = presets)) }
+                        uiState.update { it.copy(dynamicSystem = it.dynamicSystem.copy(presets = presets)) }
                     }
                 }
         }
 
         fun dispatchFullState() {
             val service = viperService ?: return
-            service.dispatchFullState(_uiState.value)
+            service.dispatchFullState(uiState.value)
         }
 
         fun setMasterEnabled(enabled: Boolean) {
@@ -341,15 +340,15 @@ class MainViewModel
         fun setConvolverKernel(fileName: String) {
             FileLogger.i("ViewModel", "Convolver kernel: $fileName")
             applyPref(Effects.convolver.kernelFile, fileName)
-            if (!_uiState.value.convolver.enable) return
+            if (!uiState.value.convolver.enable) return
             viewModelScope.launch(Dispatchers.IO) { applyConvolverKernel(fileName) }
         }
 
         private fun applyConvolverKernel(fileName: String) {
-            if (!_uiState.value.convolver.enable) return
+            if (!uiState.value.convolver.enable) return
             try {
                 ifMasterOn {
-                    if (_aidlModeEnabled.value) {
+                    if (aidlModeEnabled.value) {
                         viperService?.applyConvolverKernelAidl(fileName, force = true)
                     } else {
                         viperService?.applyConvolverKernelHidl(fileName)
@@ -363,15 +362,15 @@ class MainViewModel
         fun setDdcDevice(name: String) {
             FileLogger.i("ViewModel", "DDC device: $name")
             applyPref(Effects.ddc.device, name)
-            if (!_uiState.value.ddc.enable) return
+            if (!uiState.value.ddc.enable) return
             viewModelScope.launch(Dispatchers.IO) { applyDdcDevice(name) }
         }
 
         private fun applyDdcDevice(name: String) {
-            if (!_uiState.value.ddc.enable) return
+            if (!uiState.value.ddc.enable) return
             try {
                 ifMasterOn {
-                    if (_aidlModeEnabled.value) {
+                    if (aidlModeEnabled.value) {
                         viperService?.applyDdcDeviceAidl(name, force = true)
                     } else {
                         viperService?.applyDdcDeviceHidl(name)
@@ -392,7 +391,7 @@ class MainViewModel
                         .mapNotNull { it.toDoubleOrNull() }
                 applyPref(Effects.equalizer.presetId, presetId, last = false)
                 applyPref(Effects.equalizer.bands, bands)
-                _uiState.update { state ->
+                uiState.update { state ->
                     val updatedMap =
                         state.eq.bandsMap
                             .toMutableMap()
@@ -405,7 +404,7 @@ class MainViewModel
         fun setEqBands(bands: List<Double>) {
             applyPref(Effects.equalizer.presetId, null, last = false)
             applyPref(Effects.equalizer.bands, bands)
-            _uiState.update { state ->
+            uiState.update { state ->
                 val updatedMap =
                     state.eq.bandsMap
                         .toMutableMap()
@@ -415,7 +414,7 @@ class MainViewModel
         }
 
         fun setEqBandCount(count: Int) {
-            val state = _uiState.value
+            val state = uiState.value
             val oldCount = state.eq.bandCount
             FileLogger.d("ViewModel", "EQ band count: $oldCount -> $count")
             val updatedMap =
@@ -424,7 +423,7 @@ class MainViewModel
                     .apply { put(oldCount, state.eq.bands) }
             val defaultBands = List(count) { 0.0 }
             val bands = updatedMap[count] ?: defaultBands
-            _uiState.update {
+            uiState.update {
                 it.copy(
                     eq =
                         it.eq.copy(
@@ -450,7 +449,7 @@ class MainViewModel
         }
 
         fun addEqPreset(name: String) {
-            val state = _uiState.value
+            val state = uiState.value
             val bandsStr =
                 state.eq.bands.joinToString(";") {
                     String.format(Locale.US, "%.1f", it)
@@ -470,14 +469,14 @@ class MainViewModel
         fun deleteEqPreset(presetId: Long) {
             viewModelScope.launch {
                 repository.deleteEqPresetById(presetId)
-                if (_uiState.value.eq.presetId == presetId) {
+                if (uiState.value.eq.presetId == presetId) {
                     applyPref(Effects.equalizer.presetId, null)
                 }
             }
         }
 
         fun resetEqBands() {
-            val bandCount = _uiState.value.eq.bandCount
+            val bandCount = uiState.value.eq.bandCount
             val flat = List(bandCount) { 0.0 }
             setEqBands(flat)
             applyPref(Effects.equalizer.presetId, null)
@@ -527,7 +526,7 @@ class MainViewModel
         }
 
         fun addDynamicSystemPreset(name: String) {
-            val v = _uiState.value.dynamicSystem
+            val v = uiState.value.dynamicSystem
             viewModelScope.launch {
                 val id =
                     repository.saveDsPreset(
@@ -548,7 +547,7 @@ class MainViewModel
         fun deleteDynamicSystemPreset(presetId: Long) {
             viewModelScope.launch {
                 repository.deleteDsPresetById(presetId)
-                if (_uiState.value.dynamicSystem.presetId == presetId) {
+                if (uiState.value.dynamicSystem.presetId == presetId) {
                     applyPref(Effects.dynamicSystem.presetId, null)
                 }
             }
@@ -565,7 +564,7 @@ class MainViewModel
         }
 
         fun addDynamicEqBand() {
-            val state = _uiState.value
+            val state = uiState.value
             val cur = state.dynamicEq
             if (cur.bandCount >= 10) return
             val newCount = cur.bandCount + 1
@@ -592,7 +591,7 @@ class MainViewModel
         }
 
         fun removeDynamicEqBand(index: Int) {
-            val state = _uiState.value
+            val state = uiState.value
             val cur = state.dynamicEq
             if (cur.bandCount <= 1) return
             if (index !in 0 until cur.bandCount) return
@@ -613,7 +612,7 @@ class MainViewModel
         fun setPlaybackGainControlEnabled(enabled: Boolean) {
             applyPref(Effects.playbackGainControl.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.playbackGainControl
+                val v = uiState.value.playbackGainControl
                 applyPref(Effects.playbackGainControl.strength, v.strength, last = false)
                 applyPref(Effects.playbackGainControl.maxGain, v.maxGain, last = false)
                 applyPref(Effects.playbackGainControl.outputThreshold, v.outputThreshold)
@@ -623,7 +622,7 @@ class MainViewModel
         fun setLufsEnabled(enabled: Boolean) {
             applyPref(Effects.lufs.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.lufs
+                val v = uiState.value.lufs
                 applyPref(Effects.lufs.target, v.target, last = false)
                 applyPref(Effects.lufs.maxGain, v.maxGain, last = false)
                 applyPref(Effects.lufs.speed, v.speed)
@@ -633,7 +632,7 @@ class MainViewModel
         fun setFetCompressorEnabled(enabled: Boolean) {
             applyPref(Effects.fetCompressor.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.fetCompressor
+                val v = uiState.value.fetCompressor
                 applyPref(Effects.fetCompressor.threshold, v.threshold, last = false)
                 applyPref(Effects.fetCompressor.ratio, v.ratio, last = false)
                 applyPref(Effects.fetCompressor.kneeAuto, v.kneeAuto, last = false)
@@ -676,14 +675,14 @@ class MainViewModel
                 val total = (intPrefs.size + boolPrefs.size) * count
                 var i = 0
                 for (pref in intPrefs) {
-                    val values = pref.get(_uiState.value)
+                    val values = pref.get(uiState.value)
                     for (band in 0 until count) {
                         i++
                         applyBandPref(pref, band, values.getOrElse(band) { 0 }, count, last = i == total)
                     }
                 }
                 for (pref in boolPrefs) {
-                    val values = pref.get(_uiState.value)
+                    val values = pref.get(uiState.value)
                     for (band in 0 until count) {
                         i++
                         applyBandPref(pref, band, values.getOrElse(band) { false }, count, last = i == total)
@@ -695,7 +694,7 @@ class MainViewModel
         fun setDdcEnabled(enabled: Boolean) {
             applyPref(Effects.ddc.enable, enabled)
             if (enabled) {
-                val v = _uiState.value.ddc
+                val v = uiState.value.ddc
                 applyPref(Effects.ddc.device, v.device)
                 viewModelScope.launch(Dispatchers.IO) {
                     applyDdcDevice(v.device)
@@ -706,7 +705,7 @@ class MainViewModel
         fun setSpectrumExtensionEnabled(enabled: Boolean) {
             applyPref(Effects.spectrumExtension.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.spectrumExtension
+                val v = uiState.value.spectrumExtension
                 applyPref(Effects.spectrumExtension.strength, v.strength, last = false)
                 applyPref(Effects.spectrumExtension.exciter, v.exciter)
             }
@@ -715,7 +714,7 @@ class MainViewModel
         fun setEqEnabled(enabled: Boolean) {
             applyPref(Effects.equalizer.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.eq
+                val v = uiState.value.eq
                 applyPref(Effects.equalizer.bandCount, v.bandCount, last = false)
                 applyPref(Effects.equalizer.bands, v.bands)
             }
@@ -724,7 +723,7 @@ class MainViewModel
         fun setDynamicEqEnabled(enabled: Boolean) {
             applyPref(Effects.dynamicEq.enable, enabled, last = !enabled)
             if (enabled) {
-                val count = _uiState.value.dynamicEq.bandCount
+                val count = uiState.value.dynamicEq.bandCount
                 applyPref(Effects.dynamicEq.bandCount, count, last = false)
                 val bandPrefs =
                     listOf(
@@ -739,7 +738,7 @@ class MainViewModel
                 val total = bandPrefs.size * count
                 var i = 0
                 for (pref in bandPrefs) {
-                    val values = pref.get(_uiState.value)
+                    val values = pref.get(uiState.value)
                     for (band in 0 until count) {
                         i++
                         applyBandPref(pref, band, values[band], count, last = i == total)
@@ -751,7 +750,7 @@ class MainViewModel
         fun setConvolverEnabled(enabled: Boolean) {
             applyPref(Effects.convolver.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.convolver
+                val v = uiState.value.convolver
                 applyPref(Effects.convolver.kernelFile, v.kernelFile, last = false)
                 applyPref(Effects.convolver.crossChannel, v.crossChannel)
                 viewModelScope.launch(Dispatchers.IO) {
@@ -763,7 +762,7 @@ class MainViewModel
         fun setFieldSurroundEnabled(enabled: Boolean) {
             applyPref(Effects.fieldSurround.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.fieldSurround
+                val v = uiState.value.fieldSurround
                 applyPref(Effects.fieldSurround.widening, v.widening, last = false)
                 applyPref(Effects.fieldSurround.midImage, v.midImage, last = false)
                 applyPref(Effects.fieldSurround.depth, v.depth)
@@ -773,7 +772,7 @@ class MainViewModel
         fun setDiffSurroundEnabled(enabled: Boolean) {
             applyPref(Effects.diffSurround.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.diffSurround
+                val v = uiState.value.diffSurround
                 applyPref(Effects.diffSurround.delay, v.delay, last = false)
                 applyPref(Effects.diffSurround.reverse, v.reverse, last = false)
                 applyPref(Effects.diffSurround.wetDryMix, v.wetDryMix, last = false)
@@ -784,7 +783,7 @@ class MainViewModel
         fun setStereoImagerEnabled(enabled: Boolean) {
             applyPref(Effects.stereoImager.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.stereoImager
+                val v = uiState.value.stereoImager
                 applyPref(Effects.stereoImager.lowWidth, v.lowWidth, last = false)
                 applyPref(Effects.stereoImager.midWidth, v.midWidth, last = false)
                 applyPref(Effects.stereoImager.highWidth, v.highWidth, last = false)
@@ -796,7 +795,7 @@ class MainViewModel
         fun setHeadphoneSurroundEnabled(enabled: Boolean) {
             applyPref(Effects.headphoneSurround.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.headphoneSurround
+                val v = uiState.value.headphoneSurround
                 applyPref(Effects.headphoneSurround.quality, v.quality)
             }
         }
@@ -804,7 +803,7 @@ class MainViewModel
         fun setReverbEnabled(enabled: Boolean) {
             applyPref(Effects.reverb.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.reverb
+                val v = uiState.value.reverb
                 applyPref(Effects.reverb.roomSize, v.roomSize, last = false)
                 applyPref(Effects.reverb.width, v.width, last = false)
                 applyPref(Effects.reverb.damp, v.damp, last = false)
@@ -816,7 +815,7 @@ class MainViewModel
         fun setDynamicSystemEnabled(enabled: Boolean) {
             applyPref(Effects.dynamicSystem.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.dynamicSystem
+                val v = uiState.value.dynamicSystem
                 applyPref(Effects.dynamicSystem.strength, v.strength, last = false)
                 applyPref(Effects.dynamicSystem.xLow, v.xLow, last = false)
                 applyPref(Effects.dynamicSystem.xHigh, v.xHigh, last = false)
@@ -834,7 +833,7 @@ class MainViewModel
         fun setPsychoacousticBassEnabled(enabled: Boolean) {
             applyPref(Effects.psychoacousticBass.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.psychoacousticBass
+                val v = uiState.value.psychoacousticBass
                 applyPref(Effects.psychoacousticBass.cutoff, v.cutoff, last = false)
                 applyPref(Effects.psychoacousticBass.intensity, v.intensity, last = false)
                 applyPref(Effects.psychoacousticBass.harmonicOrder, v.harmonicOrder, last = false)
@@ -845,7 +844,7 @@ class MainViewModel
         fun setBassEnabled(enabled: Boolean) {
             applyPref(Effects.bass.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.bass
+                val v = uiState.value.bass
                 applyPref(Effects.bass.mode, v.mode, last = false)
                 applyPref(Effects.bass.frequency, v.frequency, last = false)
                 applyPref(Effects.bass.gain, v.gain, last = false)
@@ -856,7 +855,7 @@ class MainViewModel
         fun setBassMonoEnabled(enabled: Boolean) {
             applyPref(Effects.bassMono.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.bassMono
+                val v = uiState.value.bassMono
                 applyPref(Effects.bassMono.mode, v.mode, last = false)
                 applyPref(Effects.bassMono.frequency, v.frequency, last = false)
                 applyPref(Effects.bassMono.gain, v.gain, last = false)
@@ -867,7 +866,7 @@ class MainViewModel
         fun setClarityEnabled(enabled: Boolean) {
             applyPref(Effects.clarity.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.clarity
+                val v = uiState.value.clarity
                 applyPref(Effects.clarity.mode, v.mode, last = false)
                 applyPref(Effects.clarity.gain, v.gain)
             }
@@ -876,7 +875,7 @@ class MainViewModel
         fun setCureEnabled(enabled: Boolean) {
             applyPref(Effects.cure.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.cure
+                val v = uiState.value.cure
                 applyPref(Effects.cure.crossfeedPreset, v.crossfeedPreset)
             }
         }
@@ -884,7 +883,7 @@ class MainViewModel
         fun setAnalogXEnabled(enabled: Boolean) {
             applyPref(Effects.analogX.enable, enabled, last = !enabled)
             if (enabled) {
-                val v = _uiState.value.analogX
+                val v = uiState.value.analogX
                 applyPref(Effects.analogX.mode, v.mode)
             }
         }
@@ -896,7 +895,7 @@ class MainViewModel
         private suspend fun ensureDeviceEntry(device: AudioDevice) {
             val existing = repository.getDeviceSettings(device.id)
             if (existing == null) {
-                val state = _uiState.value
+                val state = uiState.value
                 repository.saveDeviceSettings(
                     DeviceSettings(
                         deviceId = device.id,
@@ -911,7 +910,7 @@ class MainViewModel
         }
 
         private suspend fun saveCurrentDeviceSettings() {
-            val state = _uiState.value
+            val state = uiState.value
             val deviceId = state.activeDeviceId.ifEmpty { return }
             val json = serializeEffectPrefs(state).toString()
             val existing = repository.getDeviceSettings(deviceId)
@@ -928,8 +927,8 @@ class MainViewModel
         private suspend fun loadDeviceSettings(device: AudioDevice) {
             val saved = repository.getDeviceSettings(device.id) ?: return
             val json = JSONObject(saved.settingsJson)
-            _uiState.update { deserializeEffectPrefs(json, it) }
-            saveEffectPrefs(repository, _uiState.value)
+            uiState.update { deserializeEffectPrefs(json, it) }
+            saveEffectPrefs(repository, uiState.value)
             dispatchFullState()
         }
 
@@ -943,8 +942,8 @@ class MainViewModel
         ) {
             viewModelScope.launch {
                 repository.renameDevice(deviceId, name)
-                if (deviceId == _uiState.value.activeDeviceId) {
-                    _uiState.update { it.copy(activeDeviceName = name) }
+                if (deviceId == uiState.value.activeDeviceId) {
+                    uiState.update { it.copy(activeDeviceName = name) }
                 }
             }
         }
@@ -956,7 +955,7 @@ class MainViewModel
         fun saveDevicePreset(deviceId: String) {
             viewModelScope.launch {
                 val existing = repository.getDeviceSettings(deviceId) ?: return@launch
-                val json = serializeEffectPrefs(_uiState.value).toString()
+                val json = serializeEffectPrefs(uiState.value).toString()
                 repository.saveDeviceSettings(existing.copy(settingsJson = json))
             }
         }
@@ -965,8 +964,8 @@ class MainViewModel
             viewModelScope.launch {
                 val saved = repository.getDeviceSettings(deviceId) ?: return@launch
                 val json = JSONObject(saved.settingsJson)
-                _uiState.update { deserializeEffectPrefs(json, it) }
-                saveEffectPrefs(repository, _uiState.value)
+                uiState.update { deserializeEffectPrefs(json, it) }
+                saveEffectPrefs(repository, uiState.value)
                 dispatchFullState()
             }
         }
@@ -1083,7 +1082,7 @@ class MainViewModel
                 val total = uris.size
                 val showProgress = total > 10
                 val destDir = getFilesDir("Preset")
-                val baseState = _uiState.value
+                val baseState = uiState.value
                 var count = 0
                 var lastParsed: EffectState? = null
                 for ((index, uri) in uris.withIndex()) {
@@ -1123,7 +1122,7 @@ class MainViewModel
                 if (total == 1 && count == 1 && lastParsed != null) {
                     val applied = lastParsed
                     launch(Dispatchers.Main) {
-                        _uiState.update { applied }
+                        uiState.update { applied }
                         saveEffectPrefs(repository, applied)
                         dispatchFullState()
                     }
@@ -1202,14 +1201,14 @@ class MainViewModel
 
         fun refreshFileLists() {
             val ddcDir = getFilesDir("DDC")
-            _vdcFileList.value = ddcDir
+            vdcFileList.value = ddcDir
                 .listFiles()
                 ?.filter { it.extension == "vdc" }
                 ?.map { it.nameWithoutExtension }
                 ?.sorted() ?: emptyList()
 
             val kernelDir = getFilesDir("Kernel")
-            _kernelFileList.value = kernelDir
+            kernelFileList.value = kernelDir
                 .listFiles()
                 ?.map { it.name }
                 ?.sorted() ?: emptyList()
@@ -1220,9 +1219,9 @@ class MainViewModel
                 val file = File(getFilesDir("DDC"), "$name.vdc")
                 if (!file.exists()) return false
                 file.delete()
-                if (_uiState.value.ddc.device == name) {
+                if (uiState.value.ddc.device == name) {
                     applyPref(Effects.ddc.device, "")
-                    if (_uiState.value.ddc.enable) {
+                    if (uiState.value.ddc.enable) {
                         viewModelScope.launch(Dispatchers.IO) { applyDdcDevice("") }
                     }
                 }
@@ -1239,9 +1238,9 @@ class MainViewModel
                 val file = File(getFilesDir("Kernel"), fileName)
                 if (!file.exists()) return false
                 file.delete()
-                if (_uiState.value.convolver.kernelFile == fileName) {
+                if (uiState.value.convolver.kernelFile == fileName) {
                     applyPref(Effects.convolver.kernelFile, "")
-                    if (_uiState.value.convolver.enable) {
+                    if (uiState.value.convolver.enable) {
                         viewModelScope.launch(Dispatchers.IO) { applyConvolverKernel("") }
                     }
                 }
@@ -1255,10 +1254,10 @@ class MainViewModel
 
         fun savePreset(name: String) {
             val createdAt = System.currentTimeMillis()
-            val roomJson = serializeEffectPrefs(_uiState.value).toString()
+            val roomJson = serializeEffectPrefs(uiState.value).toString()
             val fileJson =
                 serializeEffectPrefs(
-                    _uiState.value,
+                    uiState.value,
                     name = name,
                     createdAt = createdAt,
                 ).toString()
@@ -1283,8 +1282,8 @@ class MainViewModel
             viewModelScope.launch {
                 val preset = repository.getPresetById(id) ?: return@launch
                 val json = JSONObject(preset.settingsJson)
-                _uiState.update { deserializeEffectPrefs(json, it) }
-                saveEffectPrefs(repository, _uiState.value)
+                uiState.update { deserializeEffectPrefs(json, it) }
+                saveEffectPrefs(repository, uiState.value)
                 dispatchFullState()
             }
         }
@@ -1331,7 +1330,7 @@ class MainViewModel
         fun updatePreset(id: Long) {
             viewModelScope.launch {
                 val preset = repository.getPresetById(id) ?: return@launch
-                val roomJson = serializeEffectPrefs(_uiState.value).toString()
+                val roomJson = serializeEffectPrefs(uiState.value).toString()
                 val updatedAt = System.currentTimeMillis()
                 repository.updatePreset(
                     preset.copy(settingsJson = roomJson, updatedAt = updatedAt),
@@ -1340,7 +1339,7 @@ class MainViewModel
                     val file = File(getFilesDir("Preset"), "${preset.name}.json")
                     val fileJson =
                         serializeEffectPrefs(
-                            _uiState.value,
+                            uiState.value,
                             name = preset.name,
                             createdAt = preset.createdAt,
                         ).toString()
@@ -1381,7 +1380,7 @@ class MainViewModel
         }
 
         fun queryDriverStatus() {
-            if (_aidlModeEnabled.value) {
+            if (aidlModeEnabled.value) {
                 queryDriverStatusFromFile()
                 return
             }
@@ -1392,7 +1391,7 @@ class MainViewModel
             }
             val probe = ViperEffect(0, ViperEffect.EFFECT_TYPE_UUID)
             if (!probe.create()) {
-                _driverStatus.value = DriverStatus(installed = false)
+                driverStatus.value = DriverStatus(installed = false)
                 probe.release()
                 return
             }
@@ -1403,11 +1402,11 @@ class MainViewModel
         private fun queryDriverStatusFromFile() {
             val status = ConfigChannel.readStatus()
             if (status == null || status.versionCode <= 0) {
-                if (_driverStatus.value.installed) return
-                _driverStatus.value = DriverStatus(installed = false)
+                if (driverStatus.value.installed) return
+                driverStatus.value = DriverStatus(installed = false)
                 return
             }
-            _driverStatus.value =
+            driverStatus.value =
                 DriverStatus(
                     installed = true,
                     versionCode = status.versionCode,
@@ -1431,7 +1430,7 @@ class MainViewModel
                 } else {
                     versionCode.toString()
                 }
-            _driverStatus.value =
+            driverStatus.value =
                 DriverStatus(
                     installed = true,
                     versionCode = versionCode,
@@ -1443,22 +1442,22 @@ class MainViewModel
         }
 
         fun enableDebugMode() {
-            _debugModeEnabled.value = true
+            debugModeEnabled.value = true
             viewModelScope.launch { repository.setBooleanPreference(PREF_DEBUG_MODE, true) }
         }
 
         fun disableDebugMode() {
-            _debugModeEnabled.value = false
+            debugModeEnabled.value = false
             viewModelScope.launch { repository.setBooleanPreference(PREF_DEBUG_MODE, false) }
         }
 
         fun toggleAutoStart(enabled: Boolean) {
-            _autoStartEnabled.value = enabled
+            autoStartEnabled.value = enabled
             viewModelScope.launch { repository.setBooleanPreference(PREF_AUTO_START, enabled) }
         }
 
         fun toggleGlobalMode(enabled: Boolean) {
-            _globalModeEnabled.value = enabled
+            globalModeEnabled.value = enabled
             viewModelScope.launch { repository.setBooleanPreference(PREF_GLOBAL_MODE, enabled) }
             viperService?.setGlobalMode(enabled)
         }
