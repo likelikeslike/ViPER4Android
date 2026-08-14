@@ -7,7 +7,7 @@
     <string name="notification_text">音频处理已激活</string>
     <string name="notification_bulk_op_channel_name">批量操作</string>
     <string name="notification_bulk_op_channel_description">批量操作进度</string>
-    <string name="qs_tile_master_label">Master</string>
+    <string name="qs_tile_master_label">总开关</string>
 
     <!-- Master -->
     <string name="master_enable">总开关</string>
@@ -207,10 +207,10 @@
     <string name="preset_cleared">已清除</string>
     <string name="preset_update_title">更新预设</string>
     <string name="preset_update_confirm">确定用当前设置覆盖 "%1$s"? 此操作无法撤销</string>
-    <string name="preset_load_title">Load Preset</string>
-    <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
-    <string name="preset_delete_title">Delete Preset</string>
-    <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
+    <string name="preset_load_title">加载预设</string>
+    <string name="preset_load_confirm">确定加载 "%1$s"? 当前设置将被替换.</string>
+    <string name="preset_delete_title">删除预设</string>
+    <string name="preset_delete_confirm">确定删除 "%1$s"? 此操作不可逆.</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">未找到驱动</string>
@@ -252,10 +252,10 @@
     <string name="device_rename_hint">设备名称</string>
     <string name="device_update_title">更新设备预设</string>
     <string name="device_update_confirm">确定用当前设置覆盖 "%1$s"? 此操作无法撤销</string>
-    <string name="device_load_title">Load Device Preset</string>
-    <string name="device_load_confirm">Load "%1$s" preset? Current settings will be replaced.</string>
-    <string name="device_delete_title">Delete Device Preset</string>
-    <string name="device_delete_confirm">Delete the saved preset for "%1$s"? This cannot be undone.</string>
+    <string name="device_load_title">加载设备预设</string>
+    <string name="device_load_confirm">确定加载 "%1$s" 预设? 当前设置将被替换.</string>
+    <string name="device_delete_title">删除设备预设</string>
+    <string name="device_delete_confirm">确定删除为 "%1$s" 保存的预设? 此操作不可逆.</string>
 
     <!-- Actions -->
     <string name="action_save">保存</string>
