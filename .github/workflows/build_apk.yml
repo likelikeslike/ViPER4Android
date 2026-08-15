@@ -2,11 +2,15 @@ name: Build APK
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     tags: ["v*"]
   pull_request:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build"
+        required: false
+        default: ""
 
 concurrency:
   group: build-${{ github.ref }}
@@ -22,6 +26,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.branch || github.ref }}
+          fetch-depth: 2
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -58,12 +65,21 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease --no-daemon --build-cache
 
-      # ── Resolve version for artifact naming ───────────────────────────────
+      # ── Resolve version for artifact naming & bump detection ──────────────
       - name: Extract version name
         id: version
         run: |
           VERSION=$(grep 'versionName' app/build.gradle.kts | awk -F'"' '{print $2}')
           echo "name=$VERSION" >> "$GITHUB_OUTPUT"
+
+          # Detect whether versionName changed vs the previous commit.
+          # On a first commit (no parent) git diff exits 128 — treat as bumped.
+          if git diff HEAD~1 HEAD -- app/build.gradle.kts 2>/dev/null \
+               | grep -q '^+.*versionName'; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "bumped=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # ── Rename outputs ────────────────────────────────────────────────────
       - name: Rename APKs
@@ -92,11 +108,18 @@ jobs:
           path: artifacts/ViPER4Android-${{ steps.version.outputs.name }}.apk
           retention-days: 30
 
-      # ── GitHub Release (tag pushes only) ──────────────────────────────────
+      # ── GitHub Release (tag pushes OR versionName bump on branch push) ────
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: |
+          startsWith(github.ref, 'refs/tags/') ||
+          (
+            github.event_name == 'push' &&
+            steps.version.outputs.bumped == 'true'
+          )
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.version.outputs.name) }}
+          name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.version.outputs.name) }}
           files: |
             artifacts/ViPER4Android-${{ steps.version.outputs.name }}.apk
             artifacts/ViPER4Android-${{ steps.version.outputs.name }}-debug.apk
