@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">ViPER4Android</string>
     <string name="notification_channel_name">Обработка аудио</string>
-    <string name="notification_channel_description">Показывать когда ViPER4Android обрабатывает аудио</string>
+    <string name="notification_channel_description">Показывать уведомление когда ViPER4Android обрабатывает аудио</string>
     <string name="notification_title">ViPER4Android</string>
     <string name="notification_text">Обработка аудио активна</string>
     <string name="notification_bulk_op_channel_name">Групповые операции</string>
@@ -238,17 +238,17 @@
     <string name="import_failed">Импорт неудачен</string>
 
     <!-- Update -->
-    <string name="update_checking">Checking for updates\u2026</string>
-    <string name="update_check_failed">Update check failed: %1$s</string>
-    <string name="update_up_to_date_title">Up to date</string>
-    <string name="update_available_title">Update available</string>
-    <string name="update_new_version">New version: %1$s</string>
-    <string name="update_latest_version">Latest version: %1$s</string>
-    <string name="update_current_version">Current: %1$s</string>
-    <string name="update_download_install">Download &amp; Install</string>
-    <string name="update_view_on_github">View on GitHub</string>
-    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
-    <string name="update_no_apk_asset">No APK asset in this release</string>
+    <string name="update_checking">Проверка обновлений\u2026</string>
+    <string name="update_check_failed">Ошибка проверки обновлений: %1$s</string>
+    <string name="update_up_to_date_title">Обновление не требуются</string>
+    <string name="update_available_title">Доступно обновление</string>
+    <string name="update_new_version">Новая версия: %1$s</string>
+    <string name="update_latest_version">Последняя версия: %1$s</string>
+    <string name="update_current_version">Текущая версия: %1$s</string>
+    <string name="update_download_install">Загрузить и установить</string>
+    <string name="update_view_on_github">Проверить на GitHub</string>
+    <string name="update_downloading">Загрузка\u2026 %1$d%%</string>
+    <string name="update_no_apk_asset">В этом релизе отсутствует APK-файл</string>
 
     <!-- Devices -->
     <string name="device_dialog_title">Устройства</string>
@@ -295,7 +295,7 @@
     <string name="debug_filter_error">Ошибка</string>
     <string name="debug_filter_app">Приложение</string>
     <string name="debug_filter_driver">Драйвер</string>
-    <string name="delete_file_title">Удалить Фаил</string>
+    <string name="delete_file_title">Удалить фаил</string>
     <string name="delete_file_message">Удалить %1$s?</string>
 
     <!-- EQ presets -->
@@ -305,7 +305,7 @@
     <string name="eq_preset_classical">Классика</string>
     <string name="eq_preset_deep">Глубокий звук</string>
     <string name="eq_preset_flat">Плоский звук</string>
-    <string name="eq_preset_rnb">RnB</string>
+    <string name="eq_preset_rnb">R&amp;B</string>
     <string name="eq_preset_rock">Рок</string>
     <string name="eq_preset_small_speakers">Маленькие динамики</string>
     <string name="eq_preset_treble_booster">Усиление ВЧ</string>
