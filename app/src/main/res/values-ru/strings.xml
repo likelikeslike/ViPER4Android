@@ -89,7 +89,7 @@
     <!-- Equalizer -->
     <string name="section_equalizer">FIR Эквалайзер</string>
     <string name="label_eq_bands">Количество полос</string>
-    <string name="label_eq_n_bands">%d Полос</string>
+    <string name="label_eq_n_bands">%d Полос(ы)</string>
 
     <!-- Dynamic EQ -->
     <string name="section_dynamic_eq">Динамический эквалайзер</string>
