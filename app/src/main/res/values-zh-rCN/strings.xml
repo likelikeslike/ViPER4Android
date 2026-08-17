@@ -238,17 +238,17 @@
     <string name="import_failed">导入失败</string>
 
     <!-- Update -->
-    <string name="update_checking">Checking for updates\u2026</string>
-    <string name="update_check_failed">Update check failed: %1$s</string>
-    <string name="update_up_to_date_title">Up to date</string>
-    <string name="update_available_title">Update available</string>
-    <string name="update_new_version">New version: %1$s</string>
-    <string name="update_latest_version">Latest version: %1$s</string>
-    <string name="update_current_version">Current: %1$s</string>
-    <string name="update_download_install">Download &amp; Install</string>
-    <string name="update_view_on_github">View on GitHub</string>
-    <string name="update_downloading">Downloading\u2026 %1$d%%</string>
-    <string name="update_no_apk_asset">No APK asset in this release</string>
+    <string name="update_checking">正在检查更新\u2026</string>
+    <string name="update_check_failed">检查更新失败: %1$s</string>
+    <string name="update_up_to_date_title">已是最新版本</string>
+    <string name="update_available_title">发现新版本</string>
+    <string name="update_new_version">新版本: %1$s</string>
+    <string name="update_latest_version">最新版本: %1$s</string>
+    <string name="update_current_version">当前版本: %1$s</string>
+    <string name="update_download_install">下载并安装</string>
+    <string name="update_view_on_github">在 GitHub 上查看</string>
+    <string name="update_downloading">正在下载\u2026 %1$d%%</string>
+    <string name="update_no_apk_asset">此发行版中没有 APK 资源</string>
 
     <!-- Devices -->
     <string name="device_dialog_title">设备</string>
