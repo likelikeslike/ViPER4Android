@@ -86,6 +86,12 @@ class AudioOutputDetector(
                 AudioDeviceInfo.TYPE_USB_DEVICE,
             )
 
+        private val AUTO_TYPES =
+            setOf(
+                AudioDeviceInfo.TYPE_REMOTE_SUBMIX,
+                AudioDeviceInfo.TYPE_BUS,
+            )
+
         private fun checkHeadphoneConnected(audioManager: AudioManager): Boolean =
             audioManager
                 .getDevices(AudioManager.GET_DEVICES_OUTPUTS)
@@ -116,6 +122,16 @@ class AudioOutputDetector(
                 FileLogger.d(
                     "AudioOutput",
                     "  output: type=${dev.type} name=${dev.productName} addr=${dev.address} id=${dev.id}",
+                )
+            }
+
+            val androidAuto = outputs.firstOrNull { it.type in AUTO_TYPES }
+            if (androidAuto != null) {
+                return AudioDevice(
+                    id = AudioDevice.ID_ANDROID_AUTO,
+                    name = "Android Auto",
+                    type = androidAuto.type,
+                    isHeadphone = false,
                 )
             }
 

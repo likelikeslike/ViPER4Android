@@ -45,6 +45,8 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 - Preset import / export
 - Global mode and per-app mode
 - In-app log viewer (tap `Driver Version` 7 times in Settings)
+- Audio effects documentation (long press each effect)
+- In-app update checker (press app version in Settings)
 
 ## Installation
 
@@ -132,16 +134,16 @@ Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2`):
 
 v2 is **not** compatible with the old flat v1 JSON or the legacy ViPER4Android XML presets. Two migration paths are available:
 
-1. **In-app export (recommended).** In the last v1 app release (1.5.5), use *Export preset as v2* to produce a `.v2.json` file, then import it in v2.
+1. **In-app export (recommended).** In the last v1 app release (1.5.5), use **Export preset as v2** to produce a `.v2.json` file, then import it in v2.
 2. **Command-line tool.** For v1 JSON or legacy XML presets, use [`tools/convert_preset.py`](tools/convert_preset.py) (Python 3.11+):
 
-   ```bash
-   # v1 flat JSON  ->  v2
-   python3 tools/convert_preset.py preset.json -o preset.v2.json
+    ```bash
+    # v1 flat JSON  ->  v2
+    python3 tools/convert_preset.py preset.json -o preset.v2.json
 
-   # legacy ViPER4Android XML  ->  v2
-   python3 tools/convert_preset.py preset.xml -o preset.v2.json
-   ```
+    # legacy ViPER4Android XML  ->  v2
+    python3 tools/convert_preset.py preset.xml -o preset.v2.json
+    ```
 
 The input format (v1 JSON vs. XML) and, for v1 JSON, the headphone/speaker namespace are auto-detected.
 Missing fields are filled with the app defaults. Import the resulting `.v2.json` in the app.
