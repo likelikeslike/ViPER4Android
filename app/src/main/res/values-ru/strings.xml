@@ -109,13 +109,13 @@
     <string name="label_field_surround_mid_image">Интенсивность центрального образа</string>
 
     <!-- Differential Surround -->
-    <string name="section_diff_surround">Дифф-ный объёмный звук</string>
+    <string name="section_diff_surround">Дифференциальный объёмный звук</string>
     <string name="label_diff_surround_reverse">Инверсия фазы</string>
     <string name="label_diff_surround_wet_dry_mix">Баланс эффекта</string>
     <string name="label_diff_surround_lp_cutoff">Частота среза ФНЧ</string>
 
     <!-- Stereo Imager -->
-    <string name="section_stereo_imager">Стерео-расширитель</string>
+    <string name="section_stereo_imager">Стерео-имиджер</string>
     <string name="label_stereo_imager_low_width">Ширина НЧ</string>
     <string name="label_stereo_imager_mid_width">Ширига СЧ</string>
     <string name="label_stereo_imager_high_width">Ширина ВЧ</string>
