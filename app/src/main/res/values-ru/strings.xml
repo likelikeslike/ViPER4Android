@@ -136,9 +136,9 @@
     <!-- Dynamic System -->
     <string name="section_dynamic_system">Динамическая система</string>
     <string name="label_dynamic_system_strength">Интенсивность динамического усиления басов</string>
-    <string name="label_dynamic_system_x_low_freq">X Нижняя частота</string>
+    <string name="label_dynamic_system_x_low_freq">X Низшая частота</string>
     <string name="label_dynamic_system_x_high_freq">X Высшая частота</string>
-    <string name="label_dynamic_system_y_low_freq">Y Нижняя частота</string>
+    <string name="label_dynamic_system_y_low_freq">Y Низшая частота</string>
     <string name="label_dynamic_system_y_high_freq">Y Высшая частота</string>
     <string name="label_dynamic_system_side_gain_low">Усиление боковых каналов для НЧ</string>
     <string name="label_dynamic_system_side_gain_high">Усиление боковых каналов для ВЧ</string>
