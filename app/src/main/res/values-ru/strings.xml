@@ -7,10 +7,10 @@
     <string name="notification_text">Обработка аудио активна</string>
     <string name="notification_bulk_op_channel_name">Групповые операции</string>
     <string name="notification_bulk_op_channel_description">Прогресс выполнения групповых операций</string>
-    <string name="qs_tile_master_label">Мастер</string>
+    <string name="qs_tile_master_label">Обработка аудио V4A</string>
 
     <!-- Master -->
-    <string name="master_enable">Мастер включён</string>
+    <string name="master_enable">Мастер-лимитер включён</string>
     <string name="menu_driver_status">Статус драйвера</string>
     <string name="menu_presets">Профили</string>
     <string name="menu_settings">Настройки</string>
@@ -22,7 +22,7 @@
     <string name="label_gain">Усиление</string>
     <string name="label_attack">Атака</string>
     <string name="label_release">Восстановление</string>
-    <string name="label_strength">Сила</string>
+    <string name="label_strength">Интенсивность</string>
     <string name="label_frequency">Частота</string>
     <string name="label_width">Ширина</string>
     <string name="label_depth">Глубина</string>
@@ -32,9 +32,9 @@
     <string name="label_preset">Профиль</string>
     <string name="label_custom">Пользовательский</string>
     <string name="label_none">Фаил не выбран</string>
-    <string name="label_mild">Слабо</string>
-    <string name="label_medium">Средне</string>
-    <string name="label_strong">Сильно</string>
+    <string name="label_mild">Низкий</string>
+    <string name="label_medium">Средний</string>
+    <string name="label_strong">Высокий</string>
 
     <!-- Numeric input dialog -->
     <string name="dialog_value_range">Диапазон: %1$s \u2013 %2$s</string>
@@ -43,15 +43,15 @@
     <!-- Output / Master limiter -->
     <string name="section_master_limiter">Мастер-лимитер</string>
     <string name="label_output_volume">Выходное усиление</string>
-    <string name="label_output_pan">Панорама на выходе</string>
-    <string name="label_output_limiter">Порог лимитера</string>
+    <string name="label_output_pan">Выходной баланс</string>
+    <string name="label_output_limiter">Порог лимитирования</string>
 
     <!-- AGC -->
-    <string name="section_agc">Автоусиление(AGC)</string>
-    <string name="label_agc_output_threshold">Порог вывода</string>
+    <string name="section_agc">Автоусиление(АРУ)</string>
+    <string name="label_agc_output_threshold">Выходной порог</string>
 
     <!-- LUFS Targeting -->
-    <string name="section_lufs_targeting">Выравнивание громкости(LUFS)</string>
+    <string name="section_lufs_targeting">Выравнивание громкости</string>
     <string name="label_lufs_target_lufs">Целевой уровень</string>
     <string name="label_lufs_speed">Скорость выравнивания</string>
     <string name="label_lufs_speed_slow">Медленно</string>
@@ -59,37 +59,37 @@
     <string name="label_lufs_speed_fast">Быстро</string>
 
     <!-- FET Compressor -->
-    <string name="section_fet_compressor">FET Компрессор</string>
+    <string name="section_fet_compressor">FET-компрессор</string>
     <string name="label_fet_ratio">Степень сжатия</string>
-    <string name="label_fet_knee">Колено</string>
-    <string name="label_fet_auto_knee">Автоколено</string>
-    <string name="label_fet_knee_multi">Мульти колено</string>
+    <string name="label_fet_knee">Плавность</string>
+    <string name="label_fet_auto_knee">Автоплавность</string>
+    <string name="label_fet_knee_multi">Мультиполосная плавность</string>
     <string name="label_fet_auto_gain">Автоусиление</string>
     <string name="label_fet_auto_attack">Автоатака</string>
     <string name="label_fet_max_attack">Время атаки</string>
     <string name="label_fet_auto_release">Автовосстановление</string>
     <string name="label_fet_max_release">Время восстановления</string>
-    <string name="label_fet_crest">Крест-фактор</string>
-    <string name="label_fet_adapt">Адаптивный</string>
-    <string name="label_fet_no_clip">Предотвращение перезапуска</string>
+    <string name="label_fet_crest">Пик-фактор</string>
+    <string name="label_fet_adapt">Адаптация</string>
+    <string name="label_fet_no_clip">Защита от клиппинга</string>
 
     <!-- Multiband Compressor -->
     <string name="section_multiband_compressor">Многополосный компрессор</string>
-    <string name="label_band_enabled">Полоса включена</string>
+    <string name="label_band_enabled">Включатель полосы</string>
     <string name="label_upper_crossover">Верхний кроссовер</string>
 
     <!-- DDC -->
     <string name="section_ddc">Цифровая коррекция</string>
-    <string name="label_ddc_device">Корекция звука(DDC)</string>
+    <string name="label_ddc_device">Профиль коррекции звука(DDC)</string>
 
     <!-- Spectrum Extension -->
     <string name="section_spectrum_extension">Расширение спектра</string>
     <string name="label_vse_exciter">Эксайтер</string>
 
     <!-- Equalizer -->
-    <string name="section_equalizer">FIR Эквалайзер</string>
+    <string name="section_equalizer">Эквалайзер</string>
     <string name="label_eq_bands">Количество полос</string>
-    <string name="label_eq_n_bands">%d Полос(ы)</string>
+    <string name="label_eq_n_bands">%d Полос(а)</string>
 
     <!-- Dynamic EQ -->
     <string name="section_dynamic_eq">Динамический эквалайзер</string>
@@ -100,7 +100,7 @@
 
     <!-- Convolver -->
     <string name="section_convolver">Конвольвер</string>
-    <string name="label_convolver_kernel">Файл ядра</string>
+    <string name="label_convolver_kernel">Файл ядра(импульса)</string>
     <string name="label_convolver_cross_channel">Смешивание каналов</string>
 
     <!-- Field Surround -->
@@ -109,15 +109,15 @@
     <string name="label_field_surround_mid_image">Интенсивность центрального образа</string>
 
     <!-- Differential Surround -->
-    <string name="section_diff_surround">Дифференциальное окружение</string>
+    <string name="section_diff_surround">Дифференциальный объёмный звук</string>
     <string name="label_diff_surround_reverse">Инверсия фазы</string>
-    <string name="label_diff_surround_wet_dry_mix">Баланс эффекта (Mix)</string>
+    <string name="label_diff_surround_wet_dry_mix">Баланс эффекта</string>
     <string name="label_diff_surround_lp_cutoff">Частота среза ФНЧ</string>
 
     <!-- Stereo Imager -->
-    <string name="section_stereo_imager">Стерео-расширитель</string>
+    <string name="section_stereo_imager">Стерео-имиджер</string>
     <string name="label_stereo_imager_low_width">Ширина НЧ</string>
-    <string name="label_stereo_imager_mid_width">Ширига СЧ</string>
+    <string name="label_stereo_imager_mid_width">Ширина СЧ</string>
     <string name="label_stereo_imager_high_width">Ширина ВЧ</string>
     <string name="label_stereo_imager_low_crossover">НЧ кроссовер</string>
     <string name="label_stereo_imager_high_crossover">ВЧ кроссовер</string>
@@ -131,17 +131,17 @@
     <string name="label_reverb_room_size">Размер комнаты</string>
     <string name="label_reverb_dampening">Поглощение высоких частот</string>
     <string name="label_reverb_wet">Обработанный сигнал</string>
-    <string name="label_reverb_dry">Необработанный сигнал</string>
+    <string name="label_reverb_dry">Исходный сигнал</string>
 
     <!-- Dynamic System -->
     <string name="section_dynamic_system">Динамическая система</string>
-    <string name="label_dynamic_system_strength">Интенсивность динамического усиления басов</string>
-    <string name="label_dynamic_system_x_low_freq">X Низкая частота</string>
-    <string name="label_dynamic_system_x_high_freq">X Высокая частота</string>
-    <string name="label_dynamic_system_y_low_freq">Y Низкая частота</string>
-    <string name="label_dynamic_system_y_high_freq">Y Высокая частота</string>
-    <string name="label_dynamic_system_side_gain_low">Усиление боковых каналов для низких частот</string>
-    <string name="label_dynamic_system_side_gain_high">Усиление боковых каналов для высоких частот</string>
+    <string name="label_dynamic_system_strength">Интенсивность динамического усиления баса</string>
+    <string name="label_dynamic_system_x_low_freq">Нижняя частота X диапазона</string>
+    <string name="label_dynamic_system_x_high_freq">Верхняя частота X диапазона</string>
+    <string name="label_dynamic_system_y_low_freq">Нижняя частота Y диапазона</string>
+    <string name="label_dynamic_system_y_high_freq">Верхняя частота Y диапазона</string>
+    <string name="label_dynamic_system_side_gain_low">Усиление боковых каналов для НЧ</string>
+    <string name="label_dynamic_system_side_gain_high">Усиление боковых каналов для ВЧ</string>
 
     <!-- Tube Simulator -->
     <string name="section_tube_simulator">Ламповый усилитель (6N1J)</string>
@@ -151,17 +151,17 @@
     <string name="label_psycho_bass_cutoff">Частота среза</string>
     <string name="label_psycho_bass_intensity">Интенсивность</string>
     <string name="label_psycho_bass_harmonic_order">Порядок гармоник</string>
-    <string name="label_psycho_bass_ori_bass_level">Уровень исх. баса</string>
+    <string name="label_psycho_bass_ori_bass_level">Уровень исходного баса</string>
 
     <!-- ViPER Bass -->
     <string name="section_viper_bass">ViPER Bass</string>
     <string name="label_bass_anti_pop">Плавное нарастание</string>
 
     <!-- ViPER Bass Mono -->
-    <string name="section_viper_bass_mono">ViPER Bass (Моно)</string>
+    <string name="section_viper_bass_mono">ViPER Bass (mono)</string>
 
     <!-- ViPER Clarity -->
-    <string name="section_viper_clarity">ViPER Clarity(чёткость)</string>
+    <string name="section_viper_clarity">ViPER Clarity</string>
 
     <!-- Cure -->
     <string name="section_cure">Защита слуха</string>
@@ -190,7 +190,7 @@
     <string name="bass_mode_subwoofer">Сабвуфер</string>
 
     <!-- Clarity modes -->
-    <string name="clarity_mode_natural">Натуральный</string>
+    <string name="clarity_mode_natural">Естественный</string>
     <string name="clarity_mode_ozone">OZone+</string>
     <string name="clarity_mode_xhifi">XHiFi</string>
 
@@ -232,7 +232,7 @@
     <string name="settings_app_version">Версия приложения</string>
     <string name="settings_files_section">Файлы</string>
     <string name="settings_import_preset">Импорт профиля</string>
-    <string name="settings_import_kernel">Импорт ядра</string>
+    <string name="settings_import_kernel">Импорт ядра(импульса)</string>
     <string name="settings_import_vdc">Импорт VDC</string>
     <string name="import_success">Импорт выполнен</string>
     <string name="import_failed">Импорт неудачен</string>
