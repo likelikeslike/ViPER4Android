@@ -117,7 +117,7 @@
     <!-- Stereo Imager -->
     <string name="section_stereo_imager">Стерео-имиджер</string>
     <string name="label_stereo_imager_low_width">Ширина НЧ</string>
-    <string name="label_stereo_imager_mid_width">Ширига СЧ</string>
+    <string name="label_stereo_imager_mid_width">Ширина СЧ</string>
     <string name="label_stereo_imager_high_width">Ширина ВЧ</string>
     <string name="label_stereo_imager_low_crossover">НЧ кроссовер</string>
     <string name="label_stereo_imager_high_crossover">ВЧ кроссовер</string>
@@ -135,11 +135,11 @@
 
     <!-- Dynamic System -->
     <string name="section_dynamic_system">Динамическая система</string>
-    <string name="label_dynamic_system_strength">Интенсивность динамического усиления басов</string>
-    <string name="label_dynamic_system_x_low_freq">X Низшая частота</string>
-    <string name="label_dynamic_system_x_high_freq">X Высшая частота</string>
-    <string name="label_dynamic_system_y_low_freq">Y Низшая частота</string>
-    <string name="label_dynamic_system_y_high_freq">Y Высшая частота</string>
+    <string name="label_dynamic_system_strength">Интенсивность динамического усиления баса</string>
+    <string name="label_dynamic_system_x_low_freq">Нижняя частота X диапазона</string>
+    <string name="label_dynamic_system_x_high_freq">Верхняя частота X диапазона</string>
+    <string name="label_dynamic_system_y_low_freq">Нижняя частота Y диапазона</string>
+    <string name="label_dynamic_system_y_high_freq">Верхняя частота Y диапазона</string>
     <string name="label_dynamic_system_side_gain_low">Усиление боковых каналов для НЧ</string>
     <string name="label_dynamic_system_side_gain_high">Усиление боковых каналов для ВЧ</string>
 
