@@ -27,7 +27,7 @@ jobs:
       - name: Extract version and rename APK
         run: |
           VERSION=$(grep "versionName =" app/build.gradle.kts | awk -F '"' '{print $2}')
-          mv app/build/outputs/apk/release/*.apk app/build/outputs/apk/release/ViPER4Android-$VERSION.apk
+          mv app/build/outputs/apk/release/*.apk app/build/outputs/apk/release/ViPER4Android-$VERSION-unsigned.apk
           
       - name: Create Release and Upload APK
         uses: softprops/action-gh-release@v2
