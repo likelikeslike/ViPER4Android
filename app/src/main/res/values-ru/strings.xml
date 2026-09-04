@@ -231,11 +231,11 @@
     <string name="settings_driver_arch">Архитектура драйвера</string>
     <string name="settings_app_version">Версия приложения</string>
     <string name="settings_files_section">Файлы</string>
-    <string name="settings_import_preset">Импорт профиля</string>
-    <string name="settings_import_kernel">Импорт ядра(импульса)</string>
-    <string name="settings_import_vdc">Импорт VDC</string>
-    <string name="import_success">Импорт выполнен</string>
-    <string name="import_failed">Импорт неудачен</string>
+    <string name="settings_import_preset">Импортировать профиль</string>
+    <string name="settings_import_kernel">Импортировать ядро(импульс)</string>
+    <string name="settings_import_vdc">Импортировать VDC</string>
+    <string name="import_success">Импортирование выполнено</string>
+    <string name="import_failed">Импортирование неудачно</string>
 
     <!-- Update -->
     <string name="update_checking">Проверка обновлений\u2026</string>
