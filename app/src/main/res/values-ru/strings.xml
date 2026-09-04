@@ -29,7 +29,7 @@
     <string name="label_delay">Задержка</string>
     <string name="label_mode">Режим</string>
     <string name="label_off">Выключено</string>
-    <string name="label_preset">Профиль</string>
+    <string name="label_preset">Пресет</string>
     <string name="label_custom">Пользовательский</string>
     <string name="label_none">Фаил не выбран</string>
     <string name="label_mild">Низкий</string>
@@ -195,21 +195,21 @@
     <string name="clarity_mode_xhifi">XHiFi</string>
 
     <!-- Presets -->
-    <string name="preset_save_title">Сохранить профиль</string>
-    <string name="preset_rename_title">Переименовать профиль</string>
+    <string name="preset_save_title">Сохранение профиля</string>
+    <string name="preset_rename_title">Переименование профиля</string>
     <string name="preset_name_hint">Имя профиля</string>
     <string name="preset_empty">Нет сохраненных профилей</string>
     <string name="preset_save_current">Сохранить текущий</string>
     <string name="preset_clear_all">Удалить все</string>
-    <string name="preset_clear_all_title">Удалить все профили</string>
+    <string name="preset_clear_all_title">Удаление всех профилей</string>
     <string name="preset_clear_all_confirm">Удалить все профили (всего %1$d)? Это действие нельзя отменить.</string>
     <string name="preset_clear_all_progress">Удаление профилей</string>
     <string name="preset_cleared">Удалено</string>
     <string name="preset_update_title">Обновление профиля</string>
     <string name="preset_update_confirm">Перезаписать «%1$s» текущими настройками? Это действие нельзя отменить.</string>
-    <string name="preset_load_title">Загрузить профиль</string>
+    <string name="preset_load_title">Загрузка профиля</string>
     <string name="preset_load_confirm">Загрузить «%1$s»? Текущие настройки будут заменены.</string>
-    <string name="preset_delete_title">Удалить профиль</string>
+    <string name="preset_delete_title">Удаление профиля</string>
     <string name="preset_delete_confirm">Удалить «%1$s»? Это действие нельзя отменить.</string>
 
     <!-- Driver Status -->
@@ -261,13 +261,13 @@
     <string name="device_label_address">Адрес</string>
     <string name="device_label_last_conn">Последнее подключение</string>
     <string name="device_no_devices">Нет сохранённых устройств</string>
-    <string name="device_rename_title">Переименовать устройство</string>
+    <string name="device_rename_title">Переименование устройство</string>
     <string name="device_rename_hint">Имя устройства</string>
     <string name="device_update_title">Обновление пресета устройства</string>
     <string name="device_update_confirm">Перезаписать пресет «%1$s» текущими настройками? Это действие нельзя отменить.</string>
-    <string name="device_load_title">Загрузить пресет устройства</string>
+    <string name="device_load_title">Загрузка пресета устройства</string>
     <string name="device_load_confirm">Загрузить пресет \"%1$s\"? Текущие настройки будут заменены.</string>
-    <string name="device_delete_title">Удалить пресет устройства</string>
+    <string name="device_delete_title">Удаление пресета устройства</string>
     <string name="device_delete_confirm">Удалить сохраненный пресет для \"%1$s\"? Это действие нельзя отменить.</string>
 
     <!-- Actions -->
