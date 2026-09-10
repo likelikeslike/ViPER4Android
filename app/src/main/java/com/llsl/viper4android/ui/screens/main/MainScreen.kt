@@ -46,7 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -54,9 +53,11 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.llsl.viper4android.R
 import com.llsl.viper4android.effect.EffectState
+import com.llsl.viper4android.ui.components.UiDimens
 import com.llsl.viper4android.ui.screens.debug.DebugLogDialog
 import com.llsl.viper4android.ui.screens.device.DeviceDialog
 import com.llsl.viper4android.ui.screens.preset.PresetDialog
+import com.llsl.viper4android.ui.screens.settings.ExcludedAppsDialog
 import com.llsl.viper4android.ui.screens.settings.SettingsDialog
 import com.llsl.viper4android.ui.screens.settings.UpdateDialog
 import com.llsl.viper4android.ui.screens.status.DriverStatusDialog
@@ -84,12 +85,14 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val aidlMode by viewModel.aidlModeEnabled.collectAsStateWithLifecycle()
     val debugMode by viewModel.debugModeEnabled.collectAsStateWithLifecycle()
     val updateState by viewModel.updateState.collectAsStateWithLifecycle()
+    val excludedApps by viewModel.excludedApps.collectAsStateWithLifecycle()
 
     var showPresetDialog by remember { mutableStateOf(false) }
     var showDriverStatusDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showDebugLog by remember { mutableStateOf(false) }
     var showDeviceDialog by remember { mutableStateOf(false) }
+    var showExcludedAppsDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val appVersionName =
@@ -103,6 +106,15 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     val clearAllProgressStr = stringResource(R.string.preset_clear_all_progress)
     val clearedStr = stringResource(R.string.preset_cleared)
+
+    if (showExcludedAppsDialog) {
+        ExcludedAppsDialog(
+            excludedApps = excludedApps,
+            onToggle = viewModel::setAppExcluded,
+            loadInstalledApps = viewModel::loadInstalledApps,
+            onDismiss = { showExcludedAppsDialog = false },
+        )
+    }
 
     if (showPresetDialog) {
         PresetDialog(
@@ -209,7 +221,9 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             autoStartEnabled = autoStart,
             globalModeEnabled = globalMode,
             aidlModeActive = aidlMode,
+            debugModeEnabled = debugMode,
             onGlobalModeChanged = viewModel::toggleGlobalMode,
+            onOpenExcludedApps = { showExcludedAppsDialog = true },
             driverStatus = driverStatus,
             appVersionName = appVersionName,
             onAutoStartChanged = viewModel::toggleAutoStart,
@@ -279,10 +293,10 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 }
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Canvas(modifier = Modifier.size(5.dp)) {
+                                Canvas(modifier = Modifier.size(UiDimens.Small)) {
                                     drawCircle(dotColor)
                                 }
-                                Spacer(modifier = Modifier.width(5.dp))
+                                Spacer(modifier = Modifier.width(UiDimens.Small))
                                 Text(
                                     text = deviceName,
                                     style = MaterialTheme.typography.labelSmall,
@@ -385,9 +399,9 @@ private fun EffectList(
     )
     LazyColumn(
         modifier = modifier.fillMaxSize().graphicsLayer { this.alpha = alpha },
-        contentPadding = PaddingValues(bottom = 88.dp),
+        contentPadding = PaddingValues(bottom = UiDimens.FabListPadding),
     ) {
-        item { Spacer(modifier = Modifier.height(8.dp)) }
+        item { Spacer(modifier = Modifier.height(UiDimens.Medium)) }
         item { MasterLimiterRows(state, viewModel) }
         item { PlaybackGainSection(state, viewModel) }
         item { LUFSTargetingSection(state, viewModel) }

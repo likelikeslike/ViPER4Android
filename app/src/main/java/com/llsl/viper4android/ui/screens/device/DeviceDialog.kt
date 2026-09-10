@@ -1,23 +1,14 @@
 package com.llsl.viper4android.ui.screens.device
 
 import android.text.format.DateUtils
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Headphones
@@ -25,14 +16,10 @@ import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Speaker
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,17 +27,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
 import com.llsl.viper4android.data.model.DeviceSettings
+import com.llsl.viper4android.ui.components.ConfirmDialog
+import com.llsl.viper4android.ui.components.DialogCard
+import com.llsl.viper4android.ui.components.DialogEmptyState
+import com.llsl.viper4android.ui.components.DialogIconActionRow
+import com.llsl.viper4android.ui.components.IconActionItem
+import com.llsl.viper4android.ui.components.InfoRow
+import com.llsl.viper4android.ui.components.InputDialog
+import com.llsl.viper4android.ui.components.NavRow
+import com.llsl.viper4android.ui.components.RowDivider
 import com.llsl.viper4android.ui.theme.status_active_green
 import java.text.SimpleDateFormat
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun DeviceDialog(
@@ -75,128 +69,65 @@ fun DeviceDialog(
     val selectedDevice = selectedDeviceId?.let { id -> devices.find { it.deviceId == id } }
 
     if (renamingDeviceId != null) {
-        AlertDialog(
-            onDismissRequest = { renamingDeviceId = null },
-            title = { Text(stringResource(R.string.device_rename_title)) },
-            text = {
-                OutlinedTextField(
-                    value = renameInput,
-                    onValueChange = { renameInput = it },
-                    label = { Text(stringResource(R.string.device_rename_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        InputDialog(
+            title = stringResource(R.string.device_rename_title),
+            initialValue = renameInput,
+            confirmLabel = stringResource(R.string.action_rename),
+            onConfirm = { name ->
+                onRename(renamingDeviceId!!, name)
+                renamingDeviceId = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (renameInput.isNotBlank()) {
-                            onRename(renamingDeviceId!!, renameInput.trim())
-                            renamingDeviceId = null
-                        }
-                    },
-                    enabled = renameInput.isNotBlank(),
-                ) {
-                    Text(stringResource(R.string.action_rename))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { renamingDeviceId = null }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { renamingDeviceId = null },
         )
-        return
     }
 
     if (showUpdateConfirm && updateTargetDevice != null) {
         val target = updateTargetDevice!!
-        AlertDialog(
-            onDismissRequest = { showUpdateConfirm = false },
-            title = { Text(stringResource(R.string.device_update_title)) },
-            text = {
-                Text(stringResource(R.string.device_update_confirm, target.deviceName))
+        ConfirmDialog(
+            title = stringResource(R.string.device_update_title),
+            body = stringResource(R.string.device_update_confirm, target.deviceName),
+            confirmLabel = stringResource(R.string.action_update),
+            onConfirm = {
+                onUpdate(target.deviceId)
+                showUpdateConfirm = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onUpdate(target.deviceId)
-                        showUpdateConfirm = false
-                    },
-                    colors =
-                        ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) {
-                    Text(stringResource(R.string.action_update))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showUpdateConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { showUpdateConfirm = false },
         )
     }
 
     if (showLoadConfirm && loadTargetDevice != null) {
         val target = loadTargetDevice!!
-        AlertDialog(
-            onDismissRequest = { showLoadConfirm = false },
-            title = { Text(stringResource(R.string.device_load_title)) },
-            text = {
-                Text(stringResource(R.string.device_load_confirm, target.deviceName))
+        ConfirmDialog(
+            title = stringResource(R.string.device_load_title),
+            body = stringResource(R.string.device_load_confirm, target.deviceName),
+            confirmLabel = stringResource(R.string.action_load),
+            onConfirm = {
+                onLoad(target.deviceId)
+                showLoadConfirm = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onLoad(target.deviceId)
-                        showLoadConfirm = false
-                    },
-                ) {
-                    Text(stringResource(R.string.action_load))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLoadConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { showLoadConfirm = false },
         )
     }
 
     if (showDeleteConfirm && deleteTargetDevice != null) {
         val target = deleteTargetDevice!!
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirm = false },
-            title = { Text(stringResource(R.string.device_delete_title)) },
-            text = {
-                Text(stringResource(R.string.device_delete_confirm, target.deviceName))
+        ConfirmDialog(
+            title = stringResource(R.string.device_delete_title),
+            body = stringResource(R.string.device_delete_confirm, target.deviceName),
+            confirmLabel = stringResource(R.string.action_delete),
+            destructive = true,
+            onConfirm = {
+                onDelete(target.deviceId)
+                selectedDeviceId = null
+                showDeleteConfirm = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete(target.deviceId)
-                        selectedDeviceId = null
-                        showDeleteConfirm = false
-                    },
-                    colors =
-                        ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) {
-                    Text(stringResource(R.string.action_delete))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { showDeleteConfirm = false },
         )
     }
 
     AlertDialog(
+        modifier = Modifier.fillMaxWidth(0.9f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismiss,
         title = {
             if (selectedDevice != null) {
@@ -225,7 +156,19 @@ fun DeviceDialog(
                     }
                 }
             } else {
-                Text(stringResource(R.string.device_dialog_title))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(R.string.device_dialog_title))
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.action_close),
+                        )
+                    }
+                }
             }
         },
         text = {
@@ -254,13 +197,7 @@ fun DeviceDialog(
                 )
             }
         },
-        confirmButton = {
-            if (selectedDevice == null) {
-                TextButton(onClick = onDismiss) {
-                    Text(stringResource(R.string.action_close))
-                }
-            }
-        },
+        confirmButton = {},
     )
 }
 
@@ -271,19 +208,7 @@ private fun DeviceListView(
     onSelect: (DeviceSettings) -> Unit,
 ) {
     if (devices.isEmpty()) {
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = stringResource(R.string.device_no_devices),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        DialogEmptyState(text = stringResource(R.string.device_no_devices))
         return
     }
 
@@ -295,60 +220,45 @@ private fun DeviceListView(
             )
         }
 
-    LazyColumn {
-        items(sorted, key = { it.deviceId }) { device ->
-            val isActive = device.deviceId == activeDeviceId
-            Row(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(device) }
-                        .padding(vertical = 8.dp, horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = deviceIcon(device),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+    DialogCard {
+        LazyColumn {
+            itemsIndexed(sorted, key = { _, device -> device.deviceId }) { index, device ->
+                DeviceNavRow(
+                    device = device,
+                    isActive = device.deviceId == activeDeviceId,
+                    onSelect = { onSelect(device) },
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        if (isActive) {
-                            Canvas(modifier = Modifier.size(8.dp)) {
-                                drawCircle(status_active_green)
-                            }
-                            Spacer(modifier = Modifier.width(6.dp))
-                        }
-                        Text(
-                            text = device.deviceName,
-                            style = MaterialTheme.typography.bodyMedium,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                    if (!isActive) {
-                        Text(
-                            text =
-                                DateUtils
-                                    .getRelativeTimeSpanString(
-                                        device.lastConnected,
-                                        System.currentTimeMillis(),
-                                        DateUtils.MINUTE_IN_MILLIS,
-                                    ).toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-                IconButton(onClick = { onSelect(device) }) {
-                    Icon(Icons.Default.ChevronRight, contentDescription = null)
+                if (index != sorted.lastIndex) {
+                    RowDivider()
                 }
             }
-            HorizontalDivider()
         }
     }
+}
+
+@Composable
+private fun DeviceNavRow(
+    device: DeviceSettings,
+    isActive: Boolean,
+    onSelect: () -> Unit,
+) {
+    NavRow(
+        label = device.deviceName,
+        subtitle =
+            if (isActive) {
+                stringResource(R.string.status_active)
+            } else {
+                DateUtils
+                    .getRelativeTimeSpanString(
+                        device.lastConnected,
+                        System.currentTimeMillis(),
+                        DateUtils.MINUTE_IN_MILLIS,
+                    ).toString()
+            },
+        onClick = onSelect,
+        leadingIcon = deviceIcon(device),
+        statusColor = if (isActive) status_active_green else null,
+    )
 }
 
 private val BUILTIN_DEVICE_IDS = setOf("speaker", "wired_headphone")
@@ -363,18 +273,18 @@ private fun DeviceDetailView(
 ) {
     val isBuiltIn = device.deviceId in BUILTIN_DEVICE_IDS
     val canDelete = !isActive && !isBuiltIn
-    Column {
-        StatusRow(
+    DialogCard {
+        InfoRow(
             label = stringResource(R.string.device_label_type),
             value = deviceTypeName(device),
         )
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-        StatusRow(
+        RowDivider()
+        InfoRow(
             label = stringResource(R.string.device_label_address),
             value = if (device.deviceId == "speaker" || device.deviceId == "wired_headphone") "-" else device.deviceId,
         )
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-        StatusRow(
+        RowDivider()
+        InfoRow(
             label = stringResource(R.string.label_mode),
             value =
                 if (device.isHeadphone) {
@@ -383,33 +293,30 @@ private fun DeviceDetailView(
                     stringResource(R.string.device_mode_speaker)
                 },
         )
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-        StatusRow(
+        RowDivider()
+        InfoRow(
             label = stringResource(R.string.device_label_last_conn),
             value =
                 if (isActive) {
                     "-"
                 } else {
-                    SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                    SimpleDateFormat("yyyy-MM-dd HH:mm", LocalLocale.current.platformLocale)
                         .format(Date(device.lastConnected))
                 },
         )
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            ActionItem(
+        RowDivider()
+        DialogIconActionRow {
+            IconActionItem(
                 icon = Icons.Default.SettingsBackupRestore,
                 label = stringResource(R.string.action_load),
                 onClick = onLoad,
             )
-            ActionItem(
+            IconActionItem(
                 icon = Icons.Default.Sync,
                 label = stringResource(R.string.action_update),
                 onClick = onUpdate,
             )
-            ActionItem(
+            IconActionItem(
                 icon = Icons.Default.Delete,
                 label = stringResource(R.string.action_delete),
                 onClick = onDelete,
@@ -422,51 +329,6 @@ private fun DeviceDetailView(
                     },
             )
         }
-    }
-}
-
-@Composable
-private fun StatusRow(
-    label: String,
-    value: String,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
-}
-
-@Composable
-private fun ActionItem(
-    icon: ImageVector,
-    label: String,
-    onClick: () -> Unit,
-    enabled: Boolean = true,
-    tint: Color = MaterialTheme.colorScheme.onSurface,
-) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier =
-            Modifier
-                .clickable(enabled = enabled) { onClick() }
-                .padding(8.dp),
-    ) {
-        Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp), tint = tint)
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(label, style = MaterialTheme.typography.labelSmall, color = tint)
     }
 }
 

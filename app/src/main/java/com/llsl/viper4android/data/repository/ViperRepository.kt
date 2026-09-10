@@ -1,5 +1,6 @@
 package com.llsl.viper4android.data.repository
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -25,6 +26,7 @@ import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@SuppressLint("DiscouragedPrivateApi", "PrivateApi")
 @Singleton
 class ViperRepository
     @Inject
@@ -102,8 +104,6 @@ class ViperRepository
                 emitAll(dataStore.data.map { it[booleanPreferencesKey(key)] ?: default })
             }
 
-        // noinspection PrivateApi
-        // noinspection DiscouragedPrivateApi
         val aidlMode: Boolean by lazy {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) return@lazy false
             runCatching {
@@ -158,6 +158,28 @@ class ViperRepository
             dataStore.edit { it[stringPreferencesKey(key)] = value }
         }
 
+        fun getStringSetPreference(key: String): Flow<Set<String>> =
+            flow {
+                ensureV2Initialized()
+                emitAll(
+                    dataStore.data.map { prefs ->
+                        prefs[stringPreferencesKey(key)]
+                            ?.split('\n')
+                            ?.filter { it.isNotEmpty() }
+                            ?.toSet()
+                            .orEmpty()
+                    },
+                )
+            }
+
+        suspend fun setStringSetPreference(
+            key: String,
+            value: Set<String>,
+        ) {
+            ensureV2Initialized()
+            dataStore.edit { it[stringPreferencesKey(key)] = value.joinToString("\n") }
+        }
+
         @Volatile private var initDone = false
         private val initMutex = Mutex()
 
@@ -187,5 +209,6 @@ class ViperRepository
             const val PREF_GLOBAL_MODE = "global_mode"
             const val PREF_DEBUG_MODE = "debug_mode"
             const val PREF_V2_INITIALIZED = "v2_initialized"
+            const val PREF_EXCLUDED_APPS = "excluded_apps"
         }
     }

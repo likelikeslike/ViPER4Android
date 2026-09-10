@@ -97,6 +97,7 @@
     <string name="label_dynamic_eq_target_gain">Целевое усиление</string>
     <string name="label_dynamic_eq_filter_type">Тип фильтра</string>
     <string name="dialog_delete_band">Удалить полосу</string>
+    <string name="dialog_delete_band_confirm">Remove %1$s Band?</string>
 
     <!-- Convolver -->
     <string name="section_convolver">Конвольвер</string>
@@ -211,6 +212,9 @@
     <string name="preset_load_confirm">Загрузить «%1$s»? Текущие настройки будут заменены.</string>
     <string name="preset_delete_title">Удаление профиля</string>
     <string name="preset_delete_confirm">Удалить «%1$s»? Это действие нельзя отменить.</string>
+    <string name="preset_tap_for_details">Tap for details</string>
+    <string name="preset_label_created">Created</string>
+    <string name="preset_label_updated">Last Updated</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Драйвер не найден</string>
@@ -224,18 +228,33 @@
     <string name="status_unknown">Неизвестно</string>
 
     <!-- Settings -->
+    <string name="settings_general_section">General</string>
+    <string name="settings_files_section">Файлы</string>
+    <string name="settings_about_section">About</string>
     <string name="settings_auto_start">Автозапуск при загрузке</string>
     <string name="settings_aidl_mode">Режим AIDL</string>
     <string name="settings_global_mode">Глобальный режим</string>
-    <string name="settings_driver_version">Версия драйвера</string>
-    <string name="settings_driver_arch">Архитектура драйвера</string>
-    <string name="settings_app_version">Версия приложения</string>
-    <string name="settings_files_section">Файлы</string>
+    <string name="settings_excluded_apps">Excluded apps</string>
     <string name="settings_import_preset">Импортировать профиль</string>
     <string name="settings_import_kernel">Импортировать ядро(импульс)</string>
     <string name="settings_import_vdc">Импортировать VDC</string>
+    <string name="settings_auto_start_desc">Start audio service on boot</string>
+    <string name="settings_global_mode_desc">Apply effects globally</string>
+    <string name="settings_excluded_apps_desc">Skip audio session for selected apps</string>
+    <string name="settings_import_preset_desc">Load a .json preset file</string>
+    <string name="settings_import_kernel_desc">Convolver impulse response</string>
+    <string name="settings_import_vdc_desc">DDC calibration file</string>
+    <string name="settings_driver_version">Версия драйвера</string>
+    <string name="settings_driver_arch">Архитектура драйвера</string>
+    <string name="settings_app_version">Версия приложения</string>
     <string name="import_success">Импортирование выполнено</string>
     <string name="import_failed">Импортирование неудачно</string>
+
+    <!-- Excluded Apps -->
+    <string name="excluded_apps_title">Excluded Apps</string>
+    <string name="excluded_apps_search">Search apps</string>
+    <string name="excluded_apps_loading">Loading apps\u2026</string>
+    <string name="excluded_apps_show_system">Show system apps</string>
 
     <!-- Update -->
     <string name="update_checking">Проверка обновлений\u2026</string>
@@ -284,8 +303,14 @@
     <!-- Debug -->
     <string name="debug_log_title">Лог отладки</string>
     <string name="debug_mode_enabled">Режим отладки включен</string>
+    <string name="debug_already_enabled">Debug mode already enabled</string>
     <string name="debug_search_hint">Фильтр логов…</string>
     <string name="debug_disable_debug">Выключить отладку</string>
+    <string name="debug_export_title">Export logs</string>
+    <string name="debug_export_confirm">Save app and driver logs to external storage?\n\n%1$s\n%2$s</string>
+    <string name="debug_export_action">Export</string>
+    <string name="debug_export_done">Logs exported to %1$s</string>
+    <string name="debug_export_failed">Export failed</string>
 
     <!-- Debug filters -->
     <string name="debug_filter_all">Все</string>

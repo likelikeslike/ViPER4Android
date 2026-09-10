@@ -50,7 +50,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.PrimaryScrollableTabRow
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Switch
@@ -73,23 +72,43 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.llsl.viper4android.R
 import com.llsl.viper4android.effect.EffectState
 import com.llsl.viper4android.effect.Effects
+import com.llsl.viper4android.ui.components.ConfirmDialog
 import com.llsl.viper4android.ui.components.EqCurveGraph
 import com.llsl.viper4android.ui.components.EqEditDialog
+import com.llsl.viper4android.ui.components.InputDialog
 import com.llsl.viper4android.ui.components.LabeledDropdown
 import com.llsl.viper4android.ui.components.LabeledSlider
 import com.llsl.viper4android.ui.components.LabeledSwitch
 import com.llsl.viper4android.ui.components.RichText
 import com.llsl.viper4android.ui.components.SliderEdit
+import com.llsl.viper4android.ui.components.UiDimens
 import com.llsl.viper4android.ui.components.resolvePresetName
 import java.util.Locale
 import kotlin.math.log10
 import kotlin.math.pow
 import kotlin.math.roundToInt
+
+private val EffectHorizontalPadding = UiDimens.Standard
+private val DynamicEqTabHorizontalPadding = EffectHorizontalPadding
+private val DynamicEqTabVerticalPadding = UiDimens.Large
+private val DynamicEqTabIconSize = UiDimens.IconSmall
+private val DynamicSystemButtonIconSize = EffectHorizontalPadding
+private val DynamicSystemButtonIconSpacing = UiDimens.XSmall
+private val DynamicSystemButtonSpacing = UiDimens.Medium
+private val EffectCardHorizontalPadding = EffectHorizontalPadding
+private val EffectCardVerticalPadding = UiDimens.XSmall
+private val EffectContentPadding = EffectHorizontalPadding
+private val EffectHeaderIconSize = UiDimens.IconMedium
+private val EffectHeaderIconSpacing = UiDimens.Large
+private val EffectHeaderHorizontalPadding = EffectHorizontalPadding
+private val EffectHeaderVerticalPadding = UiDimens.Large
+private val EffectHelpIconSize = UiDimens.IconLarge
+private val EffectSwitchPlaceholderHeight = UiDimens.SwitchSlotHeight
 
 private fun rawToDb(raw: Number): Double = 20.0 * log10(raw.toDouble() / 100.0)
 
@@ -117,7 +136,7 @@ fun EffectSection(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
+                .padding(horizontal = EffectCardHorizontalPadding, vertical = EffectCardVerticalPadding),
         colors =
             CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -146,17 +165,17 @@ fun EffectSection(
                                     },
                                 )
                             },
-                        ).padding(horizontal = 16.dp, vertical = 12.dp),
+                        ).padding(horizontal = EffectHeaderHorizontalPadding, vertical = EffectHeaderVerticalPadding),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (icon != null) {
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(EffectHeaderIconSize),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(EffectHeaderIconSpacing))
                 }
                 Text(
                     text = title,
@@ -171,7 +190,7 @@ fun EffectSection(
                         onCheckedChange = onEnabledChange,
                     )
                 } else {
-                    Spacer(modifier = Modifier.height(48.dp))
+                    Spacer(modifier = Modifier.height(EffectSwitchPlaceholderHeight))
                 }
             }
 
@@ -185,7 +204,7 @@ fun EffectSection(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                                .padding(start = EffectContentPadding, end = EffectContentPadding, bottom = EffectContentPadding),
                     ) {
                         content()
                     }
@@ -196,6 +215,8 @@ fun EffectSection(
 
     if (showHelpDialog) {
         AlertDialog(
+            modifier = Modifier.fillMaxWidth(0.9f),
+            properties = DialogProperties(usePlatformDefaultWidth = false),
             onDismissRequest = { showHelpDialog = false },
             title = { Text(text = title) },
             text = {
@@ -205,8 +226,13 @@ fun EffectSection(
                             .toDp() / 2
                     }
                 Column(
-                    modifier = Modifier.heightIn(max = maxHeight).verticalScroll(rememberScrollState()),
-                ) { RichText(text = stringResource(descriptionRes)) }
+                    modifier =
+                        Modifier
+                            .heightIn(max = maxHeight)
+                            .verticalScroll(rememberScrollState()),
+                ) {
+                    RichText(text = stringResource(descriptionRes))
+                }
             },
             confirmButton = {
                 TextButton(onClick = { showHelpDialog = false }) {
@@ -740,7 +766,7 @@ fun MultibandCompressorSection(
             text = "$lowFreq - ${if (b < 4) "$highFreq" else "20000+"} Hz",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp),
+            modifier = Modifier.padding(top = UiDimens.Medium, bottom = UiDimens.XSmall),
         )
 
         LabeledSwitch(
@@ -1162,23 +1188,23 @@ fun DynamicEqSection(
         }
 
     if (deleteBandIndex >= 0) {
-        AlertDialog(
-            onDismissRequest = { deleteBandIndex = -1 },
-            title = { Text(stringResource(R.string.dialog_delete_band)) },
-            text = { Text("Remove ${formatFreq(freqs.getOrElse(deleteBandIndex) { 1000 })} band?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    val i = deleteBandIndex
-                    deleteBandIndex = -1
-                    viewModel.removeDynamicEqBand(i)
-                    if (selectedTab >= bandCount - 1) selectedTab = maxOf(0, bandCount - 2)
-                }) { Text(stringResource(R.string.action_delete)) }
+        ConfirmDialog(
+            title = stringResource(R.string.dialog_delete_band),
+            body =
+                stringResource(
+                    R.string.dialog_delete_band_confirm,
+                    formatFreq(freqs.getOrElse(deleteBandIndex) { 1000 }),
+                ),
+            confirmLabel = stringResource(R.string.action_delete),
+            destructive = true,
+            onConfirm = {
+                val i = deleteBandIndex
+                deleteBandIndex = -1
+                viewModel.removeDynamicEqBand(i)
+                if (selectedTab >= bandCount - 1) selectedTab = maxOf(0, bandCount - 2)
             },
-            dismissButton = {
-                TextButton(onClick = {
-                    deleteBandIndex = -1
-                }) { Text(stringResource(R.string.action_cancel)) }
-            },
+            onDismiss = { deleteBandIndex = -1 },
+            dismissLabel = stringResource(R.string.action_cancel),
         )
     }
 
@@ -1191,7 +1217,7 @@ fun DynamicEqSection(
     ) {
         PrimaryScrollableTabRow(
             selectedTabIndex = safeTab,
-            edgePadding = 0.dp,
+            edgePadding = UiDimens.None,
         ) {
             for (i in 0 until bandCount) {
                 val isSelected = safeTab == i
@@ -1204,7 +1230,7 @@ fun DynamicEqSection(
                             .combinedClickable(
                                 onClick = { selectedTab = i },
                                 onLongClick = { if (bandCount > 1) deleteBandIndex = i },
-                            ).padding(horizontal = 16.dp, vertical = 12.dp),
+                            ).padding(horizontal = DynamicEqTabHorizontalPadding, vertical = DynamicEqTabVerticalPadding),
                 ) {
                     Text(
                         text = formatFreq(freqs.getOrElse(i) { 1000 }),
@@ -1222,12 +1248,12 @@ fun DynamicEqSection(
                             .clickable {
                                 viewModel.addDynamicEqBand()
                                 selectedTab = bandCount
-                            }.padding(horizontal = 16.dp, vertical = 12.dp),
+                            }.padding(horizontal = DynamicEqTabHorizontalPadding, vertical = DynamicEqTabVerticalPadding),
                 ) {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = null,
-                        modifier = Modifier.size(18.dp),
+                        modifier = Modifier.size(DynamicEqTabIconSize),
                     )
                 }
             }
@@ -1794,7 +1820,7 @@ fun DynamicSystemSection(
     val sideGainHigh = vals.sideGainHigh
 
     var showSaveDialog by remember { mutableStateOf(false) }
-    var presetNameInput by remember { mutableStateOf("") }
+    var deletePresetId by remember { mutableStateOf<Long?>(null) }
 
     val onPresetSelect = viewModel::setDynamicSystemPreset
     val onXLowChange = viewModel::setDynamicSystemXLow
@@ -1826,32 +1852,32 @@ fun DynamicSystemSection(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(DynamicSystemButtonSpacing),
         ) {
             TextButton(onClick = { showSaveDialog = true }) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(4.dp))
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(DynamicSystemButtonIconSize))
+                Spacer(modifier = Modifier.width(DynamicSystemButtonIconSpacing))
                 Text(stringResource(R.string.action_save))
             }
             TextButton(
-                onClick = { dsPresetId?.let { onPresetDelete(it) } },
+                onClick = { deletePresetId = dsPresetId },
                 enabled = dsPresetId != null,
             ) {
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(DynamicSystemButtonIconSize),
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(DynamicSystemButtonIconSpacing))
                 Text(stringResource(R.string.action_delete))
             }
             TextButton(onClick = onReset) {
                 Icon(
                     Icons.Default.RestartAlt,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(DynamicSystemButtonIconSize),
                 )
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.width(DynamicSystemButtonIconSpacing))
                 Text(stringResource(R.string.action_reset))
             }
         }
@@ -1974,36 +2000,34 @@ fun DynamicSystemSection(
     }
 
     if (showSaveDialog) {
-        AlertDialog(
-            onDismissRequest = { showSaveDialog = false },
-            title = { Text(stringResource(R.string.preset_save_title)) },
-            text = {
-                OutlinedTextField(
-                    value = presetNameInput,
-                    onValueChange = { presetNameInput = it },
-                    label = { Text(stringResource(R.string.preset_name_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        InputDialog(
+            title = stringResource(R.string.preset_save_title),
+            initialValue = "",
+            confirmLabel = stringResource(android.R.string.ok),
+            onConfirm = { name ->
+                onPresetAdd(name)
+                showSaveDialog = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (presetNameInput.isNotBlank()) {
-                            onPresetAdd(presetNameInput.trim())
-                            presetNameInput = ""
-                            showSaveDialog = false
-                        }
-                    },
-                ) {
-                    Text(stringResource(android.R.string.ok))
-                }
+            onDismiss = { showSaveDialog = false },
+            dismissLabel = stringResource(android.R.string.cancel),
+            placeholder = stringResource(R.string.preset_name_hint),
+        )
+    }
+
+    deletePresetId?.let { targetId ->
+        val targetName =
+            dsPresets.find { it.id == targetId }?.let { resolvePresetName(it) }
+                ?: stringResource(R.string.label_custom)
+        ConfirmDialog(
+            title = stringResource(R.string.preset_delete_title),
+            body = stringResource(R.string.preset_delete_confirm, targetName),
+            confirmLabel = stringResource(R.string.action_delete),
+            destructive = true,
+            onConfirm = {
+                onPresetDelete(targetId)
+                deletePresetId = null
             },
-            dismissButton = {
-                TextButton(onClick = { showSaveDialog = false }) {
-                    Text(stringResource(android.R.string.cancel))
-                }
-            },
+            onDismiss = { deletePresetId = null },
         )
     }
 }

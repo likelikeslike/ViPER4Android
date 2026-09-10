@@ -23,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import com.llsl.viper4android.R
 import java.util.Locale
 import kotlin.math.roundToInt
@@ -51,7 +50,7 @@ fun LabeledSlider(
     var showEditDialog by remember { mutableStateOf(false) }
     val canEdit = enabled && edit != null
 
-    Column(modifier = modifier.fillMaxWidth().padding(vertical = 4.dp)) {
+    Column(modifier = modifier.fillMaxWidth().padding(vertical = UiDimens.XSmall)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -67,7 +66,7 @@ fun LabeledSlider(
                     Modifier.clickable { showEditDialog = true }
                 } else {
                     Modifier
-                }.padding(horizontal = 8.dp, vertical = 4.dp)
+                }.padding(horizontal = UiDimens.Medium, vertical = UiDimens.XSmall)
             Text(
                 text = valueLabel ?: value.roundToInt().toString(),
                 style = MaterialTheme.typography.bodyMedium,

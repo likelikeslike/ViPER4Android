@@ -6,6 +6,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -21,6 +23,7 @@ import com.llsl.viper4android.data.model.Preset
 import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_AUTO_START
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_DEBUG_MODE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_EXCLUDED_APPS
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_GLOBAL_MODE
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_MASTER_ENABLE
 import com.llsl.viper4android.effect.BoolListPref
@@ -60,6 +63,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
@@ -84,6 +88,12 @@ data class UpdateState(
     val release: ReleaseInfo? = null,
     val upToDate: Boolean = false,
     val error: String? = null,
+)
+
+data class InstalledAppInfo(
+    val packageName: String,
+    val label: String,
+    val isSystemApp: Boolean,
 )
 
 @Suppress("StaticFieldLeak")
@@ -133,6 +143,9 @@ class MainViewModel
 
         val debugModeEnabled: StateFlow<Boolean>
             field: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+        val excludedApps: StateFlow<Set<String>>
+            field: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
 
         val updateState: StateFlow<UpdateState>
             field: MutableStateFlow<UpdateState> = MutableStateFlow(UpdateState())
@@ -320,6 +333,9 @@ class MainViewModel
             globalModeEnabled.value = repository.getBooleanPreference(PREF_GLOBAL_MODE, false).first()
             debugModeEnabled.value = repository.getBooleanPreference(PREF_DEBUG_MODE, false).first()
             aidlModeEnabled.value = repository.aidlMode
+            viewModelScope.launch {
+                repository.getStringSetPreference(PREF_EXCLUDED_APPS).collect { excludedApps.value = it }
+            }
         }
 
         private fun loadEqPresetsForBandCount(bandCount: Int) {
@@ -1531,5 +1547,32 @@ class MainViewModel
             globalModeEnabled.value = enabled
             viewModelScope.launch { repository.setBooleanPreference(PREF_GLOBAL_MODE, enabled) }
             viperService?.setGlobalMode(enabled)
+        }
+
+        fun setAppExcluded(
+            packageName: String,
+            excluded: Boolean,
+        ) {
+            val next = if (excluded) excludedApps.value + packageName else excludedApps.value - packageName
+            excludedApps.value = next
+            viewModelScope.launch { repository.setStringSetPreference(PREF_EXCLUDED_APPS, next) }
+        }
+
+        fun loadInstalledApps(onLoaded: (List<InstalledAppInfo>) -> Unit) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val pm = getApplication<Application>().packageManager
+                val apps =
+                    pm
+                        .getInstalledApplications(PackageManager.GET_META_DATA)
+                        .filter { it.enabled }
+                        .map {
+                            InstalledAppInfo(
+                                packageName = it.packageName,
+                                label = pm.getApplicationLabel(it).toString(),
+                                isSystemApp = it.flags and ApplicationInfo.FLAG_SYSTEM != 0,
+                            )
+                        }.sortedBy { it.label.lowercase() }
+                withContext(Dispatchers.Main) { onLoaded(apps) }
+            }
         }
     }

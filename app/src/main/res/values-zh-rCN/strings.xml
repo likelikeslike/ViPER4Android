@@ -97,6 +97,7 @@
     <string name="label_dynamic_eq_target_gain">目标增益</string>
     <string name="label_dynamic_eq_filter_type">滤波类型</string>
     <string name="dialog_delete_band">删除频段</string>
+    <string name="dialog_delete_band_confirm">Remove %1$s Band?</string>
 
     <!-- Convolver -->
     <string name="section_convolver">脉冲卷积器</string>
@@ -211,6 +212,9 @@
     <string name="preset_load_confirm">确定加载 "%1$s"? 当前设置将被替换.</string>
     <string name="preset_delete_title">删除预设</string>
     <string name="preset_delete_confirm">确定删除 "%1$s"? 此操作不可逆.</string>
+    <string name="preset_tap_for_details">点击查看详情</string>
+    <string name="preset_label_created">已创建</string>
+    <string name="preset_label_updated">最后更新</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">未找到驱动</string>
@@ -224,18 +228,33 @@
     <string name="status_unknown">未知</string>
 
     <!-- Settings -->
+    <string name="settings_general_section">通用</string>
+    <string name="settings_files_section">文件</string>
+    <string name="settings_about_section">关于</string>
     <string name="settings_auto_start">开机自启</string>
     <string name="settings_aidl_mode">AIDL 模式</string>
     <string name="settings_global_mode">全局模式</string>
-    <string name="settings_driver_version">驱动版本</string>
-    <string name="settings_driver_arch">驱动架构</string>
-    <string name="settings_app_version">应用版本</string>
-    <string name="settings_files_section">文件</string>
+    <string name="settings_excluded_apps">排除的应用</string>
     <string name="settings_import_preset">导入预设</string>
     <string name="settings_import_kernel">导入内核</string>
     <string name="settings_import_vdc">导入 VDC</string>
+    <string name="settings_auto_start_desc">开机时启动音频服务</string>
+    <string name="settings_global_mode_desc">全局应用效果</string>
+    <string name="settings_excluded_apps_desc">为所选应用跳过音频处理会话</string>
+    <string name="settings_import_preset_desc">加载 json 预设文件</string>
+    <string name="settings_import_kernel_desc">卷积器脉冲响应</string>
+    <string name="settings_import_vdc_desc">DDC 校准文件</string>
+    <string name="settings_driver_version">驱动版本</string>
+    <string name="settings_driver_arch">驱动架构</string>
+    <string name="settings_app_version">应用版本</string>
     <string name="import_success">导入成功</string>
     <string name="import_failed">导入失败</string>
+
+    <!-- Excluded Apps -->
+    <string name="excluded_apps_title">排除的应用</string>
+    <string name="excluded_apps_search">搜索应用</string>
+    <string name="excluded_apps_loading">正在加载应用\u2026</string>
+    <string name="excluded_apps_show_system">显示系统应用</string>
 
     <!-- Update -->
     <string name="update_checking">正在检查更新\u2026</string>
@@ -284,8 +303,14 @@
     <!-- Debug -->
     <string name="debug_log_title">调试日志</string>
     <string name="debug_mode_enabled">调试模式已启用</string>
+    <string name="debug_already_enabled">调试模式已处于启用状态</string>
     <string name="debug_search_hint">筛选日志\u2026</string>
     <string name="debug_disable_debug">禁用调试</string>
+    <string name="debug_export_title">导出日志</string>
+    <string name="debug_export_confirm">将应用和驱动日志保存到外部存储?\n\n%1$s\n%2$s</string>
+    <string name="debug_export_action">导出</string>
+    <string name="debug_export_done">日志已导出到 %1$s</string>
+    <string name="debug_export_failed">导出失败</string>
 
     <!-- Debug filters -->
     <string name="debug_filter_all">全部</string>

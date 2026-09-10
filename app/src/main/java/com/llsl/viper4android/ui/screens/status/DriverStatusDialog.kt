@@ -1,20 +1,24 @@
 package com.llsl.viper4android.ui.screens.status
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
+import com.llsl.viper4android.ui.components.DialogCard
+import com.llsl.viper4android.ui.components.InfoRow
+import com.llsl.viper4android.ui.components.RowDivider
 import com.llsl.viper4android.ui.screens.main.DriverStatus
 
 @Composable
@@ -23,8 +27,24 @@ fun DriverStatusDialog(
     onDismiss: () -> Unit,
 ) {
     AlertDialog(
+        modifier = Modifier.fillMaxWidth(0.9f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
         onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.menu_driver_status)) },
+        title = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(stringResource(R.string.menu_driver_status))
+                IconButton(onClick = onDismiss) {
+                    Icon(
+                        Icons.Default.Close,
+                        contentDescription = stringResource(R.string.action_close),
+                    )
+                }
+            }
+        },
         text = {
             if (!driverStatus.installed) {
                 Text(
@@ -33,23 +53,23 @@ fun DriverStatusDialog(
                     color = MaterialTheme.colorScheme.error,
                 )
             } else {
-                Column {
-                    StatusRow(
+                DialogCard {
+                    InfoRow(
                         label = stringResource(R.string.driver_version_code),
                         value = driverStatus.versionCode.toString(),
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    StatusRow(
+                    RowDivider()
+                    InfoRow(
                         label = stringResource(R.string.driver_version_name),
                         value = driverStatus.versionName,
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    StatusRow(
+                    RowDivider()
+                    InfoRow(
                         label = stringResource(R.string.driver_architecture),
                         value = driverStatus.architecture,
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    StatusRow(
+                    RowDivider()
+                    InfoRow(
                         label = stringResource(R.string.driver_streaming),
                         value =
                             if (driverStatus.streaming) {
@@ -58,8 +78,8 @@ fun DriverStatusDialog(
                                 stringResource(R.string.status_inactive)
                             },
                     )
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-                    StatusRow(
+                    RowDivider()
+                    InfoRow(
                         label = stringResource(R.string.driver_sampling_rate),
                         value =
                             if (driverStatus.samplingRate > 0) {
@@ -71,34 +91,6 @@ fun DriverStatusDialog(
                 }
             }
         },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.action_close))
-            }
-        },
+        confirmButton = {},
     )
-}
-
-@Composable
-private fun StatusRow(
-    label: String,
-    value: String,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
 }

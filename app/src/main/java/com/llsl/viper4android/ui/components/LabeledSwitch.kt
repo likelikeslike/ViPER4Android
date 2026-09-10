@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun LabeledSwitch(
@@ -25,7 +24,7 @@ fun LabeledSwitch(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = UiDimens.XSmall),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f)) {

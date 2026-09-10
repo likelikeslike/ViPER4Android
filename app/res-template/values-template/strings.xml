@@ -51,6 +51,7 @@
     <string name="dialog_value_range_unit">Range: %1$s \u2013 %2$s %3$s</string>
 
     <!-- Output / Master limiter -->
+    <string name="section_master_limiter">Master Limiter</string>
     <string name="label_output_volume">Output Gain</string>
     <string name="label_output_pan">Output Pan</string>
     <string name="label_output_limiter">Threshold Limit</string>
@@ -106,6 +107,7 @@
     <string name="label_dynamic_eq_target_gain">Target Gain</string>
     <string name="label_dynamic_eq_filter_type">Filter Type</string>
     <string name="dialog_delete_band">Delete Band</string>
+    <string name="dialog_delete_band_confirm">Remove %1$s Band?</string>
 
     <!-- Convolver -->
     <string name="section_convolver">Convolver</string>
@@ -220,6 +222,9 @@
     <string name="preset_load_confirm">Load "%1$s"? Current settings will be replaced.</string>
     <string name="preset_delete_title">Delete Preset</string>
     <string name="preset_delete_confirm">Delete "%1$s"? This cannot be undone.</string>
+    <string name="preset_tap_for_details">Tap for details</string>
+    <string name="preset_label_created">Created</string>
+    <string name="preset_label_updated">Last Updated</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Driver not found</string>
@@ -233,18 +238,33 @@
     <string name="status_unknown">Unknown</string>
 
     <!-- Settings -->
+    <string name="settings_general_section">General</string>
+    <string name="settings_files_section">Files</string>
+    <string name="settings_about_section">About</string>
     <string name="settings_auto_start">Auto-start on boot</string>
     <string name="settings_aidl_mode">AIDL mode</string>
     <string name="settings_global_mode">Global mode</string>
-    <string name="settings_driver_version">Driver version</string>
-    <string name="settings_driver_arch">Driver architecture</string>
-    <string name="settings_app_version">App version</string>
-    <string name="settings_files_section">Files</string>
+    <string name="settings_excluded_apps">Excluded apps</string>
     <string name="settings_import_preset">Import Preset</string>
     <string name="settings_import_kernel">Import Kernel</string>
     <string name="settings_import_vdc">Import VDC</string>
+    <string name="settings_auto_start_desc">Start audio service on boot</string>
+    <string name="settings_global_mode_desc">Apply effects globally</string>
+    <string name="settings_excluded_apps_desc">Skip audio session for selected apps</string>
+    <string name="settings_import_preset_desc">Load a .json preset file</string>
+    <string name="settings_import_kernel_desc">Convolver impulse response</string>
+    <string name="settings_import_vdc_desc">DDC calibration file</string>
+    <string name="settings_driver_version">Driver version</string>
+    <string name="settings_driver_arch">Driver architecture</string>
+    <string name="settings_app_version">App version</string>
     <string name="import_success">Imported successfully</string>
     <string name="import_failed">Import failed</string>
+
+    <!-- Excluded Apps -->
+    <string name="excluded_apps_title">Excluded Apps</string>
+    <string name="excluded_apps_search">Search apps</string>
+    <string name="excluded_apps_loading">Loading apps\u2026</string>
+    <string name="excluded_apps_show_system">Show system apps</string>
 
     <!-- Update -->
     <string name="update_checking">Checking for updates\u2026</string>
@@ -254,7 +274,7 @@
     <string name="update_new_version">New version: %1$s</string>
     <string name="update_latest_version">Latest version: %1$s</string>
     <string name="update_current_version">Current: %1$s</string>
-    <string name="update_download_install">Download &amp; Install</string>
+    <string name="update_download_install">Update</string>
     <string name="update_view_on_github">View on GitHub</string>
     <string name="update_downloading">Downloading\u2026 %1$d%%</string>
     <string name="update_no_apk_asset">No APK asset in this release</string>
@@ -293,8 +313,14 @@
     <!-- Debug -->
     <string name="debug_log_title">Debug Log</string>
     <string name="debug_mode_enabled">Debug mode enabled</string>
+    <string name="debug_already_enabled">Debug mode already enabled</string>
     <string name="debug_search_hint">Filter logs\u2026</string>
     <string name="debug_disable_debug">Disable Debug</string>
+    <string name="debug_export_title">Export logs</string>
+    <string name="debug_export_confirm">Save app and driver logs to external storage?\n\n%1$s\n%2$s</string>
+    <string name="debug_export_action">Export</string>
+    <string name="debug_export_done">Logs exported to %1$s</string>
+    <string name="debug_export_failed">Export failed</string>
 
     <!-- Debug filters -->
     <string name="debug_filter_all">All</string>

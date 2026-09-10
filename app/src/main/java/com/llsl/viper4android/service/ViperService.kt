@@ -87,6 +87,9 @@ class ViperService : LifecycleService() {
     private var lastUiState: EffectState? = null
     private var lastBulkDdcKey: String? = null
     private var lastBulkConvolverKey: String? = null
+
+    @Volatile
+    private var excludedApps: Set<String> = emptySet()
     private var bootMasterEnabled: Boolean = false
     private val masterEnabled: Boolean
         get() = stateProvider?.invoke()?.masterEnable ?: lastUiState?.masterEnable ?: bootMasterEnabled
@@ -99,6 +102,10 @@ class ViperService : LifecycleService() {
         super.onCreate()
         startForeground(NOTIFICATION_ID, buildNotification())
         FileLogger.i("Service", "Service created")
+        lifecycleScope.launch {
+            ensureConfigLoaded()
+            repository.getStringSetPreference(ViperRepository.PREF_EXCLUDED_APPS).collect { excludedApps = it }
+        }
         lifecycleScope.launch {
             ensureConfigLoaded()
             if (masterEnabled) {
@@ -355,6 +362,13 @@ class ViperService : LifecycleService() {
             FileLogger.d(
                 "Service",
                 "Global mode: skipping per-app session $sessionId ($packageName)",
+            )
+            return
+        }
+        if (packageName in excludedApps) {
+            FileLogger.i(
+                "Service",
+                "Excluded app: skipping session $sessionId ($packageName)",
             )
             return
         }

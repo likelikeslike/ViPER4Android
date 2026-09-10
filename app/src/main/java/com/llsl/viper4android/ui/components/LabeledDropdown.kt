@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -16,7 +15,6 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,7 +24,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.llsl.viper4android.R
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -50,7 +47,7 @@ fun LabeledDropdown(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
+                .padding(vertical = UiDimens.XSmall),
     ) {
         OutlinedTextField(
             value = selectedValue,
@@ -76,7 +73,7 @@ fun LabeledDropdown(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = 48.dp)
+                                .heightIn(min = UiDimens.SwitchSlotHeight)
                                 .combinedClickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = ripple(),
@@ -88,7 +85,7 @@ fun LabeledDropdown(
                                         deleteTarget = index to option
                                         expanded = false
                                     },
-                                ).padding(horizontal = 16.dp),
+                                ).padding(horizontal = UiDimens.Standard),
                         contentAlignment = Alignment.CenterStart,
                     ) { Text(option, style = MaterialTheme.typography.bodyLarge) }
                 } else {
@@ -105,19 +102,17 @@ fun LabeledDropdown(
     }
 
     deleteTarget?.let { (index, name) ->
-        AlertDialog(
-            onDismissRequest = { deleteTarget = null },
-            title = { Text(stringResource(R.string.delete_file_title)) },
-            text = { Text(stringResource(R.string.delete_file_message, name)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    onDeleteOption?.invoke(index, name)
-                    deleteTarget = null
-                }) { Text(stringResource(R.string.action_delete)) }
+        ConfirmDialog(
+            title = stringResource(R.string.delete_file_title),
+            body = stringResource(R.string.delete_file_message, name),
+            confirmLabel = stringResource(R.string.action_delete),
+            destructive = true,
+            onConfirm = {
+                onDeleteOption?.invoke(index, name)
+                deleteTarget = null
             },
-            dismissButton = {
-                TextButton(onClick = { deleteTarget = null }) { Text(stringResource(R.string.action_cancel)) }
-            },
+            onDismiss = { deleteTarget = null },
+            dismissLabel = stringResource(R.string.action_cancel),
         )
     }
 }

@@ -1,27 +1,24 @@
 package com.llsl.viper4android.ui.screens.preset
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -32,9 +29,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
 import com.llsl.viper4android.data.model.Preset
+import com.llsl.viper4android.ui.components.ConfirmDialog
+import com.llsl.viper4android.ui.components.DialogButtonRow
+import com.llsl.viper4android.ui.components.DialogCard
+import com.llsl.viper4android.ui.components.DialogEmptyState
+import com.llsl.viper4android.ui.components.DialogIconActionRow
+import com.llsl.viper4android.ui.components.DialogListCard
+import com.llsl.viper4android.ui.components.IconActionItem
+import com.llsl.viper4android.ui.components.InfoRow
+import com.llsl.viper4android.ui.components.InputDialog
+import com.llsl.viper4android.ui.components.NavRow
+import com.llsl.viper4android.ui.components.RowDivider
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun PresetDialog(
@@ -48,330 +59,248 @@ fun PresetDialog(
     onDismiss: () -> Unit,
 ) {
     var showSaveInput by remember { mutableStateOf(false) }
-    var saveInputName by remember { mutableStateOf("") }
     var renamingId by remember { mutableLongStateOf(-1L) }
-    var renameInputName by remember { mutableStateOf("") }
+    var renameInitialName by remember { mutableStateOf("") }
     var showClearAllConfirm by remember { mutableStateOf(false) }
-    var showUpdateConfirm by remember { mutableStateOf(false) }
-    var updateTargetPreset by remember { mutableStateOf<Preset?>(null) }
-    var showLoadConfirm by remember { mutableStateOf(false) }
-    var loadTargetPreset by remember { mutableStateOf<Preset?>(null) }
-    var showDeleteConfirm by remember { mutableStateOf(false) }
-    var deleteTargetPreset by remember { mutableStateOf<Preset?>(null) }
+    var updateTarget by remember { mutableStateOf<Preset?>(null) }
+    var loadTarget by remember { mutableStateOf<Preset?>(null) }
+    var deleteTarget by remember { mutableStateOf<Preset?>(null) }
+    var selectedPresetId by remember { mutableLongStateOf(-1L) }
+
+    val selectedPreset = presets.find { it.id == selectedPresetId }
 
     if (showSaveInput) {
-        AlertDialog(
-            onDismissRequest = { showSaveInput = false },
-            title = { Text(stringResource(R.string.preset_save_title)) },
-            text = {
-                OutlinedTextField(
-                    value = saveInputName,
-                    onValueChange = { saveInputName = it },
-                    label = { Text(stringResource(R.string.preset_name_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        InputDialog(
+            title = stringResource(R.string.preset_save_title),
+            initialValue = "",
+            confirmLabel = stringResource(R.string.action_save),
+            placeholder = stringResource(R.string.preset_name_hint),
+            onConfirm = { name ->
+                onSave(name)
+                showSaveInput = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (saveInputName.isNotBlank()) {
-                            onSave(saveInputName.trim())
-                            saveInputName = ""
-                            showSaveInput = false
-                        }
-                    },
-                    enabled = saveInputName.isNotBlank(),
-                ) {
-                    Text(stringResource(R.string.action_save))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showSaveInput = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { showSaveInput = false },
         )
-        return
     }
 
     if (renamingId >= 0) {
-        AlertDialog(
-            onDismissRequest = { renamingId = -1L },
-            title = { Text(stringResource(R.string.preset_rename_title)) },
-            text = {
-                OutlinedTextField(
-                    value = renameInputName,
-                    onValueChange = { renameInputName = it },
-                    label = { Text(stringResource(R.string.preset_name_hint)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+        InputDialog(
+            title = stringResource(R.string.preset_rename_title),
+            initialValue = renameInitialName,
+            confirmLabel = stringResource(R.string.action_rename),
+            onConfirm = { name ->
+                onRename(renamingId, name)
+                renamingId = -1L
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (renameInputName.isNotBlank()) {
-                            onRename(renamingId, renameInputName.trim())
-                            renamingId = -1L
-                        }
-                    },
-                    enabled = renameInputName.isNotBlank(),
-                ) {
-                    Text(stringResource(R.string.action_rename))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { renamingId = -1L }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { renamingId = -1L },
         )
-        return
     }
 
     if (showClearAllConfirm) {
-        AlertDialog(
-            onDismissRequest = { showClearAllConfirm = false },
-            title = { Text(stringResource(R.string.preset_clear_all_title)) },
-            text = {
-                Text(stringResource(R.string.preset_clear_all_confirm, presets.size))
+        ConfirmDialog(
+            title = stringResource(R.string.preset_clear_all_title),
+            body = stringResource(R.string.preset_clear_all_confirm, presets.size),
+            confirmLabel = stringResource(R.string.preset_clear_all),
+            destructive = true,
+            onConfirm = {
+                onClearAll()
+                showClearAllConfirm = false
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onClearAll()
-                        showClearAllConfirm = false
-                    },
-                    colors =
-                        ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) {
-                    Text(stringResource(R.string.preset_clear_all))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearAllConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { showClearAllConfirm = false },
         )
-        return
     }
 
-    if (showUpdateConfirm && updateTargetPreset != null) {
-        val target = updateTargetPreset!!
-        AlertDialog(
-            onDismissRequest = { showUpdateConfirm = false },
-            title = { Text(stringResource(R.string.preset_update_title)) },
-            text = {
-                Text(stringResource(R.string.preset_update_confirm, target.name))
+    updateTarget?.let { target ->
+        ConfirmDialog(
+            title = stringResource(R.string.preset_update_title),
+            body = stringResource(R.string.preset_update_confirm, target.name),
+            confirmLabel = stringResource(R.string.action_update),
+            onConfirm = {
+                onUpdate(target.id)
+                updateTarget = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onUpdate(target.id)
-                        showUpdateConfirm = false
-                    },
-                    colors =
-                        ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) {
-                    Text(stringResource(R.string.action_update))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showUpdateConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { updateTarget = null },
         )
-        return
     }
 
-    if (showLoadConfirm && loadTargetPreset != null) {
-        val target = loadTargetPreset!!
-        AlertDialog(
-            onDismissRequest = { showLoadConfirm = false },
-            title = { Text(stringResource(R.string.preset_load_title)) },
-            text = {
-                Text(stringResource(R.string.preset_load_confirm, target.name))
+    loadTarget?.let { target ->
+        ConfirmDialog(
+            title = stringResource(R.string.preset_load_title),
+            body = stringResource(R.string.preset_load_confirm, target.name),
+            confirmLabel = stringResource(R.string.action_load),
+            onConfirm = {
+                onLoad(target.id)
+                loadTarget = null
             },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onLoad(target.id)
-                        showLoadConfirm = false
-                    },
-                ) {
-                    Text(stringResource(R.string.action_load))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showLoadConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { loadTarget = null },
         )
-        return
     }
 
-    if (showDeleteConfirm && deleteTargetPreset != null) {
-        val target = deleteTargetPreset!!
-        AlertDialog(
-            onDismissRequest = { showDeleteConfirm = false },
-            title = { Text(stringResource(R.string.preset_delete_title)) },
-            text = {
-                Text(stringResource(R.string.preset_delete_confirm, target.name))
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDelete(target.id)
-                        showDeleteConfirm = false
-                    },
-                    colors =
-                        ButtonDefaults.textButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error,
-                        ),
-                ) {
-                    Text(stringResource(R.string.action_delete))
+    deleteTarget?.let { target ->
+        ConfirmDialog(
+            title = stringResource(R.string.preset_delete_title),
+            body = stringResource(R.string.preset_delete_confirm, target.name),
+            confirmLabel = stringResource(R.string.action_delete),
+            destructive = true,
+            onConfirm = {
+                onDelete(target.id)
+                if (selectedPresetId == target.id) {
+                    selectedPresetId = -1L
                 }
+                deleteTarget = null
             },
-            dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) {
-                    Text(stringResource(R.string.action_cancel))
-                }
-            },
+            onDismiss = { deleteTarget = null },
         )
-        return
     }
 
     AlertDialog(
-        onDismissRequest = {
-            onDismiss()
-        },
-        title = { Text(stringResource(R.string.menu_presets)) },
-        text = {
-            Column {
-                if (presets.isEmpty()) {
+        modifier = Modifier.fillMaxWidth(0.9f),
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = onDismiss,
+        title = {
+            if (selectedPreset != null) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    IconButton(onClick = { selectedPresetId = -1L }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
                     Text(
-                        text = stringResource(R.string.preset_empty),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = selectedPreset.name,
+                        style = MaterialTheme.typography.headlineSmall,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
+                    IconButton(onClick = {
+                        renameInitialName = selectedPreset.name
+                        renamingId = selectedPreset.id
+                    }) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = stringResource(R.string.action_rename),
+                        )
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(stringResource(R.string.menu_presets))
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = stringResource(R.string.action_close),
+                        )
+                    }
+                }
+            }
+        },
+        text = {
+            if (selectedPreset != null) {
+                PresetDetailView(
+                    preset = selectedPreset,
+                    onLoad = { loadTarget = selectedPreset },
+                    onUpdate = { updateTarget = selectedPreset },
+                    onDelete = { deleteTarget = selectedPreset },
+                )
+            } else {
+                if (presets.isEmpty()) {
+                    DialogEmptyState(text = stringResource(R.string.preset_empty))
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.heightIn(max = 300.dp),
-                    ) {
+                    DialogListCard {
                         items(presets, key = { it.id }) { preset ->
-                            PresetItem(
+                            PresetRow(
                                 preset = preset,
-                                onLoad = {
-                                    loadTargetPreset = preset
-                                    showLoadConfirm = true
-                                },
-                                onDelete = {
-                                    deleteTargetPreset = preset
-                                    showDeleteConfirm = true
-                                },
-                                onRename = {
-                                    renameInputName = preset.name
-                                    renamingId = preset.id
-                                },
-                                onUpdate = {
-                                    updateTargetPreset = preset
-                                    showUpdateConfirm = true
-                                },
+                                onSelect = { selectedPresetId = preset.id },
                             )
-                            HorizontalDivider()
+                            if (preset.id != presets.last().id) {
+                                RowDivider()
+                            }
                         }
                     }
                 }
             }
         },
         confirmButton = {
-            TextButton(onClick = {
-                showSaveInput = true
-                saveInputName = ""
-            }) {
-                Text(stringResource(R.string.preset_save_current))
-            }
-        },
-        dismissButton = {
-            Row {
-                if (presets.isNotEmpty()) {
-                    TextButton(
-                        onClick = {
-                            showClearAllConfirm = true
-                        },
+            if (selectedPreset == null) {
+                DialogButtonRow {
+                    OutlinedButton(
+                        onClick = { showClearAllConfirm = true },
+                        modifier = Modifier.weight(1f),
+                        enabled = presets.isNotEmpty(),
                         colors =
-                            ButtonDefaults.textButtonColors(
+                            ButtonDefaults.outlinedButtonColors(
                                 contentColor = MaterialTheme.colorScheme.error,
                             ),
                     ) {
                         Text(stringResource(R.string.preset_clear_all))
                     }
-                }
-                TextButton(onClick = {
-                    onDismiss()
-                }) {
-                    Text(stringResource(R.string.action_close))
+                    Button(
+                        onClick = { showSaveInput = true },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(stringResource(R.string.preset_save_current))
+                    }
                 }
             }
         },
+        dismissButton = {},
     )
 }
 
 @Composable
-private fun PresetItem(
+private fun PresetRow(
+    preset: Preset,
+    onSelect: () -> Unit,
+) {
+    NavRow(
+        label = preset.name,
+        subtitle = stringResource(R.string.preset_tap_for_details),
+        onClick = onSelect,
+    )
+}
+
+@Composable
+private fun PresetDetailView(
     preset: Preset,
     onLoad: () -> Unit,
-    onDelete: () -> Unit,
-    onRename: () -> Unit,
     onUpdate: () -> Unit,
+    onDelete: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onLoad)
-                .padding(vertical = 8.dp, horizontal = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = preset.name,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+    val formatter = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
+
+    DialogCard {
+        InfoRow(
+            label = stringResource(R.string.preset_label_created),
+            value = formatter.format(Date(preset.createdAt)),
+        )
+        RowDivider()
+        InfoRow(
+            label = stringResource(R.string.preset_label_updated),
+            value = formatter.format(Date(preset.updatedAt)),
+        )
+        RowDivider()
+        DialogIconActionRow {
+            IconActionItem(
+                icon = Icons.Default.SettingsBackupRestore,
+                label = stringResource(R.string.action_load),
+                onClick = onLoad,
             )
-        }
-        Row {
-            IconButton(onClick = onRename) {
-                Icon(
-                    Icons.Default.Edit,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            IconButton(onClick = onUpdate) {
-                Icon(
-                    Icons.Default.Sync,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
+            IconActionItem(
+                icon = Icons.Default.Sync,
+                label = stringResource(R.string.action_update),
+                onClick = onUpdate,
+            )
+            IconActionItem(
+                icon = Icons.Default.Delete,
+                label = stringResource(R.string.action_delete),
+                onClick = onDelete,
+                tint = MaterialTheme.colorScheme.error,
+            )
         }
     }
 }
