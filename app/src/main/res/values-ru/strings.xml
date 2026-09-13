@@ -221,10 +221,10 @@
     <string name="driver_version_code">Код версии</string>
     <string name="driver_version_name">Версия</string>
     <string name="driver_architecture">Архитектура</string>
-    <string name="driver_streaming">Потоковая передача</string>
+    <string name="driver_streaming">Аудиопоток</string>
     <string name="driver_sampling_rate">Частота дискретизации</string>
-    <string name="status_active">Активна</string>
-    <string name="status_inactive">Неактивна</string>
+    <string name="status_active">Активен</string>
+    <string name="status_inactive">Неактивен</string>
     <string name="status_unknown">Неизвестно</string>
 
     <!-- Settings -->
