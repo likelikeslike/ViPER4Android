@@ -118,11 +118,13 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 
 ## Presets
 
-Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2`):
+Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2.1`):
+
+> v2.1 stores the raw semantic values that send to the DSP
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 2.1,
   "name": "My Preset",
   "equalizer": { "enable": true, "bandCount": 10, "bands": [3.0, 2.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 2.0, 3.0], "presetId": null },
   "dynamicEq": { "enable": false, "bandCount": 4, "freqs": [...], "gains": [...] },
@@ -130,7 +132,7 @@ Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2`):
 }
 ```
 
-### Migrating v1 / legacy presets to v2
+### Migrating v1 / legacy presets to v2 and v2.1
 
 v2 is **not** compatible with the old flat v1 JSON or the legacy ViPER4Android XML presets. Two migration paths are available:
 
@@ -138,15 +140,16 @@ v2 is **not** compatible with the old flat v1 JSON or the legacy ViPER4Android X
 2. **Command-line tool.** For v1 JSON or legacy XML presets, use [`tools/convert_preset.py`](tools/convert_preset.py) (Python 3.11+):
 
     ```bash
-    # v1 flat JSON  ->  v2
-    python3 tools/convert_preset.py preset.json -o preset.v2.json
-
-    # legacy ViPER4Android XML  ->  v2
-    python3 tools/convert_preset.py preset.xml -o preset.v2.json
+    # v1 flat JSON  ->  v2.1
+    python3 tools/convert_preset.py preset.json --to 2.1 -o preset.v2.json
+    # legacy ViPER4Android XML  ->  v2.1
+    python3 tools/convert_preset.py preset.xml --to 2.1 -o preset.v2.json
+   # v2 -> v2.1
+    python3 tools/convert_preset.py preset.v2.json -o preset.v2_1.json
     ```
 
 The input format (v1 JSON vs. XML) and, for v1 JSON, the headphone/speaker namespace are auto-detected.
-Missing fields are filled with the app defaults. Import the resulting `.v2.json` in the app.
+Missing fields are filled with the app defaults. Import the resulting `.v2.1.json` in the app.
 
 > [!NOTE]
 > v2 no longer stores separate headphone and speaker copies inside a preset. A preset now holds a
@@ -187,9 +190,7 @@ profile. Deleting a profile removes its saved settings, the device gets a fresh 
 
 This app may require root access for:
 
-- **AIDL mode**: Creating shared memory files for the AIDL driver (if not set up during module installation)
 - **Per-App Mode**: Retrieving real audio session IDs via `dumpsys` (not needed when installed as a privileged system app; see Per-App Mode in the Q&A)
-- **Convolver**: Copying IRS/WAV files to `/data/local/tmp/v4a/` for the driver to read (AIDL only)
 - **Debug log viewer**: Reading `logcat` for driver diagnostics
 
 Please make sure the source of any modified APK is trustworthy to avoid any security risks.
