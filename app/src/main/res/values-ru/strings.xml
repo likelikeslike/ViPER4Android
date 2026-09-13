@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">ViPER4Android</string>
-    <string name="notification_channel_name">Обработка аудио</string>
-    <string name="notification_channel_description">Показывать уведомление когда ViPER4Android обрабатывает аудио</string>
+    <string name="notification_channel_name">Обработка аудиопотока</string>
+    <string name="notification_channel_description">Показывать уведомление когда ViPER4Android обрабатывает аудиопоток</string>
     <string name="notification_title">ViPER4Android</string>
-    <string name="notification_text">Обработка аудио активна</string>
+    <string name="notification_text">Обработка аудиопотока активна</string>
     <string name="notification_bulk_op_channel_name">Групповые операции</string>
     <string name="notification_bulk_op_channel_description">Прогресс выполнения групповых операций</string>
-    <string name="qs_tile_master_label">Обработка аудио V4A</string>
+    <string name="qs_tile_master_label">Обработка аудиопотока V4A</string>
 
     <!-- Master -->
     <string name="master_enable">Мастер-лимитер включён</string>
