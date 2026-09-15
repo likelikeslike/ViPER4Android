@@ -104,8 +104,17 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
     > This is done for you when the app ships inside a ROM or a Magisk module that mounts it
     > systemlessly. Without the allowlist entry the permission is silently **denied**
     > (with `ro.control_privapp_permissions=enforce`, the default), and the app falls back to the
-    > root path. No platform signature is required — priv-app placement satisfies the `privileged`
+    > root path. No platform signature is required, priv-app placement satisfies the `privileged`
     > half of the `signature|privileged` protection level.
+    >
+    > Note that you may need allow the following SElinux rules for the app (as system app) to work:
+    >
+    > ```sh
+    > allow priv_app servicemanager service_manager list
+    > allow priv_app viper_control_service service_manager find
+    > allow priv_app default_android_service service_manager find
+    > allow priv_app hal_audio_default binder { call transfer }
+    > ```
 
 - **What is Per-Device Profile?**
 
@@ -144,7 +153,7 @@ v2 is **not** compatible with the old flat v1 JSON or the legacy ViPER4Android X
     python3 tools/convert_preset.py preset.json --to 2.1 -o preset.v2.json
     # legacy ViPER4Android XML  ->  v2.1
     python3 tools/convert_preset.py preset.xml --to 2.1 -o preset.v2.json
-   # v2 -> v2.1
+    # v2 -> v2.1
     python3 tools/convert_preset.py preset.v2.json -o preset.v2_1.json
     ```
 
@@ -190,7 +199,7 @@ profile. Deleting a profile removes its saved settings, the device gets a fresh 
 
 This app may require root access for:
 
-- **Per-App Mode**: Retrieving real audio session IDs via `dumpsys` (not needed when installed as a privileged system app; see Per-App Mode in the Q&A)
+- **Per-App Mode**: Retrieving real audio session IDs via `dumpsys` (not needed when installed as a privileged system app, see Per-App Mode in the Q&A)
 - **Debug log viewer**: Reading `logcat` for driver diagnostics
 
 Please make sure the source of any modified APK is trustworthy to avoid any security risks.
