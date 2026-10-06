@@ -149,7 +149,7 @@ data class DynamicSystemState(
     val yHigh: Int = 0,
     val sideGainLow: Float = 0.5f,
     val sideGainHigh: Float = 0.5f,
-    val strength: Float = 1.0f,
+    val strength: Float = 0.5f,
     val device: Int = 0,
     val presetId: Long? = null,
     val presets: List<DsPreset> = emptyList(),

@@ -984,10 +984,10 @@ class DynamicSystemEffect : EffectGroupBuilder("dynamicSystem") {
         float(
             ViperParams.PARAM_DYNAMIC_SYSTEM_STRENGTH,
             "strength",
-            1.0f,
+            0.5f,
             { it.dynamicSystem.strength },
             { copy(dynamicSystem = dynamicSystem.copy(strength = it)) },
-            range = 1.0f..8.0f,
+            range = 0.0f..1.0f,
         )
     val xLow =
         int(

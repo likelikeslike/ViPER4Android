@@ -1320,7 +1320,7 @@ _FLOAT_SCALAR_CONV: dict[tuple[str, str], Any] = {
     ("reverb", "dry"): _div100,
     ("dynamicSystem", "sideGainLow"): _div100,
     ("dynamicSystem", "sideGainHigh"): _div100,
-    ("dynamicSystem", "strength"): lambda v: 1.0 + v / 100.0 * 20.0,
+    ("dynamicSystem", "strength"): _div100,
     ("psychoacousticBass", "intensity"): _div100,
     ("psychoacousticBass", "originalLevel"): _div100,
     ("bass", "gain"): _div100,
