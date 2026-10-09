@@ -145,7 +145,13 @@
     <string name="label_dynamic_system_side_gain_high">高频侧边增益</string>
 
     <!-- Tube Simulator -->
-    <string name="section_tube_simulator">电子管模拟器 (6N1J)</string>
+    <string name="section_tube_simulator">电子管模拟器</string>
+    <string name="label_tube_model">Tube Model</string>
+    <string name="label_tube_model_12ax7">12AX7</string>
+    <string name="label_tube_model_12au7">12AU7</string>
+    <string name="label_tube_model_6n1p">6N1P</string>
+    <string name="label_tube_drive">Drive</string>
+    <string name="label_tube_mix">Wet/Dry Mix</string>
 
     <!-- Psychoacoustic Bass -->
     <string name="section_psycho_bass">虚拟低音</string>

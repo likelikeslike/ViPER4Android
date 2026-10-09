@@ -900,6 +900,12 @@ class MainViewModel
 
         fun setTubeSimulatorEnabled(enabled: Boolean) {
             applyPref(Effects.tubeSimulator.enable, enabled)
+            if (enabled) {
+                val v = uiState.value.tubeSimulator
+                applyPref(Effects.tubeSimulator.model, v.model)
+                applyPref(Effects.tubeSimulator.drive, v.drive)
+                applyPref(Effects.tubeSimulator.mix, v.mix)
+            }
         }
 
         fun setPsychoacousticBassEnabled(enabled: Boolean) {

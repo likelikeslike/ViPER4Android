@@ -2119,6 +2119,15 @@ fun TubeSimulatorSection(
 ) {
     val vals = state.tubeSimulator
     val enabled = vals.enable
+    val model = vals.model
+    val drive = vals.drive
+    val mix = vals.mix
+    val modelOptions =
+        listOf(
+            stringResource(R.string.label_tube_model_12ax7),
+            stringResource(R.string.label_tube_model_12au7),
+            stringResource(R.string.label_tube_model_6n1p),
+        )
 
     EffectSection(
         title = stringResource(R.string.section_tube_simulator),
@@ -2126,8 +2135,44 @@ fun TubeSimulatorSection(
         onEnabledChange = viewModel::setTubeSimulatorEnabled,
         descriptionRes = R.string.effect_desc_tube_simulator,
         icon = Icons.Default.MusicNote,
-        toggleOnly = true,
-    ) {}
+    ) {
+        LabeledDropdown(
+            label = stringResource(R.string.label_tube_model),
+            selectedValue = modelOptions.getOrElse(model) { modelOptions.first() },
+            options = modelOptions,
+            onOptionSelected = { index, _ -> viewModel.applyPref(Effects.tubeSimulator.model, index) },
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_tube_drive),
+            value = drive,
+            onValueChange = { viewModel.applyPref(Effects.tubeSimulator.drive, it) },
+            valueRange = 0.0f..1.0f,
+            valueLabel = String.format(Locale.US, "%.0f%%", drive * 100.0f),
+            edit =
+                SliderEdit(
+                    displayValue = (drive * 100.0f).toDouble(),
+                    displayRange = 0.0..100.0,
+                    decimals = 0,
+                    unit = "%",
+                    onCommit = { viewModel.applyPref(Effects.tubeSimulator.drive, (it / 100.0).toFloat().coerceIn(0.0f, 1.0f)) },
+                ),
+        )
+        LabeledSlider(
+            label = stringResource(R.string.label_tube_mix),
+            value = mix,
+            onValueChange = { viewModel.applyPref(Effects.tubeSimulator.mix, it) },
+            valueRange = 0.0f..1.0f,
+            valueLabel = String.format(Locale.US, "%.0f%%", mix * 100.0f),
+            edit =
+                SliderEdit(
+                    displayValue = (mix * 100.0f).toDouble(),
+                    displayRange = 0.0..100.0,
+                    decimals = 0,
+                    unit = "%",
+                    onCommit = { viewModel.applyPref(Effects.tubeSimulator.mix, (it / 100.0).toFloat().coerceIn(0.0f, 1.0f)) },
+                ),
+        )
+    }
 }
 
 @Composable

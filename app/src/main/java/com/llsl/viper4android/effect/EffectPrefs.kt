@@ -338,7 +338,7 @@ suspend fun loadEffectStateFromPrefs(
                 }
 
                 is FloatPref -> {
-                    pref.set(s, repository.getFloatPreference(pref.prefKey, pref.defaultValue).first())
+                    pref.set(s, pref.clamp(repository.getFloatPreference(pref.prefKey, pref.defaultValue).first()))
                 }
 
                 is BoolPref -> {
