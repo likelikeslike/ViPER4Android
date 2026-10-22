@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.llsl.viper4android.audio.AudioDevice
 import com.llsl.viper4android.data.dao.DeviceSettingsDao
 import com.llsl.viper4android.data.dao.DsPresetDao
 import com.llsl.viper4android.data.dao.EqPresetDao
@@ -17,6 +18,8 @@ import com.llsl.viper4android.data.model.DeviceSettings
 import com.llsl.viper4android.data.model.DsPreset
 import com.llsl.viper4android.data.model.EqPreset
 import com.llsl.viper4android.data.model.Preset
+import com.llsl.viper4android.effect.EffectState
+import com.llsl.viper4android.effect.serializeEffectPrefs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
@@ -71,6 +74,17 @@ class ViperRepository
         suspend fun getDeviceSettings(deviceId: String): DeviceSettings? = deviceSettingsDao.getByDeviceId(deviceId)
 
         suspend fun saveDeviceSettings(settings: DeviceSettings) = deviceSettingsDao.upsert(settings)
+
+        suspend fun getOrCreateDeviceSettings(device: AudioDevice): DeviceSettings =
+            deviceSettingsDao.getOrInsert(
+                DeviceSettings(
+                    deviceId = device.id,
+                    deviceName = device.name,
+                    isHeadphone = device.isHeadphone,
+                    settingsJson = serializeEffectPrefs(EffectState()).toString(),
+                    deviceType = device.type,
+                ),
+            )
 
         suspend fun renameDevice(
             deviceId: String,

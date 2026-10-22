@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.llsl.viper4android.data.model.DeviceSettings
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,15 @@ interface DeviceSettingsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(settings: DeviceSettings)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertIfAbsent(settings: DeviceSettings)
+
+    @Transaction
+    suspend fun getOrInsert(settings: DeviceSettings): DeviceSettings {
+        insertIfAbsent(settings)
+        return checkNotNull(getByDeviceId(settings.deviceId))
+    }
 
     @Query("UPDATE device_settings SET device_name = :name WHERE device_id = :deviceId")
     suspend fun rename(
