@@ -79,8 +79,11 @@ class ViperRepository
 
         suspend fun deleteDeviceSettings(deviceId: String) = deviceSettingsDao.deleteByDeviceId(deviceId)
 
-        suspend fun updateDeviceLastConnected(deviceId: String) =
-            deviceSettingsDao.updateLastConnected(deviceId, System.currentTimeMillis())
+        suspend fun updateDeviceConnection(
+            deviceId: String,
+            deviceType: Int,
+            isHeadphone: Boolean,
+        ) = deviceSettingsDao.updateConnection(deviceId, deviceType, isHeadphone, System.currentTimeMillis())
 
         fun getBooleanPreference(
             key: String,

@@ -292,6 +292,9 @@
     <string name="device_type_bluetooth">Bluetooth</string>
     <string name="device_type_wired">Wired Headphone</string>
     <string name="device_type_speaker">Speaker</string>
+    <string name="device_type_usb">USB Audio</string>
+    <string name="device_type_android_auto">Android Auto</string>
+    <string name="device_type_unknown">Unknown</string>
     <string name="device_mode_headphone">Headphone</string>
     <string name="device_mode_speaker">Speaker</string>
     <string name="device_label_type">Type</string>

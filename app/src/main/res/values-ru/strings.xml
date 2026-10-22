@@ -282,6 +282,9 @@
     <string name="device_type_bluetooth">Bluetooth</string>
     <string name="device_type_wired">Проводные наушники</string>
     <string name="device_type_speaker">Динамик</string>
+    <string name="device_type_usb">USB-аудио</string>
+    <string name="device_type_android_auto">Android Auto</string>
+    <string name="device_type_unknown">Неизвестно</string>
     <string name="device_mode_headphone">Наушники</string>
     <string name="device_mode_speaker">Динамик</string>
     <string name="device_label_type">Тип</string>

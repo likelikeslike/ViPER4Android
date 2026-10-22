@@ -27,9 +27,14 @@ interface DeviceSettingsDao {
     @Query("DELETE FROM device_settings WHERE device_id = :deviceId")
     suspend fun deleteByDeviceId(deviceId: String)
 
-    @Query("UPDATE device_settings SET last_connected = :time WHERE device_id = :deviceId")
-    suspend fun updateLastConnected(
+    @Query(
+        "UPDATE device_settings SET device_type = :deviceType, is_headphone = :isHeadphone, " +
+            "last_connected = :time WHERE device_id = :deviceId",
+    )
+    suspend fun updateConnection(
         deviceId: String,
+        deviceType: Int,
+        isHeadphone: Boolean,
         time: Long,
     )
 }

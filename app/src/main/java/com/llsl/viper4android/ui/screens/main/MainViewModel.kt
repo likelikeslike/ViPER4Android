@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.media.AudioDeviceInfo
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -981,10 +982,11 @@ class MainViewModel
                         deviceName = device.name,
                         isHeadphone = device.isHeadphone,
                         settingsJson = serializeEffectPrefs(state).toString(),
+                        deviceType = device.type,
                     ),
                 )
             } else {
-                repository.updateDeviceLastConnected(device.id)
+                repository.updateDeviceConnection(device.id, device.type, device.isHeadphone)
             }
         }
 
@@ -993,12 +995,14 @@ class MainViewModel
             val deviceId = state.activeDeviceId.ifEmpty { return }
             val json = serializeEffectPrefs(state).toString()
             val existing = repository.getDeviceSettings(deviceId)
+            val device = audioOutputDetector.activeDevice.value.takeIf { it.id == deviceId }
             repository.saveDeviceSettings(
                 DeviceSettings(
                     deviceId = deviceId,
                     deviceName = existing?.deviceName ?: state.activeDeviceName,
-                    isHeadphone = existing?.isHeadphone ?: false,
+                    isHeadphone = device?.isHeadphone ?: existing?.isHeadphone ?: false,
                     settingsJson = json,
+                    deviceType = device?.type ?: existing?.deviceType ?: AudioDeviceInfo.TYPE_UNKNOWN,
                 ),
             )
         }

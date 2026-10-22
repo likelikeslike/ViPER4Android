@@ -282,6 +282,9 @@
     <string name="device_type_bluetooth">蓝牙</string>
     <string name="device_type_wired">有线耳机</string>
     <string name="device_type_speaker">扬声器</string>
+    <string name="device_type_usb">USB 音频</string>
+    <string name="device_type_android_auto">Android Auto</string>
+    <string name="device_type_unknown">未知</string>
     <string name="device_mode_headphone">耳机</string>
     <string name="device_mode_speaker">扬声器</string>
     <string name="device_label_type">类型</string>
