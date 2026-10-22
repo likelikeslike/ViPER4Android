@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.SettingsBackupRestore
 import androidx.compose.material.icons.filled.Sync
@@ -55,6 +56,7 @@ fun PresetDialog(
     onDelete: (Long) -> Unit,
     onRename: (Long, String) -> Unit,
     onUpdate: (Long) -> Unit,
+    onExport: (Preset) -> Unit,
     onClearAll: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -205,6 +207,7 @@ fun PresetDialog(
                     preset = selectedPreset,
                     onLoad = { loadTarget = selectedPreset },
                     onUpdate = { updateTarget = selectedPreset },
+                    onExport = { onExport(selectedPreset) },
                     onDelete = { deleteTarget = selectedPreset },
                 )
             } else {
@@ -269,6 +272,7 @@ private fun PresetDetailView(
     preset: Preset,
     onLoad: () -> Unit,
     onUpdate: () -> Unit,
+    onExport: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val formatter = remember { SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()) }
@@ -289,16 +293,25 @@ private fun PresetDetailView(
                 icon = Icons.Default.SettingsBackupRestore,
                 label = stringResource(R.string.action_load),
                 onClick = onLoad,
+                modifier = Modifier.weight(1f),
             )
             IconActionItem(
                 icon = Icons.Default.Sync,
                 label = stringResource(R.string.action_update),
                 onClick = onUpdate,
+                modifier = Modifier.weight(1f),
+            )
+            IconActionItem(
+                icon = Icons.Default.Download,
+                label = stringResource(R.string.action_export),
+                onClick = onExport,
+                modifier = Modifier.weight(1f),
             )
             IconActionItem(
                 icon = Icons.Default.Delete,
                 label = stringResource(R.string.action_delete),
                 onClick = onDelete,
+                modifier = Modifier.weight(1f),
                 tint = MaterialTheme.colorScheme.error,
             )
         }

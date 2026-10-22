@@ -1,5 +1,6 @@
 package com.llsl.viper4android.ui.screens.main
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -38,8 +39,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -88,6 +91,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val excludedApps by viewModel.excludedApps.collectAsStateWithLifecycle()
 
     var showPresetDialog by remember { mutableStateOf(false) }
+    var presetExportId by rememberSaveable { mutableLongStateOf(-1L) }
     var showDriverStatusDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showDebugLog by remember { mutableStateOf(false) }
@@ -106,6 +110,21 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     val clearAllProgressStr = stringResource(R.string.preset_clear_all_progress)
     val clearedStr = stringResource(R.string.preset_cleared)
+    val presetExportedStr = stringResource(R.string.preset_exported)
+    val presetExportFailedStr = stringResource(R.string.preset_export_failed)
+    val exportPresetLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/json"),
+        ) { uri ->
+            val presetId = presetExportId
+            presetExportId = -1L
+            if (uri != null) {
+                viewModel.exportPreset(presetId, uri) { success ->
+                    val message = if (success) presetExportedStr else presetExportFailedStr
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
 
     if (showExcludedAppsDialog) {
         ExcludedAppsDialog(
@@ -127,6 +146,22 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             onDelete = viewModel::deletePreset,
             onRename = viewModel::renamePreset,
             onUpdate = viewModel::updatePreset,
+            onExport = { preset ->
+                val baseName =
+                    preset.name
+                        .replace(Regex("""[\\/:*?"<>|\p{Cntrl}]"""), "_")
+                        .trim()
+                        .ifEmpty { "preset" }
+                val fileName =
+                    if (baseName.endsWith(".json", ignoreCase = true)) baseName else "$baseName.json"
+                presetExportId = preset.id
+                try {
+                    exportPresetLauncher.launch(fileName)
+                } catch (_: ActivityNotFoundException) {
+                    presetExportId = -1L
+                    Toast.makeText(context, presetExportFailedStr, Toast.LENGTH_SHORT).show()
+                }
+            },
             onClearAll = {
                 viewModel.clearAllPresets(
                     notificationTitle = clearAllProgressStr,

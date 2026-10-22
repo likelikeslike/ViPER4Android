@@ -127,6 +127,8 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 
 ## Presets
 
+To export a saved preset, open **Presets**, select it, and tap **Export**. Choose a folder and filename in Android's system file picker. The exported .json file can be imported through **Settings > Import Preset**.
+
 Presets are stored in the **v2 grouped-JSON format** (`schemaVersion: 2.1`):
 
 > v2.1 stores the raw semantic values that send to the DSP

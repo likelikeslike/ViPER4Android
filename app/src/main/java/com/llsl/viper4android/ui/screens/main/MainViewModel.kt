@@ -52,6 +52,7 @@ import com.llsl.viper4android.utils.UpdateChecker
 import com.llsl.viper4android.utils.UpdateResult
 import com.llsl.viper4android.viper.ParamValue
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -1411,6 +1412,38 @@ class MainViewModel
                 } catch (e: Exception) {
                     FileLogger.e("ViewModel", "savePreset: failed for name=$name", e)
                 }
+            }
+        }
+
+        fun exportPreset(
+            id: Long,
+            uri: Uri,
+            onResult: (Boolean) -> Unit,
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val success =
+                    try {
+                        val preset =
+                            repository.getPresetById(id)
+                                ?: error("Preset $id no longer exists")
+                        val json =
+                            JSONObject(preset.settingsJson)
+                                .put("name", preset.name)
+                                .put("createdAt", preset.createdAt)
+                                .put("updatedAt", preset.updatedAt)
+                                .toString(2)
+                        val output =
+                            getApplication<Application>().contentResolver.openOutputStream(uri, "wt")
+                                ?: error("Unable to open preset export destination")
+                        output.bufferedWriter(Charsets.UTF_8).use { it.write(json) }
+                        true
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        FileLogger.e("ViewModel", "Failed to export preset $id", e)
+                        false
+                    }
+                withContext(Dispatchers.Main) { onResult(success) }
             }
         }
 

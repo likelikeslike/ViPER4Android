@@ -221,6 +221,8 @@
     <string name="preset_tap_for_details">点击查看详情</string>
     <string name="preset_label_created">已创建</string>
     <string name="preset_label_updated">最后更新</string>
+    <string name="preset_exported">预设已导出</string>
+    <string name="preset_export_failed">导出预设失败</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">未找到驱动</string>
@@ -296,6 +298,7 @@
 
     <!-- Actions -->
     <string name="action_save">保存</string>
+    <string name="action_export">导出</string>
     <string name="action_cancel">取消</string>
     <string name="action_close">关闭</string>
     <string name="action_rename">重命名</string>

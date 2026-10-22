@@ -231,6 +231,8 @@
     <string name="preset_tap_for_details">Tap for details</string>
     <string name="preset_label_created">Created</string>
     <string name="preset_label_updated">Last Updated</string>
+    <string name="preset_exported">Preset exported</string>
+    <string name="preset_export_failed">Failed to export preset</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Driver not found</string>
@@ -307,6 +309,7 @@
 
     <!-- Actions -->
     <string name="action_save">Save</string>
+    <string name="action_export">Export</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_close">Close</string>
     <string name="action_rename">Rename</string>

@@ -221,6 +221,8 @@
     <string name="preset_tap_for_details">Подробнее</string>
     <string name="preset_label_created">Создан</string>
     <string name="preset_label_updated">Последнее обновление</string>
+    <string name="preset_exported">Пресет экспортирован</string>
+    <string name="preset_export_failed">Не удалось экспортировать пресет</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Драйвер не найден</string>
@@ -296,6 +298,7 @@
 
     <!-- Actions -->
     <string name="action_save">Сохранить</string>
+    <string name="action_export">Экспорт</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_close">Закрыть</string>
     <string name="action_rename">Переименовать</string>
