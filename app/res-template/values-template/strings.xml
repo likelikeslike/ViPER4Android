@@ -317,6 +317,15 @@
     <string name="action_close">Close</string>
     <string name="action_rename">Rename</string>
     <string name="action_reset">Reset</string>
+    <string name="action_reset_effect">Reset effect</string>
+    <string name="reset_effect_confirm">Restore all settings for %1$s to their defaults?</string>
+    <string name="action_reset_all_effects">Reset entire preset</string>
+    <string name="reset_all_effects_title">Reset preset</string>
+    <string name="reset_all_effects_confirm">Reset all effects for %1$s to their default values?</string>
+    <string name="action_reset_eq_bands">Reset bands</string>
+    <string name="action_reset_coefficients">Reset coefficients</string>
+    <string name="reset_eq_bands_confirm">Set all equalizer bands to 0 dB?</string>
+    <string name="reset_coefficients_confirm">Restore the dynamic system coefficients to their default values?</string>
     <string name="action_load">Load</string>
     <string name="action_update">Update</string>
     <string name="action_delete">Delete</string>

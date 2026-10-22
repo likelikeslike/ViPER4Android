@@ -30,7 +30,10 @@ import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_MAS
 import com.llsl.viper4android.effect.BoolListPref
 import com.llsl.viper4android.effect.BoolPref
 import com.llsl.viper4android.effect.DoubleListPref
+import com.llsl.viper4android.effect.EFFECT_GROUPS
 import com.llsl.viper4android.effect.ENABLE_PREF_BY_EFFECT_KEY
+import com.llsl.viper4android.effect.EffectGroup
+import com.llsl.viper4android.effect.EffectGroupBuilder
 import com.llsl.viper4android.effect.EffectPref
 import com.llsl.viper4android.effect.EffectState
 import com.llsl.viper4android.effect.Effects
@@ -44,6 +47,7 @@ import com.llsl.viper4android.effect.PRESET_SCHEMA_VERSION
 import com.llsl.viper4android.effect.StringPref
 import com.llsl.viper4android.effect.deserializeEffectPrefs
 import com.llsl.viper4android.effect.loadEffectStateFromPrefs
+import com.llsl.viper4android.effect.resetEffectPrefs
 import com.llsl.viper4android.effect.saveEffectPrefs
 import com.llsl.viper4android.effect.serializeEffectPrefs
 import com.llsl.viper4android.service.ViperService
@@ -391,6 +395,42 @@ class MainViewModel
         fun dispatchFullState() {
             val service = viperService ?: return
             service.dispatchFullState(uiState.value)
+        }
+
+        fun resetEffect(effect: EffectGroupBuilder) {
+            resetEffects(listOf(effect.toGroup()))
+        }
+
+        fun resetAllEffects() {
+            resetEffects(EFFECT_GROUPS)
+        }
+
+        private fun resetEffects(groups: List<EffectGroup>) {
+            val deviceId = uiState.value.activeDeviceId
+            if (deviceId.isEmpty()) return
+            val effectKeys = groups.map { it.effectKey }.toSet()
+            val pendingJobs =
+                groups.flatMap { it.prefs }.mapNotNull { persistJobs.remove(it.prefKey) }
+            pendingJobs.forEach { it.cancel() }
+            uiState.update { resetEffectPrefs(it, groups) }
+            if (Effects.equalizer.effectKey in effectKeys) {
+                loadEqPresetsForBandCount(uiState.value.eq.bandCount)
+            }
+            dispatchFullState()
+            ifMasterOn {
+                if (Effects.ddc.effectKey in effectKeys) {
+                    viperService?.applyDdcDevice("", force = true)
+                }
+                if (Effects.convolver.effectKey in effectKeys) {
+                    viperService?.applyConvolverKernel("", force = true)
+                }
+            }
+            viewModelScope.launch {
+                pendingJobs.joinAll()
+                if (uiState.value.activeDeviceId != deviceId) return@launch
+                saveEffectPrefs(repository, uiState.value)
+                saveCurrentDeviceSettings()
+            }
         }
 
         fun setMasterEnabled(enabled: Boolean) {

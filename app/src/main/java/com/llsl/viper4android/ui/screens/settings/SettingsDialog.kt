@@ -9,13 +9,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -23,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
 import com.llsl.viper4android.ui.components.ActionRow
+import com.llsl.viper4android.ui.components.ConfirmDialog
 import com.llsl.viper4android.ui.components.DialogCard
 import com.llsl.viper4android.ui.components.DialogSectionLabel
 import com.llsl.viper4android.ui.components.IndicatorInfoRow
@@ -35,6 +40,8 @@ import com.llsl.viper4android.ui.theme.status_active_green
 
 @Composable
 fun SettingsDialog(
+    activeDeviceId: String,
+    activeDeviceName: String,
     autoStartEnabled: Boolean,
     globalModeEnabled: Boolean,
     aidlModeActive: Boolean,
@@ -45,6 +52,7 @@ fun SettingsDialog(
     onGlobalModeChanged: (Boolean) -> Unit,
     onOpenExcludedApps: () -> Unit,
     onImportPreset: () -> Unit,
+    onResetAllEffects: () -> Unit,
     onImportKernel: () -> Unit,
     onDebugUnlocked: () -> Unit,
     onImportVdc: () -> Unit,
@@ -53,6 +61,7 @@ fun SettingsDialog(
 ) {
     val context = LocalContext.current
     val tapCount = remember { mutableIntStateOf(0) }
+    var showResetConfirm by remember(activeDeviceId) { mutableStateOf(false) }
     val debugModeEnabledStr = stringResource(R.string.debug_mode_enabled)
     val debugAlreadyEnabledStr = stringResource(R.string.debug_already_enabled)
 
@@ -98,6 +107,15 @@ fun SettingsDialog(
                             label = stringResource(R.string.settings_excluded_apps),
                             subtitle = stringResource(R.string.settings_excluded_apps_desc),
                             onClick = onOpenExcludedApps,
+                        )
+                    }
+                    if (activeDeviceId.isNotEmpty()) {
+                        RowDivider()
+                        ActionRow(
+                            label = stringResource(R.string.action_reset_all_effects),
+                            subtitle = activeDeviceName,
+                            icon = Icons.Default.RestartAlt,
+                            onClick = { showResetConfirm = true },
                         )
                     }
                 }
@@ -164,4 +182,18 @@ fun SettingsDialog(
         },
         confirmButton = {},
     )
+
+    if (showResetConfirm) {
+        ConfirmDialog(
+            title = stringResource(R.string.reset_all_effects_title),
+            body = stringResource(R.string.reset_all_effects_confirm, activeDeviceName),
+            confirmLabel = stringResource(R.string.action_reset),
+            destructive = true,
+            onConfirm = {
+                showResetConfirm = false
+                onResetAllEffects()
+            },
+            onDismiss = { showResetConfirm = false },
+        )
+    }
 }

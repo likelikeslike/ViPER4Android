@@ -306,6 +306,15 @@
     <string name="action_close">关闭</string>
     <string name="action_rename">重命名</string>
     <string name="action_reset">重置</string>
+    <string name="action_reset_effect">重置音效</string>
+    <string name="reset_effect_confirm">要将“%1$s”的所有设置恢复为默认值吗？</string>
+    <string name="action_reset_all_effects">重置整个预设</string>
+    <string name="reset_all_effects_title">重置预设</string>
+    <string name="reset_all_effects_confirm">要将%1$s的所有音效恢复为默认设置吗？</string>
+    <string name="action_reset_eq_bands">重置频段</string>
+    <string name="action_reset_coefficients">重置系数</string>
+    <string name="reset_eq_bands_confirm">要将均衡器的所有频段设为 0 dB 吗？</string>
+    <string name="reset_coefficients_confirm">要将动态系统的系数恢复为默认值吗？</string>
     <string name="action_load">加载</string>
     <string name="action_update">更新</string>
     <string name="action_delete">删除</string>

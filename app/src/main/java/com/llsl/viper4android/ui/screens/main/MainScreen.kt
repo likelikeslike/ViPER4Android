@@ -253,6 +253,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     if (showSettingsDialog) {
         LaunchedEffect(Unit) { viewModel.queryDriverStatus() }
         SettingsDialog(
+            activeDeviceId = state.activeDeviceId,
+            activeDeviceName = state.activeDeviceName,
             autoStartEnabled = autoStart,
             globalModeEnabled = globalMode,
             aidlModeActive = aidlMode,
@@ -263,6 +265,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             appVersionName = appVersionName,
             onAutoStartChanged = viewModel::toggleAutoStart,
             onImportPreset = { importPresetLauncher.launch(arrayOf("application/json")) },
+            onResetAllEffects = viewModel::resetAllEffects,
             onImportKernel = {
                 importKernelLauncher.launch(
                     arrayOf(

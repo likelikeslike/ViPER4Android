@@ -305,7 +305,16 @@
     <string name="action_cancel">Отмена</string>
     <string name="action_close">Закрыть</string>
     <string name="action_rename">Переименовать</string>
-    <string name="action_reset">Сброс</string>
+    <string name="action_reset">Сбросить</string>
+    <string name="action_reset_effect">Сбросить эффект</string>
+    <string name="reset_effect_confirm">Вернуть настройки эффекта «%1$s» к значениям по умолчанию?</string>
+    <string name="action_reset_all_effects">Сбросить весь пресет</string>
+    <string name="reset_all_effects_title">Сброс пресета</string>
+    <string name="reset_all_effects_confirm">Вернуть все эффекты устройства «%1$s» к значениям по умолчанию?</string>
+    <string name="action_reset_eq_bands">Сбросить полосы</string>
+    <string name="action_reset_coefficients">Сбросить коэффициенты</string>
+    <string name="reset_eq_bands_confirm">Установить усиление всех полос эквалайзера на 0 дБ?</string>
+    <string name="reset_coefficients_confirm">Вернуть коэффициенты динамической системы к значениям по умолчанию?</string>
     <string name="action_load">Загрузить</string>
     <string name="action_update">Обновить</string>
     <string name="action_delete">Удалить</string>
