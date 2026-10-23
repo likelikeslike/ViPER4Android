@@ -24,3 +24,10 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Upload APKs
+      uses: actions/upload-artifact@v4
+      with:
+        name: ViPER4Android-APKs
+        path: app/build/outputs/apk/**/*.apk
+        if-no-files-found: error
