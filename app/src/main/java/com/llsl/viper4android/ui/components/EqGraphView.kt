@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -341,7 +342,7 @@ fun EqEditDialog(
 
                 Spacer(modifier = Modifier.height(UiDimens.XSmall))
 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(UiDimens.Medium),
                 ) {
@@ -378,7 +379,7 @@ fun EqEditDialog(
                             modifier = Modifier.size(UiDimens.Standard),
                         )
                         Spacer(modifier = Modifier.width(UiDimens.XSmall))
-                        Text(stringResource(R.string.action_reset))
+                        Text(stringResource(R.string.action_reset_eq_bands))
                     }
                 }
 

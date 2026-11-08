@@ -55,6 +55,7 @@ fun PresetDialog(
     onDelete: (Long) -> Unit,
     onRename: (Long, String) -> Unit,
     onUpdate: (Long) -> Unit,
+    onExport: (Preset) -> Unit,
     onClearAll: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -245,6 +246,10 @@ fun PresetDialog(
                     ) {
                         Text(stringResource(R.string.preset_save_current))
                     }
+                }
+            } else {
+                Button(onClick = { onExport(selectedPreset) }) {
+                    Text(stringResource(R.string.action_export))
                 }
             }
         },

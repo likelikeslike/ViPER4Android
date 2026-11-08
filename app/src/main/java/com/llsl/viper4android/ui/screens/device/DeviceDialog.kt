@@ -1,5 +1,6 @@
 package com.llsl.viper4android.ui.screens.device
 
+import android.media.AudioDeviceInfo
 import android.text.format.DateUtils
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
+import com.llsl.viper4android.audio.AudioDevice
 import com.llsl.viper4android.data.model.DeviceSettings
 import com.llsl.viper4android.ui.components.ConfirmDialog
 import com.llsl.viper4android.ui.components.DialogCard
@@ -340,9 +342,36 @@ private fun deviceIcon(device: DeviceSettings) =
 
 @Composable
 private fun deviceTypeName(device: DeviceSettings): String =
-    when {
-        device.deviceId == "speaker" -> stringResource(R.string.device_type_speaker)
-        device.deviceId == "wired_headphone" -> stringResource(R.string.device_type_wired)
-        device.isHeadphone -> stringResource(R.string.device_type_bluetooth)
-        else -> stringResource(R.string.device_type_speaker)
-    }
+    stringResource(
+        when (device.deviceType) {
+            AudioDeviceInfo.TYPE_USB_HEADSET,
+            AudioDeviceInfo.TYPE_USB_DEVICE,
+            AudioDeviceInfo.TYPE_USB_ACCESSORY,
+            -> R.string.device_type_usb
+
+            AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
+            AudioDeviceInfo.TYPE_WIRED_HEADSET,
+            -> R.string.device_type_wired
+
+            AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
+            AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
+            AudioDeviceInfo.TYPE_BLE_HEADSET,
+            AudioDeviceInfo.TYPE_BLE_BROADCAST,
+            AudioDeviceInfo.TYPE_HEARING_AID,
+            -> R.string.device_type_bluetooth
+
+            AudioDeviceInfo.TYPE_BUILTIN_SPEAKER -> R.string.device_type_speaker
+
+            AudioDeviceInfo.TYPE_REMOTE_SUBMIX,
+            AudioDeviceInfo.TYPE_BUS,
+            -> R.string.device_type_android_auto
+
+            else ->
+                when (device.deviceId) {
+                    AudioDevice.ID_SPEAKER -> R.string.device_type_speaker
+                    AudioDevice.ID_WIRED -> R.string.device_type_wired
+                    AudioDevice.ID_ANDROID_AUTO -> R.string.device_type_android_auto
+                    else -> R.string.device_type_unknown
+                }
+        },
+    )

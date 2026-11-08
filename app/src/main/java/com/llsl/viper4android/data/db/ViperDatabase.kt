@@ -20,7 +20,7 @@ import org.json.JSONObject
 
 @Database(
     entities = [Preset::class, EqPreset::class, DsPreset::class, DeviceSettings::class],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 abstract class ViperDatabase : RoomDatabase() {
@@ -215,6 +215,14 @@ abstract class ViperDatabase : RoomDatabase() {
                     }
                     convertRows("device_settings", "device_id")
                     convertRows("presets", "id")
+                }
+            }
+
+        val MIGRATION_7_8 =
+            object : Migration(7, 8) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    // Old profiles learn their connection type when the device is detected again.
+                    db.execSQL("ALTER TABLE device_settings ADD COLUMN device_type INTEGER NOT NULL DEFAULT 0")
                 }
             }
     }

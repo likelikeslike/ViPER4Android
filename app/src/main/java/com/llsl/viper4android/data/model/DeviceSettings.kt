@@ -1,5 +1,6 @@
 package com.llsl.viper4android.data.model
 
+import android.media.AudioDeviceInfo
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -17,4 +18,6 @@ data class DeviceSettings(
     val settingsJson: String,
     @ColumnInfo(name = "last_connected")
     val lastConnected: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "device_type", defaultValue = "0")
+    val deviceType: Int = AudioDeviceInfo.TYPE_UNKNOWN,
 )

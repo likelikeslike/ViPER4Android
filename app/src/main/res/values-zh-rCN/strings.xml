@@ -221,6 +221,8 @@
     <string name="preset_tap_for_details">点击查看详情</string>
     <string name="preset_label_created">已创建</string>
     <string name="preset_label_updated">最后更新</string>
+    <string name="preset_exported">预设已导出</string>
+    <string name="preset_export_failed">导出预设失败</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">未找到驱动</string>
@@ -280,6 +282,9 @@
     <string name="device_type_bluetooth">蓝牙</string>
     <string name="device_type_wired">有线耳机</string>
     <string name="device_type_speaker">扬声器</string>
+    <string name="device_type_usb">USB 音频</string>
+    <string name="device_type_android_auto">Android Auto</string>
+    <string name="device_type_unknown">未知</string>
     <string name="device_mode_headphone">耳机</string>
     <string name="device_mode_speaker">扬声器</string>
     <string name="device_label_type">类型</string>
@@ -296,10 +301,17 @@
 
     <!-- Actions -->
     <string name="action_save">保存</string>
+    <string name="action_export">导出</string>
     <string name="action_cancel">取消</string>
     <string name="action_close">关闭</string>
     <string name="action_rename">重命名</string>
     <string name="action_reset">重置</string>
+    <string name="action_reset_effect">重置%1$s</string>
+    <string name="action_reset_all_effects">重置整个预设</string>
+    <string name="reset_all_effects_title">重置预设</string>
+    <string name="reset_all_effects_confirm">要将%1$s的所有音效恢复为默认设置吗？</string>
+    <string name="action_reset_eq_bands">重置频段</string>
+    <string name="action_reset_coefficients">重置系数</string>
     <string name="action_load">加载</string>
     <string name="action_update">更新</string>
     <string name="action_delete">删除</string>

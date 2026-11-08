@@ -1,5 +1,6 @@
 package com.llsl.viper4android.ui.screens.main
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,6 +25,7 @@ import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.PowerSettingsNew
+import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SpeakerGroup
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +34,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -38,8 +42,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +59,7 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.llsl.viper4android.R
 import com.llsl.viper4android.effect.EffectState
+import com.llsl.viper4android.ui.components.ConfirmDialog
 import com.llsl.viper4android.ui.components.UiDimens
 import com.llsl.viper4android.ui.screens.debug.DebugLogDialog
 import com.llsl.viper4android.ui.screens.device.DeviceDialog
@@ -88,6 +95,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val excludedApps by viewModel.excludedApps.collectAsStateWithLifecycle()
 
     var showPresetDialog by remember { mutableStateOf(false) }
+    var showResetAllConfirm by remember(state.activeDeviceId) { mutableStateOf(false) }
+    var presetExportId by rememberSaveable { mutableLongStateOf(-1L) }
     var showDriverStatusDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showDebugLog by remember { mutableStateOf(false) }
@@ -106,6 +115,35 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     val clearAllProgressStr = stringResource(R.string.preset_clear_all_progress)
     val clearedStr = stringResource(R.string.preset_cleared)
+    val presetExportedStr = stringResource(R.string.preset_exported)
+    val presetExportFailedStr = stringResource(R.string.preset_export_failed)
+    val exportPresetLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument("application/json"),
+        ) { uri ->
+            val presetId = presetExportId
+            presetExportId = -1L
+            if (uri != null) {
+                viewModel.exportPreset(presetId, uri) { success ->
+                    val message = if (success) presetExportedStr else presetExportFailedStr
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+    if (showResetAllConfirm) {
+        ConfirmDialog(
+            title = stringResource(R.string.reset_all_effects_title),
+            body = stringResource(R.string.reset_all_effects_confirm, state.activeDeviceName),
+            confirmLabel = stringResource(R.string.action_reset),
+            destructive = true,
+            onConfirm = {
+                viewModel.resetAllEffects()
+                showResetAllConfirm = false
+            },
+            onDismiss = { showResetAllConfirm = false },
+        )
+    }
 
     if (showExcludedAppsDialog) {
         ExcludedAppsDialog(
@@ -127,6 +165,22 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
             onDelete = viewModel::deletePreset,
             onRename = viewModel::renamePreset,
             onUpdate = viewModel::updatePreset,
+            onExport = { preset ->
+                val baseName =
+                    preset.name
+                        .replace(Regex("""[\\/:*?"<>|\p{Cntrl}]"""), "_")
+                        .trim()
+                        .ifEmpty { "preset" }
+                val fileName =
+                    if (baseName.endsWith(".json", ignoreCase = true)) baseName else "$baseName.json"
+                presetExportId = preset.id
+                try {
+                    exportPresetLauncher.launch(fileName)
+                } catch (_: ActivityNotFoundException) {
+                    presetExportId = -1L
+                    Toast.makeText(context, presetExportFailedStr, Toast.LENGTH_SHORT).show()
+                }
+            },
             onClearAll = {
                 viewModel.clearAllPresets(
                     notificationTitle = clearAllProgressStr,
@@ -377,11 +431,25 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
         },
         floatingActionButtonPosition = FabPosition.End,
     ) { paddingValues ->
-        EffectList(
-            state = state,
-            viewModel = viewModel,
-            modifier = Modifier.padding(paddingValues),
-        )
+        Column(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            OutlinedButton(
+                onClick = { showResetAllConfirm = true },
+                enabled = state.activeDeviceId.isNotEmpty(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = UiDimens.Standard, vertical = UiDimens.XSmall),
+            ) {
+                Icon(Icons.Default.RestartAlt, contentDescription = null)
+                Spacer(modifier = Modifier.width(UiDimens.Small))
+                Text(stringResource(R.string.action_reset_all_effects))
+            }
+            EffectList(
+                state = state,
+                viewModel = viewModel,
+                modifier = Modifier.weight(1f),
+            )
+        }
     }
 }
 

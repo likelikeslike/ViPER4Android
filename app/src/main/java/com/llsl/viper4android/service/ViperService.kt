@@ -14,12 +14,11 @@ import com.llsl.viper4android.SERVICE_CHANNEL_ID
 import com.llsl.viper4android.audio.AudioDevice
 import com.llsl.viper4android.audio.AudioOutputDetector
 import com.llsl.viper4android.audio.AudioSessionMonitor
-import com.llsl.viper4android.data.model.DeviceSettings
 import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.effect.EffectState
 import com.llsl.viper4android.effect.deserializeEffectPrefs
 import com.llsl.viper4android.effect.loadEffectStateFromPrefs
-import com.llsl.viper4android.effect.serializeEffectPrefs
+import com.llsl.viper4android.effect.saveEffectPrefs
 import com.llsl.viper4android.utils.FileLogger
 import com.llsl.viper4android.utils.WavDecoder
 import com.llsl.viper4android.viper.AidlTransport
@@ -146,10 +145,6 @@ class ViperService : LifecycleService() {
         }
         lifecycleScope.launch {
             ensureConfigLoaded()
-            if (masterEnabled) {
-                val state = loadEffectStateFromPrefs(repository)
-                applyState(state, true)
-            }
             startAudioOutputMonitor()
         }
     }
@@ -170,7 +165,7 @@ class ViperService : LifecycleService() {
                 )
             }.also { installBulkSideChannels(it) }
         globalMode = repository.getBooleanPreference(ViperRepository.PREF_GLOBAL_MODE).first()
-        bootMasterEnabled = repository.getBooleanPreference(ViperRepository.PREF_MASTER_ENABLE).first()
+        bootMasterEnabled = loadEffectStateFromPrefs(repository).masterEnable
         configLoaded = true
     }
 
@@ -209,12 +204,11 @@ class ViperService : LifecycleService() {
         transport.pushFullState(state)
     }
 
-    private var currentServiceDeviceId: String = AudioDevice.ID_SPEAKER
+    private var currentServiceDeviceId: String? = null
 
     private fun startAudioOutputMonitor() {
         val detector = AudioOutputDetector(this)
         audioOutputDetector = detector
-        currentServiceDeviceId = detector.activeDevice.value.id
         lifecycleScope.launch {
             detector.activeDevice.collect { device ->
                 if (device.id != currentServiceDeviceId) {
@@ -230,29 +224,18 @@ class ViperService : LifecycleService() {
     }
 
     private suspend fun reapplyForDevice(device: AudioDevice) {
-        val saved = repository.getDeviceSettings(device.id)
-        val state: EffectState =
-            if (saved != null) {
-                FileLogger.i("Service", "Loading device settings from DB for ${device.id}")
-                val baseState = loadEffectStateFromPrefs(repository)
-                val json = JSONObject(saved.settingsJson)
-                deserializeEffectPrefs(json, baseState).also {
-                    repository.updateDeviceLastConnected(device.id)
-                }
-            } else {
-                FileLogger.i("Service", "No DB entry for ${device.id}, using DataStore defaults")
-                val s = loadEffectStateFromPrefs(repository)
-                val json = serializeEffectPrefs(s)
-                repository.saveDeviceSettings(
-                    DeviceSettings(
-                        deviceId = device.id,
-                        deviceName = device.name,
-                        isHeadphone = device.isHeadphone,
-                        settingsJson = json.toString(),
-                    ),
+        val saved = repository.getOrCreateDeviceSettings(device)
+        val currentUiState = stateProvider?.invoke()?.takeIf { it.activeDeviceId == device.id }
+        val effects =
+            currentUiState
+                ?: deserializeEffectPrefs(
+                    JSONObject(saved.settingsJson),
+                    EffectState(masterEnable = masterEnabled),
                 )
-                s
-            }
+        val state = effects.copy(activeDeviceId = device.id, activeDeviceName = saved.deviceName)
+        lastUiState = state
+        saveEffectPrefs(repository, state)
+        repository.updateDeviceConnection(device.id, device.type, device.isHeadphone)
         applyState(state, masterEnabled)
     }
 
@@ -376,6 +359,7 @@ class ViperService : LifecycleService() {
     ) = transport.set(param, value)
 
     fun dispatchFullState(state: EffectState) {
+        lastUiState = state
         applyState(state, masterEnabled)
     }
 

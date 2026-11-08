@@ -231,6 +231,8 @@
     <string name="preset_tap_for_details">Tap for details</string>
     <string name="preset_label_created">Created</string>
     <string name="preset_label_updated">Last Updated</string>
+    <string name="preset_exported">Preset exported</string>
+    <string name="preset_export_failed">Failed to export preset</string>
 
     <!-- Driver Status -->
     <string name="driver_not_found">Driver not found</string>
@@ -290,6 +292,9 @@
     <string name="device_type_bluetooth">Bluetooth</string>
     <string name="device_type_wired">Wired Headphone</string>
     <string name="device_type_speaker">Speaker</string>
+    <string name="device_type_usb">USB Audio</string>
+    <string name="device_type_android_auto">Android Auto</string>
+    <string name="device_type_unknown">Unknown</string>
     <string name="device_mode_headphone">Headphone</string>
     <string name="device_mode_speaker">Speaker</string>
     <string name="device_label_type">Type</string>
@@ -307,10 +312,17 @@
 
     <!-- Actions -->
     <string name="action_save">Save</string>
+    <string name="action_export">Export</string>
     <string name="action_cancel">Cancel</string>
     <string name="action_close">Close</string>
     <string name="action_rename">Rename</string>
     <string name="action_reset">Reset</string>
+    <string name="action_reset_effect">Reset %1$s</string>
+    <string name="action_reset_all_effects">Reset entire preset</string>
+    <string name="reset_all_effects_title">Reset preset</string>
+    <string name="reset_all_effects_confirm">Reset all effects for %1$s to their default values?</string>
+    <string name="action_reset_eq_bands">Reset bands</string>
+    <string name="action_reset_coefficients">Reset coefficients</string>
     <string name="action_load">Load</string>
     <string name="action_update">Update</string>
     <string name="action_delete">Delete</string>

@@ -155,6 +155,29 @@ val ENABLE_PREF_BY_EFFECT_KEY: Map<String, BoolPref> =
             enable?.let { group.effectKey to it }
         }.toMap()
 
+fun resetEffectPrefs(
+    state: EffectState,
+    groups: List<EffectGroup> = EFFECT_GROUPS,
+): EffectState {
+    val defaults = EffectState()
+    var result = state
+    for (group in groups) {
+        for (pref in group.prefs) {
+            result = applyEffectDefault(pref, result, defaults)
+        }
+    }
+    if (groups.any { it.effectKey == Effects.equalizer.effectKey }) {
+        result = result.copy(eq = result.eq.copy(bandsMap = defaults.eq.bandsMap))
+    }
+    return result
+}
+
+private fun <T> applyEffectDefault(
+    pref: EffectPref<T>,
+    state: EffectState,
+    defaults: EffectState,
+): EffectState = pref.set(state, pref.get(defaults))
+
 private fun ensureBandCount(
     rawBands: List<Double>,
     expectedCount: Int,
