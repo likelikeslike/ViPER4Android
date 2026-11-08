@@ -4,7 +4,6 @@ import kotlin.math.ln
 import kotlin.math.pow
 
 private val LogGainPerDb = (ln(10.0) / 20.0).toFloat()
-private const val AdaptBase = 4.0
 
 fun compressorDbToRaw(db: Float): Float = db * LogGainPerDb
 
@@ -18,4 +17,4 @@ fun compressorRatioToRaw(ratio: Float): Float = -ratio
 
 fun compressorRawToRatio(raw: Float): Float = -raw
 
-fun compressorAdaptAmountToSeconds(amount: Float): Float = AdaptBase.pow(amount.toDouble()).toFloat()
+fun compressorAdaptAmountToSeconds(amount: Float): Float = 4.0.pow(amount.toDouble()).toFloat()
