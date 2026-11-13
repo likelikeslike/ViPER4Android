@@ -114,7 +114,10 @@ interface ViperTransport {
         value: ParamValue,
     )
 
-    fun pushFullState(state: EffectState)
+    fun pushFullState(
+        state: EffectState,
+        forceBulk: Boolean = false,
+    )
 
     fun probeStatus(): DriverStatus?
 
@@ -182,7 +185,10 @@ class AidlTransport : ViperTransport {
         }
     }
 
-    override fun pushFullState(state: EffectState) {
+    override fun pushFullState(
+        state: EffectState,
+        forceBulk: Boolean,
+    ) {
         val snapshotApplied =
             ViperControlClient.dispatchParam(
                 ViperParams.PARAM_SET_FULL_PARAMS,
@@ -197,7 +203,7 @@ class AidlTransport : ViperTransport {
             bulkSideChannels?.invoke(
                 if (hasDdc) state.ddc.device else "",
                 if (hasKernel) state.convolver.kernelFile else "",
-                false,
+                forceBulk,
             )
         }
     }
@@ -233,7 +239,10 @@ class HidlTransport(
         effects().forEach { it.setParameter(param, value) }
     }
 
-    override fun pushFullState(state: EffectState) {
+    override fun pushFullState(
+        state: EffectState,
+        forceBulk: Boolean,
+    ) {
         val snapshot = ParamValue.Bytes(ViperParamsSerializer.toByteArray(state))
         effects().forEach {
             val snapshotApplied = it.setParameter(ViperParams.PARAM_SET_FULL_PARAMS, snapshot)

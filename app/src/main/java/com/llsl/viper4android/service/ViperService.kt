@@ -195,13 +195,14 @@ class ViperService : LifecycleService() {
             effectRegistry.releaseGlobal()
             return
         }
+        val newGlobalEffect = globalMode && effectRegistry.globalEffect() == null
         if (globalMode) {
-            if (effectRegistry.globalEffect() == null) initGlobalEffect()
+            if (newGlobalEffect) initGlobalEffect()
         } else {
             if (sessionMonitor == null) startSessionMonitor()
         }
         effectRegistry.liveEffects().forEach { it.enabled = true }
-        transport.pushFullState(state)
+        transport.pushFullState(state, forceBulk = newGlobalEffect)
     }
 
     private var currentServiceDeviceId: String = ""
@@ -267,7 +268,7 @@ class ViperService : LifecycleService() {
         if (!masterEnabled) return
         val state = currentDeviceState()
         lastUiState = state
-        transport.pushFullState(state)
+        transport.pushFullState(state, forceBulk = true)
     }
 
     override fun onStartCommand(
