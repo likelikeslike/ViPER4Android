@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.window.DialogProperties
 import com.llsl.viper4android.R
+import com.llsl.viper4android.data.repository.ViperRepository
 import com.llsl.viper4android.ui.components.ActionRow
 import com.llsl.viper4android.ui.components.DialogCard
 import com.llsl.viper4android.ui.components.DialogSectionLabel
@@ -37,13 +38,16 @@ import com.llsl.viper4android.ui.theme.status_active_green
 fun SettingsDialog(
     autoStartEnabled: Boolean,
     globalModeEnabled: Boolean,
+    appFilterMode: String,
+    excludedAppsCount: Int,
+    includedAppsCount: Int,
     aidlModeActive: Boolean,
     debugModeEnabled: Boolean,
     driverStatus: DriverStatus,
     appVersionName: String,
     onAutoStartChanged: (Boolean) -> Unit,
     onGlobalModeChanged: (Boolean) -> Unit,
-    onOpenExcludedApps: () -> Unit,
+    onOpenAppFilter: () -> Unit,
     onImportPreset: () -> Unit,
     onImportKernel: () -> Unit,
     onDebugUnlocked: () -> Unit,
@@ -94,10 +98,16 @@ fun SettingsDialog(
                     )
                     if (!globalModeEnabled) {
                         RowDivider()
+                        val isIncludeMode = appFilterMode == ViperRepository.FILTER_MODE_INCLUDE
                         NavRow(
-                            label = stringResource(R.string.settings_excluded_apps),
-                            subtitle = stringResource(R.string.settings_excluded_apps_desc),
-                            onClick = onOpenExcludedApps,
+                            label = stringResource(R.string.settings_per_app_filter),
+                            subtitle =
+                                if (isIncludeMode) {
+                                    stringResource(R.string.settings_app_filter_include_summary, includedAppsCount)
+                                } else {
+                                    stringResource(R.string.settings_app_filter_exclude_summary, excludedAppsCount)
+                                },
+                            onClick = onOpenAppFilter,
                         )
                     }
                 }

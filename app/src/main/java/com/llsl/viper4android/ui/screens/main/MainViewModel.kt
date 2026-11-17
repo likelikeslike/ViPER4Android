@@ -21,10 +21,14 @@ import com.llsl.viper4android.data.model.DsPreset
 import com.llsl.viper4android.data.model.EqPreset
 import com.llsl.viper4android.data.model.Preset
 import com.llsl.viper4android.data.repository.ViperRepository
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.FILTER_MODE_EXCLUDE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.FILTER_MODE_INCLUDE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_APP_FILTER_MODE
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_AUTO_START
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_DEBUG_MODE
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_EXCLUDED_APPS
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_GLOBAL_MODE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_INCLUDED_APPS
 import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_MASTER_ENABLE
 import com.llsl.viper4android.effect.BoolListPref
 import com.llsl.viper4android.effect.BoolPref
@@ -148,6 +152,12 @@ class MainViewModel
 
         val excludedApps: StateFlow<Set<String>>
             field: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
+
+        val includedApps: StateFlow<Set<String>>
+            field: MutableStateFlow<Set<String>> = MutableStateFlow(emptySet())
+
+        val appFilterMode: StateFlow<String>
+            field: MutableStateFlow<String> = MutableStateFlow(FILTER_MODE_EXCLUDE)
 
         val updateState: StateFlow<UpdateState>
             field: MutableStateFlow<UpdateState> = MutableStateFlow(UpdateState())
@@ -365,6 +375,12 @@ class MainViewModel
             aidlModeEnabled.value = repository.aidlMode
             viewModelScope.launch {
                 repository.getStringSetPreference(PREF_EXCLUDED_APPS).collect { excludedApps.value = it }
+            }
+            viewModelScope.launch {
+                repository.getStringSetPreference(PREF_INCLUDED_APPS).collect { includedApps.value = it }
+            }
+            viewModelScope.launch {
+                repository.getAppFilterMode().collect { appFilterMode.value = it }
             }
         }
 
@@ -1565,6 +1581,20 @@ class MainViewModel
             val next = if (excluded) excludedApps.value + packageName else excludedApps.value - packageName
             excludedApps.value = next
             viewModelScope.launch { repository.setStringSetPreference(PREF_EXCLUDED_APPS, next) }
+        }
+
+        fun setAppIncluded(
+            packageName: String,
+            included: Boolean,
+        ) {
+            val next = if (included) includedApps.value + packageName else includedApps.value - packageName
+            includedApps.value = next
+            viewModelScope.launch { repository.setStringSetPreference(PREF_INCLUDED_APPS, next) }
+        }
+
+        fun setAppFilterMode(mode: String) {
+            appFilterMode.value = mode
+            viewModelScope.launch { repository.setAppFilterMode(mode) }
         }
 
         fun loadInstalledApps(onLoaded: (List<InstalledAppInfo>) -> Unit) {

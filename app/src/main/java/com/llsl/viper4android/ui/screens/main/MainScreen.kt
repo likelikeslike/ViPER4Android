@@ -57,7 +57,7 @@ import com.llsl.viper4android.ui.components.UiDimens
 import com.llsl.viper4android.ui.screens.debug.DebugLogDialog
 import com.llsl.viper4android.ui.screens.device.DeviceDialog
 import com.llsl.viper4android.ui.screens.preset.PresetDialog
-import com.llsl.viper4android.ui.screens.settings.ExcludedAppsDialog
+import com.llsl.viper4android.ui.screens.settings.AppFilterDialog
 import com.llsl.viper4android.ui.screens.settings.SettingsDialog
 import com.llsl.viper4android.ui.screens.settings.UpdateDialog
 import com.llsl.viper4android.ui.screens.status.DriverStatusDialog
@@ -86,13 +86,15 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val debugMode by viewModel.debugModeEnabled.collectAsStateWithLifecycle()
     val updateState by viewModel.updateState.collectAsStateWithLifecycle()
     val excludedApps by viewModel.excludedApps.collectAsStateWithLifecycle()
+    val includedApps by viewModel.includedApps.collectAsStateWithLifecycle()
+    val appFilterMode by viewModel.appFilterMode.collectAsStateWithLifecycle()
 
     var showPresetDialog by remember { mutableStateOf(false) }
     var showDriverStatusDialog by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var showDebugLog by remember { mutableStateOf(false) }
     var showDeviceDialog by remember { mutableStateOf(false) }
-    var showExcludedAppsDialog by remember { mutableStateOf(false) }
+    var showAppFilterDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val appVersionName =
@@ -107,12 +109,16 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
     val clearAllProgressStr = stringResource(R.string.preset_clear_all_progress)
     val clearedStr = stringResource(R.string.preset_cleared)
 
-    if (showExcludedAppsDialog) {
-        ExcludedAppsDialog(
+    if (showAppFilterDialog) {
+        AppFilterDialog(
+            filterMode = appFilterMode,
+            onFilterModeChange = viewModel::setAppFilterMode,
             excludedApps = excludedApps,
-            onToggle = viewModel::setAppExcluded,
+            includedApps = includedApps,
+            onToggleExcluded = viewModel::setAppExcluded,
+            onToggleIncluded = viewModel::setAppIncluded,
             loadInstalledApps = viewModel::loadInstalledApps,
-            onDismiss = { showExcludedAppsDialog = false },
+            onDismiss = { showAppFilterDialog = false },
         )
     }
 
@@ -220,10 +226,13 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
         SettingsDialog(
             autoStartEnabled = autoStart,
             globalModeEnabled = globalMode,
+            appFilterMode = appFilterMode,
+            excludedAppsCount = excludedApps.size,
+            includedAppsCount = includedApps.size,
             aidlModeActive = aidlMode,
             debugModeEnabled = debugMode,
             onGlobalModeChanged = viewModel::toggleGlobalMode,
-            onOpenExcludedApps = { showExcludedAppsDialog = true },
+            onOpenAppFilter = { showAppFilterDialog = true },
             driverStatus = driverStatus,
             appVersionName = appVersionName,
             onAutoStartChanged = viewModel::toggleAutoStart,
