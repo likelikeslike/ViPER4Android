@@ -49,9 +49,22 @@ class AudioSessionMonitor(
         if (!registered) return
         audioManager.unregisterAudioPlaybackCallback(playbackCallback)
         registered = false
-        activePiids.clear()
+        synchronized(activePiids) {
+            activePiids.clear()
+        }
         FileLogger.i(TAG, "Playback monitor stopped")
     }
+
+    fun getActiveSessions(): Map<Int, String> =
+        synchronized(activePiids) {
+            val result = mutableMapOf<Int, String>()
+            for (info in activePiids.values) {
+                if (info.sessionId > 0) {
+                    result[info.sessionId] = info.packageName
+                }
+            }
+            result
+        }
 
     private fun handlePlaybackChange() {
         if (pendingResolve) return
@@ -79,43 +92,55 @@ class AudioSessionMonitor(
             } ?: return
 
         mainHandler.post {
-            val discoveredPiids = discovered.keys
-            val currentPiids = activePiids.keys.toSet()
+            val sessionsToOpen = mutableListOf<Pair<Int, String>>()
+            val sessionsToClose = mutableListOf<Int>()
 
-            val newPiids = discoveredPiids - currentPiids
-            val gonePiids = currentPiids - discoveredPiids
+            synchronized(activePiids) {
+                val discoveredPiids = discovered.keys
+                val currentPiids = activePiids.keys.toSet()
 
-            for (piid in newPiids) {
-                val info = discovered[piid] ?: continue
-                if (info.sessionId <= 0) continue
-                val alreadyTracked = activePiids.values.any { it.sessionId == info.sessionId }
-                activePiids[piid] = info
-                if (!alreadyTracked) {
-                    FileLogger.i(
-                        TAG,
-                        "New session piid=$piid session=${info.sessionId} (${info.packageName})",
-                    )
-                    onSessionOpen(info.sessionId, info.packageName)
-                } else {
-                    FileLogger.d(
-                        TAG,
-                        "Additional piid=$piid for existing session=${info.sessionId} (${info.packageName})",
-                    )
+                val newPiids = discoveredPiids - currentPiids
+                val gonePiids = currentPiids - discoveredPiids
+
+                for (piid in newPiids) {
+                    val info = discovered[piid] ?: continue
+                    if (info.sessionId <= 0) continue
+                    val alreadyTracked = activePiids.values.any { it.sessionId == info.sessionId }
+                    activePiids[piid] = info
+                    if (!alreadyTracked) {
+                        FileLogger.i(
+                            TAG,
+                            "New session piid=$piid session=${info.sessionId} (${info.packageName})",
+                        )
+                        sessionsToOpen.add(info.sessionId to info.packageName)
+                    } else {
+                        FileLogger.d(
+                            TAG,
+                            "Additional piid=$piid for existing session=${info.sessionId} (${info.packageName})",
+                        )
+                    }
+                }
+
+                for (piid in gonePiids) {
+                    val info = activePiids.remove(piid) ?: continue
+                    if (info.sessionId > 0) {
+                        val stillActive = activePiids.values.any { it.sessionId == info.sessionId }
+                        FileLogger.i(
+                            TAG,
+                            "Piid ended piid=$piid session=${info.sessionId} (${info.packageName}) stillActive=$stillActive",
+                        )
+                        if (!stillActive) {
+                            sessionsToClose.add(info.sessionId)
+                        }
+                    }
                 }
             }
 
-            for (piid in gonePiids) {
-                val info = activePiids.remove(piid) ?: continue
-                if (info.sessionId > 0) {
-                    val stillActive = activePiids.values.any { it.sessionId == info.sessionId }
-                    FileLogger.i(
-                        TAG,
-                        "Piid ended piid=$piid session=${info.sessionId} (${info.packageName}) stillActive=$stillActive",
-                    )
-                    if (!stillActive) {
-                        onSessionClose(info.sessionId)
-                    }
-                }
+            for ((sid, pkg) in sessionsToOpen) {
+                onSessionOpen(sid, pkg)
+            }
+            for (sid in sessionsToClose) {
+                onSessionClose(sid)
             }
         }
     }

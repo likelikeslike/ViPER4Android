@@ -256,6 +256,18 @@
     <string name="import_success">Imported successfully</string>
     <string name="import_failed">Import failed</string>
 
+    <!-- Per-App Filter -->
+    <string name="settings_per_app_filter">Per-app audio filtering</string>
+    <string name="settings_per_app_filter_desc">Configure app exclude or include rules</string>
+    <string name="settings_app_filter_exclude_summary">Exclude mode · %1$d excluded</string>
+    <string name="settings_app_filter_include_summary">Include mode · %1$d included</string>
+    <string name="filter_mode_exclude">Exclude</string>
+    <string name="filter_mode_include">Include</string>
+    <string name="filter_mode_exclude_desc">Audio effects are applied to all apps except those checked below.</string>
+    <string name="filter_mode_include_desc">Audio effects are applied ONLY to apps checked below.</string>
+    <string name="included_apps_title">Included Apps</string>
+    <string name="per_app_filter_title">Per-App Audio Filtering</string>
+
     <!-- Excluded Apps -->
     <string name="excluded_apps_title">Excluded Apps</string>
     <string name="excluded_apps_search">Search apps</string>

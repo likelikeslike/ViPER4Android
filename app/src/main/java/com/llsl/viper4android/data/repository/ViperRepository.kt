@@ -206,6 +206,13 @@ class ViperRepository
             dataStore.edit { it[stringPreferencesKey(key)] = value.joinToString("\n") }
         }
 
+        fun getAppFilterMode(): Flow<String> =
+            getStringPreference(PREF_APP_FILTER_MODE, FILTER_MODE_EXCLUDE)
+
+        suspend fun setAppFilterMode(mode: String) {
+            setStringPreference(PREF_APP_FILTER_MODE, mode)
+        }
+
         @Volatile private var initDone = false
         private val initMutex = Mutex()
 
@@ -236,5 +243,10 @@ class ViperRepository
             const val PREF_DEBUG_MODE = "debug_mode"
             const val PREF_V2_INITIALIZED = "v2_initialized"
             const val PREF_EXCLUDED_APPS = "excluded_apps"
+            const val PREF_INCLUDED_APPS = "included_apps"
+            const val PREF_APP_FILTER_MODE = "app_filter_mode"
+
+            const val FILTER_MODE_EXCLUDE = "exclude"
+            const val FILTER_MODE_INCLUDE = "include"
         }
     }

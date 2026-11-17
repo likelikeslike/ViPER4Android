@@ -90,6 +90,10 @@ class ViperService : LifecycleService() {
 
     @Volatile
     private var excludedApps: Set<String> = emptySet()
+    @Volatile
+    private var includedApps: Set<String> = emptySet()
+    @Volatile
+    private var appFilterMode: String = ViperRepository.FILTER_MODE_EXCLUDE
 
     private data class DecodedKernel(
         val samples: FloatArray,
@@ -143,7 +147,22 @@ class ViperService : LifecycleService() {
         lifecycleScope.launch {
             ensureConfigLoaded()
             launch {
-                repository.getStringSetPreference(ViperRepository.PREF_EXCLUDED_APPS).collect { excludedApps = it }
+                repository.getStringSetPreference(ViperRepository.PREF_EXCLUDED_APPS).collect {
+                    excludedApps = it
+                    reconcileSessions()
+                }
+            }
+            launch {
+                repository.getStringSetPreference(ViperRepository.PREF_INCLUDED_APPS).collect {
+                    includedApps = it
+                    reconcileSessions()
+                }
+            }
+            launch {
+                repository.getAppFilterMode().collect {
+                    appFilterMode = it
+                    reconcileSessions()
+                }
             }
             startAudioOutputMonitor()
         }
@@ -332,6 +351,38 @@ class ViperService : LifecycleService() {
         sessionMonitor = null
     }
 
+    private fun isAppAllowed(packageName: String): Boolean =
+        when (appFilterMode) {
+            ViperRepository.FILTER_MODE_INCLUDE -> packageName in includedApps
+            else -> packageName !in excludedApps
+        }
+
+    private fun reconcileSessions() {
+        if (!masterEnabled || globalMode) return
+
+        val openSessions = effectRegistry.getOpenSessions()
+        for ((sessionId, pkg) in openSessions) {
+            if (!isAppAllowed(pkg)) {
+                FileLogger.i(
+                    "Service",
+                    "Reconcile: Closing disallowed session $sessionId ($pkg) [mode=$appFilterMode]",
+                )
+                closeSession(sessionId)
+            }
+        }
+
+        val activePlayback = sessionMonitor?.getActiveSessions() ?: emptyMap()
+        for ((sessionId, pkg) in activePlayback) {
+            if (isAppAllowed(pkg) && !effectRegistry.isSessionOpen(sessionId)) {
+                FileLogger.i(
+                    "Service",
+                    "Reconcile: Opening newly allowed session $sessionId ($pkg) [mode=$appFilterMode]",
+                )
+                openSession(sessionId, pkg)
+            }
+        }
+    }
+
     private fun openSession(
         sessionId: Int,
         packageName: String,
@@ -350,10 +401,10 @@ class ViperService : LifecycleService() {
             )
             return
         }
-        if (packageName in excludedApps) {
+        if (!isAppAllowed(packageName)) {
             FileLogger.i(
                 "Service",
-                "Excluded app: skipping session $sessionId ($packageName)",
+                "App filtered out ($appFilterMode): skipping session $sessionId ($packageName)",
             )
             return
         }
