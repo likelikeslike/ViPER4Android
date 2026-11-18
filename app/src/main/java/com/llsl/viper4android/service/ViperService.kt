@@ -20,6 +20,7 @@ import com.llsl.viper4android.effect.EffectState
 import com.llsl.viper4android.effect.deserializeEffectPrefs
 import com.llsl.viper4android.effect.loadEffectStateFromPrefs
 import com.llsl.viper4android.effect.serializeEffectPrefs
+import com.llsl.viper4android.effect.saveEffectPrefs
 import com.llsl.viper4android.utils.FileLogger
 import com.llsl.viper4android.utils.WavDecoder
 import com.llsl.viper4android.viper.AidlTransport
@@ -30,6 +31,9 @@ import com.llsl.viper4android.viper.HidlTransport
 import com.llsl.viper4android.viper.ParamValue
 import com.llsl.viper4android.viper.ViperParams
 import com.llsl.viper4android.viper.ViperTransport
+import com.llsl.viper4android.data.ActivePresetSelection
+import com.llsl.viper4android.widget.PresetWidgetProvider
+import com.llsl.viper4android.widget.PresetWidgetSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -52,6 +56,8 @@ class ViperService : LifecycleService() {
         const val ACTION_STOP = "com.llsl.viper4android.service.STOP"
         const val ACTION_TOGGLE_MASTER = "com.llsl.viper4android.service.TOGGLE_MASTER"
         const val EXTRA_MASTER_ENABLED = "com.llsl.viper4android.service.EXTRA_MASTER_ENABLED"
+        const val ACTION_WIDGET_PRESET = "com.llsl.viper4android.service.WIDGET_PRESET"
+        const val EXTRA_WIDGET_PRESET_ID = "com.llsl.viper4android.service.EXTRA_WIDGET_PRESET_ID"
 
         fun startService(context: Context) {
             val intent =
@@ -69,6 +75,15 @@ class ViperService : LifecycleService() {
                 Intent(context, ViperService::class.java).apply {
                     action = ACTION_TOGGLE_MASTER
                     putExtra(EXTRA_MASTER_ENABLED, enabled)
+                }
+            context.startForegroundService(intent)
+        }
+
+        fun applyWidgetPreset(context: Context, presetId: Long) {
+            val intent =
+                Intent(context, ViperService::class.java).apply {
+                    action = ACTION_WIDGET_PRESET
+                    putExtra(EXTRA_WIDGET_PRESET_ID, presetId)
                 }
             context.startForegroundService(intent)
         }
@@ -208,8 +223,13 @@ class ViperService : LifecycleService() {
     private var currentServiceDeviceId: String = ""
 
     private fun startAudioOutputMonitor() {
+        if (audioOutputDetector != null) return
         val detector = AudioOutputDetector(this)
         audioOutputDetector = detector
+        lifecycleScope.launch {
+            ActivePresetSelection.selectDevice(this@ViperService, detector.activeDevice.value.id)
+            PresetWidgetProvider.refreshAll(this@ViperService)
+        }
         lifecycleScope.launch {
             detector.activeDevice.collect { device ->
                 if (device.id != currentServiceDeviceId) {
@@ -251,6 +271,8 @@ class ViperService : LifecycleService() {
             }
         lastUiState = state
         applyState(state, masterEnabled)
+        ActivePresetSelection.selectDevice(this, device.id)
+        PresetWidgetProvider.refreshAll(this)
     }
 
     private suspend fun currentDeviceState(): EffectState {
@@ -299,6 +321,46 @@ class ViperService : LifecycleService() {
                     stateProvider = null
                     lastUiState = state
                     applyState(state, next)
+                }
+            }
+
+            ACTION_WIDGET_PRESET -> {
+                val presetId = intent.getLongExtra(EXTRA_WIDGET_PRESET_ID, -1L)
+                lifecycleScope.launch {
+                    val preset = repository.getPresetById(presetId) ?: return@launch
+                    ensureConfigLoaded()
+                    val state =
+                        deserializeEffectPrefs(
+                            JSONObject(preset.settingsJson),
+                            loadEffectStateFromPrefs(repository),
+                        )
+                    saveEffectPrefs(repository, state)
+                    startAudioOutputMonitor()
+                    val device = audioOutputDetector?.activeDevice?.value
+                    if (device != null) {
+                        val previous = repository.getDeviceSettings(device.id)
+                        repository.saveDeviceSettings(
+                            DeviceSettings(
+                                deviceId = device.id,
+                                deviceName = previous?.deviceName ?: device.name,
+                                isHeadphone = device.isHeadphone,
+                                settingsJson = serializeEffectPrefs(state).toString(),
+                            ),
+                        )
+                    }
+                    stateProvider = null
+                    lastUiState = state
+                    bootMasterEnabled = state.masterEnable
+                    applyState(state, state.masterEnable)
+                    val deviceId = device?.id ?: currentServiceDeviceId
+                    ActivePresetSelection.selectDevice(this@ViperService, deviceId)
+                    if (ActivePresetSelection.setPreset(this@ViperService, deviceId, presetId)) {
+                        PresetWidgetProvider.refreshAll(this@ViperService)
+                    }
+                    repository.setStringPreference(
+                        PresetWidgetSettings.CHANGE_REVISION,
+                        System.nanoTime().toString(),
+                    )
                 }
             }
         }
