@@ -242,16 +242,21 @@ class MainViewModel
         }
 
         private val persistJobs = mutableMapOf<String, Job>()
+        private var widgetRefreshJob: Job? = null
 
         fun <T> applyPref(
             pref: EffectPref<T>,
             value: T,
         ) {
-            val deviceId = uiState.value.activeDeviceId.ifBlank { audioOutputDetector.activeDevice.value.id }
-            if (ActivePresetSelection.setPreset(getApplication(), deviceId, null)) {
-                PresetWidgetProvider.refreshAll(getApplication())
-            }
             uiState.update { pref.set(it, value) }
+            val deviceId = uiState.value.activeDeviceId.ifBlank { audioOutputDetector.activeDevice.value.id }
+            if (ActivePresetSelection.setState(getApplication(), deviceId, uiState.value)) {
+                widgetRefreshJob?.cancel()
+                widgetRefreshJob = viewModelScope.launch {
+                    delay(PERSIST_DEBOUNCE_MS.milliseconds)
+                    PresetWidgetProvider.refreshAll(getApplication())
+                }
+            }
             if (pref.paramId != -1 && uiState.value.masterEnable && shouldDispatch(pref)) {
                 when (pref) {
                     is BoolPref -> {
@@ -1024,13 +1029,16 @@ class MainViewModel
         }
 
         private suspend fun loadDeviceSettings(device: AudioDevice) {
+            val saved = repository.getDeviceSettings(device.id)
+            if (saved != null) {
+                val json = JSONObject(saved.settingsJson)
+                uiState.update { deserializeEffectPrefs(json, it) }
+                saveEffectPrefs(repository, uiState.value)
+                dispatchFullState()
+            }
             ActivePresetSelection.selectDevice(getApplication(), device.id)
+            ActivePresetSelection.setState(getApplication(), device.id, uiState.value)
             PresetWidgetProvider.refreshAll(getApplication())
-            val saved = repository.getDeviceSettings(device.id) ?: return
-            val json = JSONObject(saved.settingsJson)
-            uiState.update { deserializeEffectPrefs(json, it) }
-            saveEffectPrefs(repository, uiState.value)
-            dispatchFullState()
         }
 
         fun saveSettingsOnBackground() {
@@ -1129,9 +1137,8 @@ class MainViewModel
                 saveEffectPrefs(repository, uiState.value)
                 dispatchFullState()
                 val activeDeviceId = uiState.value.activeDeviceId.ifBlank { audioOutputDetector.activeDevice.value.id }
-                if (ActivePresetSelection.setPreset(getApplication(), activeDeviceId, null)) {
-                    PresetWidgetProvider.refreshAll(getApplication())
-                }
+                ActivePresetSelection.setState(getApplication(), activeDeviceId, uiState.value)
+                PresetWidgetProvider.refreshAll(getApplication())
             }
         }
 
@@ -1294,7 +1301,7 @@ class MainViewModel
                         saveEffectPrefs(repository, applied)
                         dispatchFullState()
                         val deviceId = uiState.value.activeDeviceId.ifBlank { audioOutputDetector.activeDevice.value.id }
-                        ActivePresetSelection.setPreset(getApplication(), deviceId, null)
+                        ActivePresetSelection.setState(getApplication(), deviceId, uiState.value)
                         PresetWidgetProvider.refreshAll(getApplication())
                     }
                 } else if (count > 0) {
@@ -1460,9 +1467,8 @@ class MainViewModel
                 saveEffectPrefs(repository, uiState.value)
                 dispatchFullState()
                 val deviceId = uiState.value.activeDeviceId.ifBlank { audioOutputDetector.activeDevice.value.id }
-                if (ActivePresetSelection.setPreset(getApplication(), deviceId, id)) {
-                    PresetWidgetProvider.refreshAll(getApplication())
-                }
+                ActivePresetSelection.setState(getApplication(), deviceId, uiState.value)
+                PresetWidgetProvider.refreshAll(getApplication())
             }
         }
 
@@ -1470,7 +1476,6 @@ class MainViewModel
             viewModelScope.launch {
                 val preset = repository.getPresetById(id) ?: return@launch
                 repository.deletePresetById(id)
-                ActivePresetSelection.forgetPreset(getApplication(), id)
                 PresetWidgetProvider.refreshAll(getApplication())
                 try {
                     File(getFilesDir("Preset"), "${preset.name}.json").delete()
@@ -1499,7 +1504,6 @@ class MainViewModel
                     }
                 }
                 repository.deleteAllPresets()
-                ActivePresetSelection.forgetAllPresets(getApplication())
                 PresetWidgetProvider.refreshAll(getApplication())
                 if (showProgress) {
                     completeBulkProgress(NOTIFY_ID_PRESET_CLEAR, notificationTitle, "$successStr: $deleted / $total")

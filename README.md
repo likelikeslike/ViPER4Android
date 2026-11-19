@@ -51,7 +51,7 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 
 ## Home-screen Preset Widget
 
-Apply saved presets directly from the launcher, with the active preset highlighted for the current audio device.
+Apply saved presets directly from the launcher. The widget highlights a preset when its effect settings match those of the current audio device.
 
 1. Add the **ViPER presets** widget from your launcher's widget menu and choose which presets to display.
 2. Drag buttons in the configuration preview to reorder them; choose Horizontal, Vertical, or Auto layout.

@@ -272,6 +272,7 @@ class ViperService : LifecycleService() {
         lastUiState = state
         applyState(state, masterEnabled)
         ActivePresetSelection.selectDevice(this, device.id)
+        ActivePresetSelection.setState(this, device.id, state)
         PresetWidgetProvider.refreshAll(this)
     }
 
@@ -354,9 +355,8 @@ class ViperService : LifecycleService() {
                     applyState(state, state.masterEnable)
                     val deviceId = device?.id ?: currentServiceDeviceId
                     ActivePresetSelection.selectDevice(this@ViperService, deviceId)
-                    if (ActivePresetSelection.setPreset(this@ViperService, deviceId, presetId)) {
-                        PresetWidgetProvider.refreshAll(this@ViperService)
-                    }
+                    ActivePresetSelection.setState(this@ViperService, deviceId, state)
+                    PresetWidgetProvider.refreshAll(this@ViperService)
                     repository.setStringPreference(
                         PresetWidgetSettings.CHANGE_REVISION,
                         System.nanoTime().toString(),

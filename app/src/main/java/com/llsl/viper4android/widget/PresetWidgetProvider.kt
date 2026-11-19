@@ -173,7 +173,7 @@ class PresetWidgetProvider : AppWidgetProvider() {
             )
             views.addView(R.id.widget_preset_container, empty)
         } else {
-            val active = ActivePresetSelection.activePresetId(context)
+            val active = ActivePresetSelection.activePresetId(context, choices.mapNotNull { presets[it.id] })
             val gapDp = config?.gapDp ?: 4
             val density = context.resources.displayMetrics.density
             val gapPx = (density * gapDp).toInt()
