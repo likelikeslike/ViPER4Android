@@ -208,6 +208,10 @@ class MainViewModel
         }
 
         override fun onCleared() {
+            if (widgetRefreshJob?.isActive == true) {
+                widgetRefreshJob?.cancel()
+                PresetWidgetProvider.refreshAll(getApplication())
+            }
             runBlocking(Dispatchers.IO) { saveCurrentDeviceSettings() }
             audioOutputDetector.stop()
             if (serviceBound) {
