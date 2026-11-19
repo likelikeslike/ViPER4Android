@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="40dp"
+    android:minResizeWidth="40dp"
+    android:minResizeHeight="40dp"
+    android:minHeight="40dp"
+    android:targetCellWidth="1"
+    android:targetCellHeight="1"
+    android:initialLayout="@layout/widget_presets_horizontal"
+    android:configure="com.llsl.viper4android.widget.PresetWidgetConfigureActivity"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:widgetFeatures="reconfigurable" />

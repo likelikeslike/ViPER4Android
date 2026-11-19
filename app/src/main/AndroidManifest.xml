@@ -65,6 +65,23 @@
             </intent-filter>
         </service>
 
+        <activity
+            android:name=".widget.PresetWidgetConfigureActivity"
+            android:exported="true"
+            android:label="ViPER preset widget" />
+
+        <receiver
+            android:name=".widget.PresetWidgetProvider"
+            android:exported="false"
+            android:label="ViPER presets">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/preset_widget_info" />
+        </receiver>
+
         <receiver
             android:name=".receiver.BootCompletedReceiver"
             android:exported="true">

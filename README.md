@@ -47,6 +47,16 @@ Material Design 3 UI for ViPER4Android FX. Full feature set of the ViPER4Android
 - In-app log viewer (tap `Driver Version` 7 times in Settings)
 - Audio effects documentation (long press each effect)
 - In-app update checker (press app version in Settings)
+- Configurable home-screen preset widget
+
+## Home-screen Preset Widget
+
+Apply saved presets directly from the launcher. The widget highlights a preset when its effect settings match those of the current audio device.
+
+1. Add the **ViPER presets** widget from your launcher's widget menu and choose which presets to display.
+2. Drag buttons in the configuration preview to reorder them; choose Horizontal, Vertical, or Auto layout.
+3. Configure labels, colours, transparency, spacing, border width, corner radius (0–32dp), and text size and weight.
+4. Tap **Save widget**. Tapping a widget button applies that preset without opening the app.
 
 ## Installation
 
