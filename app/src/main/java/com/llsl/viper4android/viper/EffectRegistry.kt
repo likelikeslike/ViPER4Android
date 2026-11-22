@@ -9,6 +9,7 @@ class EffectRegistry {
 
     private val lock = Any()
     private val sessions = SparseArray<ViperEffect>()
+    private val sessionPackages = SparseArray<String>()
     private var globalEffect: ViperEffect? = null
 
     fun ensureGlobal(): ViperEffect? {
@@ -44,6 +45,7 @@ class EffectRegistry {
             }
             effect.enabled = true
             sessions.put(sessionId, effect)
+            sessionPackages.put(sessionId, packageName)
             FileLogger.i("EffectReg", "Opened session $sessionId for $packageName")
             return effect to false
         }
@@ -55,6 +57,7 @@ class EffectRegistry {
             effect.enabled = false
             effect.release()
             sessions.remove(sessionId)
+            sessionPackages.remove(sessionId)
             FileLogger.i("EffectReg", "Closed session $sessionId")
         }
     }
@@ -81,6 +84,16 @@ class EffectRegistry {
             null
         }
 
+    fun getOpenSessions(): Map<Int, String> =
+        synchronized(lock) {
+            val map = mutableMapOf<Int, String>()
+            for (i in 0 until sessions.size) {
+                val sid = sessions.keyAt(i)
+                map[sid] = sessionPackages.get(sid) ?: ""
+            }
+            map
+        }
+
     fun releaseAll() {
         synchronized(lock) {
             for (i in 0 until sessions.size) {
@@ -89,6 +102,7 @@ class EffectRegistry {
                 effect.release()
             }
             sessions.clear()
+            sessionPackages.clear()
         }
     }
 

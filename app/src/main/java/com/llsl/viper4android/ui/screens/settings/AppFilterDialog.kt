@@ -17,6 +17,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.graphics.drawable.toBitmap
 import com.llsl.viper4android.R
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.FILTER_MODE_EXCLUDE
+import com.llsl.viper4android.data.repository.ViperRepository.Companion.FILTER_MODE_INCLUDE
 import com.llsl.viper4android.ui.components.DialogCard
 import com.llsl.viper4android.ui.components.DialogEmptyState
 import com.llsl.viper4android.ui.components.DialogList
@@ -43,15 +47,23 @@ import com.llsl.viper4android.ui.components.UiDimens
 import com.llsl.viper4android.ui.screens.main.InstalledAppInfo
 
 @Composable
-fun ExcludedAppsDialog(
+fun AppFilterDialog(
+    filterMode: String,
+    onFilterModeChange: (String) -> Unit,
     excludedApps: Set<String>,
-    onToggle: (String, Boolean) -> Unit,
+    includedApps: Set<String>,
+    onToggleExcluded: (String, Boolean) -> Unit,
+    onToggleIncluded: (String, Boolean) -> Unit,
     loadInstalledApps: ((List<InstalledAppInfo>) -> Unit) -> Unit,
     onDismiss: () -> Unit,
 ) {
     var installedApps by remember { mutableStateOf<List<InstalledAppInfo>?>(null) }
     var query by remember { mutableStateOf("") }
     var showSystemApps by remember { mutableStateOf(false) }
+
+    val isIncludeMode = filterMode == FILTER_MODE_INCLUDE
+    val activeSet = if (isIncludeMode) includedApps else excludedApps
+    val onToggle = if (isIncludeMode) onToggleIncluded else onToggleExcluded
 
     LaunchedEffect(Unit) {
         loadInstalledApps { installedApps = it }
@@ -67,7 +79,7 @@ fun ExcludedAppsDialog(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.excluded_apps_title))
+                Text(stringResource(R.string.per_app_filter_title))
                 IconButton(onClick = onDismiss) {
                     Icon(
                         Icons.Default.Close,
@@ -78,6 +90,41 @@ fun ExcludedAppsDialog(
         },
         text = {
             Column {
+                PrimaryTabRow(
+                    selectedTabIndex = if (isIncludeMode) 1 else 0,
+                    modifier = Modifier.fillMaxWidth().padding(bottom = UiDimens.Small),
+                ) {
+                    Tab(
+                        selected = !isIncludeMode,
+                        onClick = { onFilterModeChange(FILTER_MODE_EXCLUDE) },
+                        text = { Text(stringResource(R.string.filter_mode_exclude)) },
+                    )
+                    Tab(
+                        selected = isIncludeMode,
+                        onClick = { onFilterModeChange(FILTER_MODE_INCLUDE) },
+                        text = { Text(stringResource(R.string.filter_mode_include)) },
+                    )
+                }
+
+                Text(
+                    text =
+                        stringResource(
+                            if (isIncludeMode) {
+                                R.string.filter_mode_include_desc
+                            } else {
+                                R.string.filter_mode_exclude_desc
+                            },
+                        ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier.padding(
+                            bottom = UiDimens.Medium,
+                            start = UiDimens.XSmall,
+                            end = UiDimens.XSmall,
+                        ),
+                )
+
                 OutlinedTextField(
                     value = query,
                     onValueChange = { query = it },
@@ -93,7 +140,7 @@ fun ExcludedAppsDialog(
                     DialogEmptyState(text = stringResource(R.string.excluded_apps_loading))
                 } else {
                     val missing =
-                        excludedApps
+                        activeSet
                             .filter { pkg -> apps.none { it.packageName == pkg } }
                             .map { InstalledAppInfo(packageName = it, label = it, isSystemApp = false) }
                     val all = (apps + missing).sortedBy { it.label.lowercase() }
@@ -117,7 +164,7 @@ fun ExcludedAppsDialog(
                             itemsIndexed(filtered, key = { _, app -> app.packageName }) { index, app ->
                                 AppRow(
                                     app = app,
-                                    checked = app.packageName in excludedApps,
+                                    checked = app.packageName in activeSet,
                                     onToggle = { checked -> onToggle(app.packageName, checked) },
                                 )
                                 if (index != filtered.lastIndex) {
