@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.media.AudioDeviceInfo
 import android.net.Uri
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
@@ -29,7 +30,10 @@ import com.llsl.viper4android.data.repository.ViperRepository.Companion.PREF_MAS
 import com.llsl.viper4android.effect.BoolListPref
 import com.llsl.viper4android.effect.BoolPref
 import com.llsl.viper4android.effect.DoubleListPref
+import com.llsl.viper4android.effect.EFFECT_GROUPS
 import com.llsl.viper4android.effect.ENABLE_PREF_BY_EFFECT_KEY
+import com.llsl.viper4android.effect.EffectGroup
+import com.llsl.viper4android.effect.EffectGroupBuilder
 import com.llsl.viper4android.effect.EffectPref
 import com.llsl.viper4android.effect.EffectState
 import com.llsl.viper4android.effect.Effects
@@ -43,6 +47,7 @@ import com.llsl.viper4android.effect.PRESET_SCHEMA_VERSION
 import com.llsl.viper4android.effect.StringPref
 import com.llsl.viper4android.effect.deserializeEffectPrefs
 import com.llsl.viper4android.effect.loadEffectStateFromPrefs
+import com.llsl.viper4android.effect.resetEffectPrefs
 import com.llsl.viper4android.effect.saveEffectPrefs
 import com.llsl.viper4android.effect.serializeEffectPrefs
 import com.llsl.viper4android.service.ViperService
@@ -52,6 +57,7 @@ import com.llsl.viper4android.utils.UpdateChecker
 import com.llsl.viper4android.utils.UpdateResult
 import com.llsl.viper4android.viper.ParamValue
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -62,6 +68,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -157,6 +164,7 @@ class MainViewModel
         private val audioOutputDetector = AudioOutputDetector(application)
         private var eqPresetsJob: Job? = null
         private var dsPresetsJob: Job? = null
+        private val persistJobs = mutableMapOf<String, Job>()
 
         private val serviceConnection =
             object : ServiceConnection {
@@ -180,25 +188,20 @@ class MainViewModel
         init {
             refreshFileLists()
             observeExternalMasterChanges()
-            val initialDevice = audioOutputDetector.activeDevice.value
             viewModelScope.launch {
                 loadSettingsPreferences()
                 uiState.update { loadEffectStateFromPrefs(repository, it) }
-                val dbName = repository.getDeviceSettings(initialDevice.id)?.deviceName ?: initialDevice.name
-                uiState.update { it.copy(activeDeviceName = dbName, activeDeviceId = initialDevice.id) }
-                loadEqPresetsForBandCount(uiState.value.eq.bandCount)
+                loadDeviceSettings(audioOutputDetector.activeDevice.value)
                 loadDsPresets()
-                loadDeviceSettings(initialDevice)
-                ensureDeviceEntry(initialDevice)
                 bindToService()
                 audioOutputDetector.activeDevice.collect { device ->
                     val currentId = uiState.value.activeDeviceId
                     if (device.id != currentId) {
-                        val dbName2 = repository.getDeviceSettings(device.id)?.deviceName ?: device.name
-                        uiState.update { it.copy(activeDeviceName = dbName2, activeDeviceId = device.id) }
+                        saveCurrentDeviceSettings()
                         loadDeviceSettings(device)
+                    } else {
+                        repository.updateDeviceConnection(device.id, device.type, device.isHeadphone)
                     }
-                    ensureDeviceEntry(device)
                 }
             }
         }
@@ -223,8 +226,6 @@ class MainViewModel
                     }
             }
         }
-
-        private val persistJobs = mutableMapOf<String, Job>()
 
         fun <T> applyPref(
             pref: EffectPref<T>,
@@ -253,11 +254,14 @@ class MainViewModel
                     else -> {}
                 }
             }
+            val deviceId = uiState.value.activeDeviceId
             persistJobs[pref.prefKey]?.cancel()
             persistJobs[pref.prefKey] =
                 viewModelScope.launch(Dispatchers.IO) {
                     delay(PERSIST_DEBOUNCE_MS.milliseconds)
-                    persistPref(pref, value)
+                    if (uiState.value.activeDeviceId == deviceId || pref === Effects.masterEnable) {
+                        persistPref(pref, value)
+                    }
                 }
         }
 
@@ -391,6 +395,42 @@ class MainViewModel
         fun dispatchFullState() {
             val service = viperService ?: return
             service.dispatchFullState(uiState.value)
+        }
+
+        fun resetEffect(effect: EffectGroupBuilder) {
+            resetEffects(listOf(effect.toGroup()))
+        }
+
+        fun resetAllEffects() {
+            resetEffects(EFFECT_GROUPS)
+        }
+
+        private fun resetEffects(groups: List<EffectGroup>) {
+            val deviceId = uiState.value.activeDeviceId
+            if (deviceId.isEmpty()) return
+            val effectKeys = groups.map { it.effectKey }.toSet()
+            val pendingJobs =
+                groups.flatMap { it.prefs }.mapNotNull { persistJobs.remove(it.prefKey) }
+            pendingJobs.forEach { it.cancel() }
+            uiState.update { resetEffectPrefs(it, groups) }
+            if (Effects.equalizer.effectKey in effectKeys) {
+                loadEqPresetsForBandCount(uiState.value.eq.bandCount)
+            }
+            dispatchFullState()
+            ifMasterOn {
+                if (Effects.ddc.effectKey in effectKeys) {
+                    viperService?.applyDdcDevice("", force = true)
+                }
+                if (Effects.convolver.effectKey in effectKeys) {
+                    viperService?.applyConvolverKernel("", force = true)
+                }
+            }
+            viewModelScope.launch {
+                pendingJobs.joinAll()
+                if (uiState.value.activeDeviceId != deviceId) return@launch
+                saveEffectPrefs(repository, uiState.value)
+                saveCurrentDeviceSettings()
+            }
         }
 
         fun setMasterEnabled(enabled: Boolean) {
@@ -970,43 +1010,40 @@ class MainViewModel
             applyPref(Effects.speakerCorrection.enable, enabled)
         }
 
-        private suspend fun ensureDeviceEntry(device: AudioDevice) {
-            val existing = repository.getDeviceSettings(device.id)
-            if (existing == null) {
-                val state = uiState.value
-                repository.saveDeviceSettings(
-                    DeviceSettings(
-                        deviceId = device.id,
-                        deviceName = device.name,
-                        isHeadphone = device.isHeadphone,
-                        settingsJson = serializeEffectPrefs(state).toString(),
-                    ),
-                )
-            } else {
-                repository.updateDeviceLastConnected(device.id)
-            }
-        }
-
         private suspend fun saveCurrentDeviceSettings() {
             val state = uiState.value
             val deviceId = state.activeDeviceId.ifEmpty { return }
             val json = serializeEffectPrefs(state).toString()
             val existing = repository.getDeviceSettings(deviceId)
+            val device = audioOutputDetector.activeDevice.value.takeIf { it.id == deviceId }
             repository.saveDeviceSettings(
                 DeviceSettings(
                     deviceId = deviceId,
                     deviceName = existing?.deviceName ?: state.activeDeviceName,
-                    isHeadphone = existing?.isHeadphone ?: false,
+                    isHeadphone = device?.isHeadphone ?: existing?.isHeadphone ?: false,
                     settingsJson = json,
+                    deviceType = device?.type ?: existing?.deviceType ?: AudioDeviceInfo.TYPE_UNKNOWN,
                 ),
             )
         }
 
         private suspend fun loadDeviceSettings(device: AudioDevice) {
-            val saved = repository.getDeviceSettings(device.id) ?: return
-            val json = JSONObject(saved.settingsJson)
-            uiState.update { deserializeEffectPrefs(json, it) }
+            val saved = repository.getOrCreateDeviceSettings(device)
+            val effects = deserializeEffectPrefs(JSONObject(saved.settingsJson), EffectState())
+            val json = serializeEffectPrefs(effects)
+            val pendingJobs = persistJobs.values.toList()
+            persistJobs.clear()
+            pendingJobs.forEach { it.cancel() }
+            pendingJobs.joinAll()
+            uiState.update {
+                deserializeEffectPrefs(json, it).copy(
+                    activeDeviceId = device.id,
+                    activeDeviceName = saved.deviceName,
+                )
+            }
+            loadEqPresetsForBandCount(uiState.value.eq.bandCount)
             saveEffectPrefs(repository, uiState.value)
+            repository.updateDeviceConnection(device.id, device.type, device.isHeadphone)
             dispatchFullState()
         }
 
@@ -1411,6 +1448,38 @@ class MainViewModel
                 } catch (e: Exception) {
                     FileLogger.e("ViewModel", "savePreset: failed for name=$name", e)
                 }
+            }
+        }
+
+        fun exportPreset(
+            id: Long,
+            uri: Uri,
+            onResult: (Boolean) -> Unit,
+        ) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val success =
+                    try {
+                        val preset =
+                            repository.getPresetById(id)
+                                ?: error("Preset $id no longer exists")
+                        val json =
+                            JSONObject(preset.settingsJson)
+                                .put("name", preset.name)
+                                .put("createdAt", preset.createdAt)
+                                .put("updatedAt", preset.updatedAt)
+                                .toString(2)
+                        val output =
+                            getApplication<Application>().contentResolver.openOutputStream(uri, "wt")
+                                ?: error("Unable to open preset export destination")
+                        output.bufferedWriter(Charsets.UTF_8).use { it.write(json) }
+                        true
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        FileLogger.e("ViewModel", "Failed to export preset $id", e)
+                        false
+                    }
+                withContext(Dispatchers.Main) { onResult(success) }
             }
         }
 

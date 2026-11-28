@@ -59,16 +59,10 @@ class AudioOutputDetector(
 
     @Suppress("NewApi")
     companion object {
-        private val HEADPHONE_TYPES =
+        private val WIRED_TYPES =
             setOf(
                 AudioDeviceInfo.TYPE_WIRED_HEADPHONES,
                 AudioDeviceInfo.TYPE_WIRED_HEADSET,
-                AudioDeviceInfo.TYPE_USB_HEADSET,
-                AudioDeviceInfo.TYPE_BLUETOOTH_A2DP,
-                AudioDeviceInfo.TYPE_BLUETOOTH_SCO,
-                AudioDeviceInfo.TYPE_BLE_HEADSET,
-                AudioDeviceInfo.TYPE_BLE_BROADCAST,
-                AudioDeviceInfo.TYPE_HEARING_AID,
             )
 
         private val BT_TYPES =
@@ -84,7 +78,10 @@ class AudioOutputDetector(
             setOf(
                 AudioDeviceInfo.TYPE_USB_HEADSET,
                 AudioDeviceInfo.TYPE_USB_DEVICE,
+                AudioDeviceInfo.TYPE_USB_ACCESSORY,
             )
+
+        private val HEADPHONE_TYPES = WIRED_TYPES + BT_TYPES + USB_TYPES
 
         private val AUTO_TYPES =
             setOf(

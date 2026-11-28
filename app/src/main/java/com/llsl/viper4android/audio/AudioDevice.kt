@@ -1,5 +1,7 @@
 package com.llsl.viper4android.audio
 
+import android.media.AudioDeviceInfo
+
 data class AudioDevice(
     val id: String,
     val name: String,
@@ -11,6 +13,6 @@ data class AudioDevice(
         const val ID_WIRED = "wired_headphone"
         const val ID_ANDROID_AUTO = "android_auto"
 
-        val DEFAULT_SPEAKER = AudioDevice(ID_SPEAKER, "Speaker", 0, false)
+        val DEFAULT_SPEAKER = AudioDevice(ID_SPEAKER, "Speaker", AudioDeviceInfo.TYPE_BUILTIN_SPEAKER, false)
     }
 }

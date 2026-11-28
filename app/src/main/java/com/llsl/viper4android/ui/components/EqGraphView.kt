@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.RestartAlt
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -281,6 +281,7 @@ private fun buildSplinePath(points: List<Offset>): Path {
 
 @Composable
 fun EqEditDialog(
+    deviceId: String,
     bands: List<Float>,
     onBandsChange: (List<Double>) -> Unit,
     presetId: Long?,
@@ -341,7 +342,7 @@ fun EqEditDialog(
 
                 Spacer(modifier = Modifier.height(UiDimens.XSmall))
 
-                Row(
+                FlowRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(UiDimens.Medium),
                 ) {
@@ -366,20 +367,17 @@ fun EqEditDialog(
                         Spacer(modifier = Modifier.width(UiDimens.XSmall))
                         Text(stringResource(R.string.action_delete))
                     }
-                    TextButton(onClick = {
-                        for (i in localBands.indices) {
-                            localBands[i] = 0f
-                        }
-                        onReset()
-                    }) {
-                        Icon(
-                            Icons.Default.RestartAlt,
-                            contentDescription = null,
-                            modifier = Modifier.size(UiDimens.Standard),
-                        )
-                        Spacer(modifier = Modifier.width(UiDimens.XSmall))
-                        Text(stringResource(R.string.action_reset))
-                    }
+                    ResetButton(
+                        label = stringResource(R.string.action_reset_eq_bands),
+                        confirmation = stringResource(R.string.reset_eq_bands_confirm),
+                        deviceId = deviceId,
+                        onReset = {
+                            for (i in localBands.indices) {
+                                localBands[i] = 0f
+                            }
+                            onReset()
+                        },
+                    )
                 }
 
                 Spacer(modifier = Modifier.height(UiDimens.Medium))
